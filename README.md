@@ -99,7 +99,7 @@ src/
 - [ ] Context menu: "Ask Claude about this file"
 - [ ] Open files that Claude edits
 - [ ] Chat history export
-- [ ] Model selection
+- [ ] Model selection and thinking level adjustment
 
 ## License
 

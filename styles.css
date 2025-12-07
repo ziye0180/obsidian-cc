@@ -17,6 +17,17 @@
   border-bottom: 1px solid var(--background-modifier-border);
 }
 
+.claude-agent-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.claude-agent-logo {
+  display: flex;
+  align-items: center;
+}
+
 .claude-agent-header h4 {
   margin: 0;
   font-size: 14px;
@@ -29,12 +40,15 @@
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
-  color: var(--text-muted);
+  color: var(--text-faint);
+  opacity: 0.5;
+  transition: opacity 0.15s ease, color 0.15s ease;
 }
 
 .claude-agent-clear-btn:hover {
-  background: var(--background-modifier-hover);
+  background: transparent;
   color: var(--text-normal);
+  opacity: 1;
 }
 
 /* Messages area */
@@ -284,7 +298,7 @@
 
 /* Input area */
 .claude-agent-input-container {
-  padding: 12px;
+  padding: 12px 0;
   border-top: 1px solid var(--background-modifier-border);
   background: var(--background-primary);
 }

@@ -61,11 +61,31 @@ export class ClaudeAgentView extends ItemView {
 
     // Header
     const header = container.createDiv({ cls: 'claude-agent-header' });
-    header.createEl('h4', { text: 'Claude Agent' });
+
+    // Title container with icon
+    const titleContainer = header.createDiv({ cls: 'claude-agent-title' });
+
+    // Claude logo SVG
+    const logoEl = titleContainer.createSpan({ cls: 'claude-agent-logo' });
+    logoEl.innerHTML = `<svg viewBox="0 0 100 100" width="16" height="16">
+      <g fill="#D97757">
+        ${Array.from({ length: 12 }, (_, i) => {
+          const angle = (i * 30 - 90) * Math.PI / 180;
+          const cx = 53, cy = 50;
+          const x1 = cx + 15 * Math.cos(angle);
+          const y1 = cy + 15 * Math.sin(angle);
+          const x2 = cx + 45 * Math.cos(angle);
+          const y2 = cy + 45 * Math.sin(angle);
+          return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#D97757" stroke-width="8" stroke-linecap="round"/>`;
+        }).join('')}
+      </g>
+    </svg>`;
+
+    titleContainer.createEl('h4', { text: 'Claude Agent' });
 
     const clearBtn = header.createEl('button', { cls: 'claude-agent-clear-btn' });
-    setIcon(clearBtn, 'trash');
-    clearBtn.setAttribute('aria-label', 'Clear conversation');
+    setIcon(clearBtn, 'refresh-cw');
+    clearBtn.setAttribute('aria-label', 'New conversation');
     clearBtn.addEventListener('click', () => this.clearConversation());
 
     // Messages area
@@ -82,16 +102,7 @@ export class ClaudeAgentView extends ItemView {
       },
     });
 
-    const buttonContainer = inputContainer.createDiv({ cls: 'claude-agent-buttons' });
-
-    const sendBtn = buttonContainer.createEl('button', {
-      cls: 'claude-agent-send-btn mod-cta',
-      text: 'Send',
-    });
-
     // Event handlers
-    sendBtn.addEventListener('click', () => this.sendMessage());
-
     this.inputEl.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
