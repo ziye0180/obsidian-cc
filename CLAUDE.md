@@ -171,5 +171,17 @@ interface ClaudeAgentSettings {
 - `.claude-agent-tool-result` - Result output section
 - `.claude-agent-tool-code` - Code/output display
 
+### File Context
+- `.claude-agent-file-indicator` - Container for attached file chips
+- `.claude-agent-file-chip` - Individual file tag (pill style)
+- `.claude-agent-file-chip-icon` - File icon in chip
+- `.claude-agent-file-chip-name` - Filename text
+- `.claude-agent-file-chip-remove` - Remove button (×)
+- `.claude-agent-mention-dropdown` - @ mention file picker dropdown
+- `.claude-agent-mention-item` - Individual file option in dropdown
+- `.claude-agent-mention-icon` - File icon in dropdown
+- `.claude-agent-mention-path` - File path text in dropdown
+- `.claude-agent-mention-empty` - "No matching files" message
+
 ## Notes
 - when ask to generate a md file about the finding, implementation of your work, put the file in dev/

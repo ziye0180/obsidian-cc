@@ -56,6 +56,15 @@ Execute shell commands. Parameter: \`command\`.
 - Use for: git operations, running scripts, system commands
 - Avoid for file operations (use Read/Write/Edit instead)
 
+## Context Files
+
+User messages may include a "Context files:" prefix listing files the user wants to reference:
+- Format: \`Context files: [path/to/file1.md, path/to/file2.md]\`
+- These are files the user has explicitly attached to provide context
+- Read these files to understand what the user is asking about
+- The context prefix only appears when files have changed since the last message
+- An empty list means the user removed previously attached files: "Context files: []" should clear any prior file context
+
 ## Obsidian Context
 
 - Files are typically Markdown (.md) with YAML frontmatter

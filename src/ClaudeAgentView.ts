@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, MarkdownRenderer, setIcon } from 'obsidian';
+import { ItemView, WorkspaceLeaf, MarkdownRenderer, setIcon, TFile } from 'obsidian';
 import type ClaudeAgentPlugin from './main';
 import { VIEW_TYPE_CLAUDE_AGENT, ChatMessage, StreamChunk, ToolCallInfo, ContentBlock } from './types';
 
@@ -21,6 +21,17 @@ export class ClaudeAgentView extends ItemView {
   // Conversation history UI
   private currentConversationId: string | null = null;
   private historyDropdown: HTMLElement | null = null;
+
+  // File context state
+  private attachedFiles: Set<string> = new Set();
+  private lastSentFiles: Set<string> = new Set();  // Files sent with last message
+  private sessionStarted: boolean = false;  // True after first query sent
+  private mentionDropdown: HTMLElement | null = null;
+  private mentionStartIndex: number = -1;
+  private selectedMentionIndex: number = 0;
+  private filteredFiles: TFile[] = [];
+  private fileIndicatorEl: HTMLElement | null = null;
+  private inputContainerEl: HTMLElement | null = null;
 
   private static readonly FLAVOR_TEXTS = [
     'Thinking...',
@@ -117,9 +128,12 @@ export class ClaudeAgentView extends ItemView {
     this.messagesEl = container.createDiv({ cls: 'claude-agent-messages' });
 
     // Input area
-    const inputContainer = container.createDiv({ cls: 'claude-agent-input-container' });
+    this.inputContainerEl = container.createDiv({ cls: 'claude-agent-input-container' });
 
-    this.inputEl = inputContainer.createEl('textarea', {
+    // File indicator (above textarea)
+    this.fileIndicatorEl = this.inputContainerEl.createDiv({ cls: 'claude-agent-file-indicator' });
+
+    this.inputEl = this.inputContainerEl.createEl('textarea', {
       cls: 'claude-agent-input',
       attr: {
         placeholder: 'Ask Claude anything... (Enter to send, Shift+Enter for newline)',
@@ -129,11 +143,56 @@ export class ClaudeAgentView extends ItemView {
 
     // Event handlers
     this.inputEl.addEventListener('keydown', (e) => {
+      // Handle @ mention dropdown navigation
+      if (this.mentionDropdown?.hasClass('visible')) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          this.navigateMentionDropdown(1);
+          return;
+        }
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          this.navigateMentionDropdown(-1);
+          return;
+        }
+        if (e.key === 'Enter' || e.key === 'Tab') {
+          e.preventDefault();
+          this.selectMentionItem();
+          return;
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          this.hideMentionDropdown();
+          return;
+        }
+      }
+
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         this.sendMessage();
       }
     });
+
+    // Listen for @ mentions
+    this.inputEl.addEventListener('input', () => this.handleInputChange());
+
+    // Close mention dropdown when clicking outside
+    this.registerDomEvent(document, 'click', (e) => {
+      if (!this.mentionDropdown?.contains(e.target as Node) && e.target !== this.inputEl) {
+        this.hideMentionDropdown();
+      }
+    });
+
+    // Listen for focus changes - update attachment before session starts
+    this.registerEvent(
+      this.plugin.app.workspace.on('file-open', (file) => {
+        if (!this.sessionStarted && file) {
+          this.attachedFiles.clear();
+          this.attachedFiles.add(file.path);
+          this.updateFileIndicator();
+        }
+      })
+    );
 
     // Load active conversation or create new
     await this.loadActiveConversation();
@@ -153,12 +212,38 @@ export class ClaudeAgentView extends ItemView {
     this.inputEl.value = '';
     this.isStreaming = true;
 
-    // Add user message
+    // Mark session as started after first query
+    this.sessionStarted = true;
+
+    // Check if attached files have changed since last message
+    const currentFiles = Array.from(this.attachedFiles);
+    const filesChanged = this.hasFilesChanged(currentFiles);
+
+    // Build prompt - only include context if files changed
+    let promptToSend = content;
+    let contextFilesForMessage: string[] | undefined;
+    if (filesChanged) {
+      if (currentFiles.length > 0) {
+        const fileList = currentFiles.join(', ');
+        promptToSend = `Context files: [${fileList}]\n\n${content}`;
+        contextFilesForMessage = currentFiles;
+      } else if (this.lastSentFiles.size > 0) {
+        // Explicitly signal removal after a prior attachment
+        promptToSend = `Context files: []\n\n${content}`;
+        contextFilesForMessage = [];
+      }
+    }
+
+    // Update lastSentFiles
+    this.lastSentFiles = new Set(this.attachedFiles);
+
+    // Add user message (display original content, send with context)
     const userMsg: ChatMessage = {
       id: this.generateId(),
       role: 'user',
       content,
       timestamp: Date.now(),
+      contextFiles: contextFilesForMessage,
     };
     this.addMessage(userMsg);
 
@@ -191,7 +276,8 @@ export class ClaudeAgentView extends ItemView {
 
     try {
       // Pass conversation history for session expiration recovery
-      for await (const chunk of this.plugin.agentService.query(content, this.messages)) {
+      // Use promptToSend which includes context files prefix
+      for await (const chunk of this.plugin.agentService.query(promptToSend, this.messages)) {
         await this.handleStreamChunk(chunk, assistantMsg);
       }
     } catch (error) {
@@ -208,6 +294,7 @@ export class ClaudeAgentView extends ItemView {
       // Auto-save after message completion
       await this.saveCurrentConversation();
     }
+    // Note: attachedFiles persists for the session (not cleared after send)
   }
 
   private showThinkingIndicator(parentEl: HTMLElement) {
@@ -525,6 +612,18 @@ export class ClaudeAgentView extends ItemView {
     this.currentConversationId = conversation.id;
     this.messages = [];
     this.messagesEl.empty();
+
+    // Reset session state for new conversation
+    this.sessionStarted = false;
+    this.lastSentFiles.clear();
+    this.attachedFiles.clear();
+
+    // Auto-attach currently focused file for new sessions
+    const activeFile = this.plugin.app.workspace.getActiveFile();
+    if (activeFile) {
+      this.attachedFiles.add(activeFile.path);
+    }
+    this.updateFileIndicator();
   }
 
   /**
@@ -532,6 +631,7 @@ export class ClaudeAgentView extends ItemView {
    */
   private async loadActiveConversation() {
     let conversation = this.plugin.getActiveConversation();
+    const isNewConversation = !conversation;
 
     if (!conversation) {
       conversation = await this.plugin.createConversation();
@@ -542,6 +642,24 @@ export class ClaudeAgentView extends ItemView {
 
     // Restore session ID
     this.plugin.agentService.setSessionId(conversation.sessionId);
+
+    // Handle session state
+    this.lastSentFiles.clear();
+    this.attachedFiles.clear();
+
+    if (isNewConversation || this.messages.length === 0) {
+      // New session - focus changes update attachment, auto-attach current file
+      this.sessionStarted = false;
+      const activeFile = this.plugin.app.workspace.getActiveFile();
+      if (activeFile) {
+        this.attachedFiles.add(activeFile.path);
+      }
+    } else {
+      // Existing session with messages - session already started
+      this.sessionStarted = true;
+      // User must @ mention to add files
+    }
+    this.updateFileIndicator();
 
     // Render all stored messages
     this.renderMessages();
@@ -565,6 +683,13 @@ export class ClaudeAgentView extends ItemView {
 
     this.currentConversationId = conversation.id;
     this.messages = [...conversation.messages];
+
+    // Reset file context state for switched conversation
+    this.lastSentFiles.clear();
+    this.attachedFiles.clear();
+    // Existing conversation = session started (user must @ mention)
+    this.sessionStarted = this.messages.length > 0;
+    this.updateFileIndicator();
 
     // Render messages
     this.renderMessages();
@@ -852,6 +977,240 @@ export class ClaudeAgentView extends ItemView {
       return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
     }
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  // ============================================
+  // File Context Methods
+  // ============================================
+
+  /**
+   * Check if attached files have changed since last sent
+   */
+  private hasFilesChanged(currentFiles: string[]): boolean {
+    if (currentFiles.length !== this.lastSentFiles.size) return true;
+    for (const file of currentFiles) {
+      if (!this.lastSentFiles.has(file)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Update the file indicator UI to show attached files
+   */
+  private updateFileIndicator() {
+    if (!this.fileIndicatorEl) return;
+
+    this.fileIndicatorEl.empty();
+
+    if (this.attachedFiles.size === 0) {
+      this.fileIndicatorEl.style.display = 'none';
+      return;
+    }
+
+    this.fileIndicatorEl.style.display = 'flex';
+
+    for (const path of this.attachedFiles) {
+      this.renderFileChip(path, () => {
+        this.attachedFiles.delete(path);
+        this.updateFileIndicator();
+      });
+    }
+  }
+
+  /**
+   * Render a file chip in the indicator
+   */
+  private renderFileChip(path: string, onRemove: () => void) {
+    if (!this.fileIndicatorEl) return;
+
+    const chipEl = this.fileIndicatorEl.createDiv({ cls: 'claude-agent-file-chip' });
+
+    const iconEl = chipEl.createSpan({ cls: 'claude-agent-file-chip-icon' });
+    setIcon(iconEl, 'file-text');
+
+    // Extract filename from path
+    const filename = path.split('/').pop() || path;
+    const nameEl = chipEl.createSpan({ cls: 'claude-agent-file-chip-name' });
+    nameEl.setText(filename);
+    nameEl.setAttribute('title', path); // Show full path on hover
+
+    const removeEl = chipEl.createSpan({ cls: 'claude-agent-file-chip-remove' });
+    removeEl.setText('\u00D7'); // × symbol
+    removeEl.setAttribute('aria-label', 'Remove');
+
+    removeEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      onRemove();
+    });
+  }
+
+  // ============================================
+  // @ Mention Methods
+  // ============================================
+
+  /**
+   * Handle input changes to detect @ mentions
+   */
+  private handleInputChange() {
+    const text = this.inputEl.value;
+    const cursorPos = this.inputEl.selectionStart || 0;
+
+    // Find the last @ before cursor
+    const textBeforeCursor = text.substring(0, cursorPos);
+    const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+
+    if (lastAtIndex === -1) {
+      this.hideMentionDropdown();
+      return;
+    }
+
+    // Check if @ is at start or after whitespace (valid trigger)
+    const charBeforeAt = lastAtIndex > 0 ? textBeforeCursor[lastAtIndex - 1] : ' ';
+    if (!/\s/.test(charBeforeAt) && lastAtIndex !== 0) {
+      this.hideMentionDropdown();
+      return;
+    }
+
+    // Extract search text after @
+    const searchText = textBeforeCursor.substring(lastAtIndex + 1);
+
+    // Check if search text contains newlines (closed mention)
+    if (/[\n]/.test(searchText)) {
+      this.hideMentionDropdown();
+      return;
+    }
+
+    this.mentionStartIndex = lastAtIndex;
+    this.showMentionDropdown(searchText);
+  }
+
+  /**
+   * Show the mention dropdown with filtered files
+   */
+  private showMentionDropdown(searchText: string) {
+    // Get all markdown files
+    const allFiles = this.plugin.app.vault.getMarkdownFiles();
+
+    // Filter by search text
+    const searchLower = searchText.toLowerCase();
+    this.filteredFiles = allFiles
+      .filter(file => {
+        const pathLower = file.path.toLowerCase();
+        const nameLower = file.name.toLowerCase();
+        return pathLower.includes(searchLower) || nameLower.includes(searchLower);
+      })
+      .sort((a, b) => {
+        // Prioritize name matches over path matches
+        const aNameMatch = a.name.toLowerCase().startsWith(searchLower);
+        const bNameMatch = b.name.toLowerCase().startsWith(searchLower);
+        if (aNameMatch && !bNameMatch) return -1;
+        if (!aNameMatch && bNameMatch) return 1;
+        // Then sort by modification time (recent first)
+        return b.stat.mtime - a.stat.mtime;
+      })
+      .slice(0, 10); // Limit to 10 results
+
+    this.selectedMentionIndex = 0;
+    this.renderMentionDropdown();
+  }
+
+  /**
+   * Render the mention dropdown
+   */
+  private renderMentionDropdown() {
+    if (!this.mentionDropdown) {
+      this.mentionDropdown = this.inputContainerEl!.createDiv({ cls: 'claude-agent-mention-dropdown' });
+    }
+
+    this.mentionDropdown.empty();
+
+    if (this.filteredFiles.length === 0) {
+      const emptyEl = this.mentionDropdown.createDiv({ cls: 'claude-agent-mention-empty' });
+      emptyEl.setText('No matching files');
+    } else {
+      for (let i = 0; i < this.filteredFiles.length; i++) {
+        const file = this.filteredFiles[i];
+        const itemEl = this.mentionDropdown.createDiv({ cls: 'claude-agent-mention-item' });
+
+        if (i === this.selectedMentionIndex) {
+          itemEl.addClass('selected');
+        }
+
+        const iconEl = itemEl.createSpan({ cls: 'claude-agent-mention-icon' });
+        setIcon(iconEl, 'file-text');
+
+        const pathEl = itemEl.createSpan({ cls: 'claude-agent-mention-path' });
+        pathEl.setText(file.path);
+
+        itemEl.addEventListener('click', () => {
+          this.selectedMentionIndex = i;
+          this.selectMentionItem();
+        });
+
+        itemEl.addEventListener('mouseenter', () => {
+          this.selectedMentionIndex = i;
+          this.updateMentionSelection();
+        });
+      }
+    }
+
+    this.mentionDropdown.addClass('visible');
+  }
+
+  /**
+   * Navigate the mention dropdown with arrow keys
+   */
+  private navigateMentionDropdown(direction: number) {
+    const maxIndex = this.filteredFiles.length - 1;
+    this.selectedMentionIndex = Math.max(0, Math.min(maxIndex, this.selectedMentionIndex + direction));
+    this.updateMentionSelection();
+  }
+
+  /**
+   * Update the visual selection in the dropdown
+   */
+  private updateMentionSelection() {
+    const items = this.mentionDropdown?.querySelectorAll('.claude-agent-mention-item');
+    items?.forEach((item, index) => {
+      if (index === this.selectedMentionIndex) {
+        item.addClass('selected');
+        (item as HTMLElement).scrollIntoView({ block: 'nearest' });
+      } else {
+        item.removeClass('selected');
+      }
+    });
+  }
+
+  /**
+   * Select the current mention item
+   */
+  private selectMentionItem() {
+    if (this.filteredFiles.length === 0) return;
+
+    const selectedFile = this.filteredFiles[this.selectedMentionIndex];
+    if (!selectedFile) return;
+
+    // Add to attached files
+    this.attachedFiles.add(selectedFile.path);
+
+    // Remove @search text from input
+    const text = this.inputEl.value;
+    const beforeAt = text.substring(0, this.mentionStartIndex);
+    const afterCursor = text.substring(this.inputEl.selectionStart || 0);
+    this.inputEl.value = beforeAt + afterCursor;
+    this.inputEl.selectionStart = this.inputEl.selectionEnd = beforeAt.length;
+
+    this.hideMentionDropdown();
+    this.updateFileIndicator();
+    this.inputEl.focus();
+  }
+
+  /**
+   * Hide the mention dropdown
+   */
+  private hideMentionDropdown() {
+    this.mentionDropdown?.removeClass('visible');
+    this.mentionStartIndex = -1;
   }
 
   private generateId(): string {

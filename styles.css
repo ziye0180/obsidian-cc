@@ -14,7 +14,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--background-modifier-border);
 }
 
 .claude-agent-title {
@@ -468,9 +467,146 @@
 
 /* Input area */
 .claude-agent-input-container {
+  position: relative;
   padding: 12px 0;
-  border-top: 1px solid var(--background-modifier-border);
   background: var(--background-primary);
+}
+
+/* File indicator (attached files) */
+.claude-agent-file-indicator {
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0;
+  margin-bottom: 8px;
+}
+
+.claude-agent-file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px 3px 8px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  font-size: 12px;
+  max-width: 200px;
+}
+
+.claude-agent-file-chip-icon {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.claude-agent-file-chip-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.claude-agent-file-chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-normal);
+}
+
+.claude-agent-file-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.claude-agent-file-chip-remove:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+/* @ Mention dropdown */
+.claude-agent-mention-dropdown {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  margin-bottom: 4px;
+  background: var(--background-secondary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.claude-agent-mention-dropdown.visible {
+  display: block;
+}
+
+.claude-agent-mention-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.claude-agent-mention-item:hover,
+.claude-agent-mention-item.selected {
+  background: var(--background-modifier-hover);
+}
+
+.claude-agent-mention-icon {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.claude-agent-mention-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.claude-agent-mention-path {
+  font-size: 13px;
+  color: var(--text-normal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-agent-mention-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Scrollbar for mention dropdown */
+.claude-agent-mention-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.claude-agent-mention-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.claude-agent-mention-dropdown::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 3px;
 }
 
 .claude-agent-input {

@@ -121,7 +121,13 @@ export class ClaudeAgentService {
       const role = message.role === 'user' ? 'User' : 'Assistant';
       const lines: string[] = [];
       const content = message.content?.trim();
-      lines.push(content ? `${role}: ${content}` : `${role}:`);
+      const contextLine = this.formatContextLine(message);
+      const userPayload = contextLine
+        ? content
+          ? `${contextLine}\n\n${content}`
+          : contextLine
+        : content;
+      lines.push(userPayload ? `${role}: ${userPayload}` : `${role}:`);
 
       if (message.role === 'assistant' && message.toolCalls?.length) {
         const toolLines = message.toolCalls
@@ -185,6 +191,17 @@ export class ClaudeAgentService {
       return `${result.slice(0, maxLength)}... (truncated)`;
     }
     return result;
+  }
+
+  /**
+   * Format a context line for user messages when rebuilding history
+   */
+  private formatContextLine(message: ChatMessage): string | null {
+    if (!message.contextFiles) {
+      return null;
+    }
+    const fileList = message.contextFiles.join(', ');
+    return `Context files: [${fileList}]`;
   }
 
   private async *queryViaSDK(prompt: string, cwd: string): AsyncGenerator<StreamChunk> {

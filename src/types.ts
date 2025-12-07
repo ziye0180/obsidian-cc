@@ -57,6 +57,8 @@ export interface ChatMessage {
   toolCalls?: ToolCallInfo[];
   // Ordered content blocks to preserve streaming order
   contentBlocks?: ContentBlock[];
+  // File paths attached to this message via @ mention or auto-attach
+  contextFiles?: string[];
 }
 
 // Enhanced tool call tracking with status and result
