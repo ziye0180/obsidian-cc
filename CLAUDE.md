@@ -49,12 +49,18 @@ const options: Options = {
   cwd: vaultPath,
   permissionMode: 'bypassPermissions',
   allowDangerouslySkipPermissions: true,
-  model: 'claude-haiku-4-5',
+  model: settings.model,  // 'claude-haiku-4-5' | 'claude-sonnet-4-5' | 'claude-opus-4-5'
   allowedTools: ['Read', 'Write', 'Edit', 'Bash', 'Glob', 'Grep', 'LS'],
   abortController: this.abortController,
   pathToClaudeCodeExecutable: '/path/to/claude',
   resume: sessionId, // Optional: resume previous session
 };
+
+// Enable extended thinking based on thinking budget setting
+const budgetConfig = THINKING_BUDGETS.find(b => b.value === settings.thinkingBudget);
+if (budgetConfig && budgetConfig.tokens > 0) {
+  options.maxThinkingTokens = budgetConfig.tokens;
+}
 
 const response = query({ prompt, options });
 for await (const message of response) {
@@ -82,13 +88,14 @@ await MarkdownRenderer.renderMarkdown(markdown, container, sourcePath, component
 | Type | Description |
 |------|-------------|
 | `system` | Session initialization (subtype: 'init' includes session_id), status updates |
-| `assistant` | Claude's response containing content blocks (text and/or tool_use) |
+| `assistant` | Claude's response containing content blocks (thinking, text, and/or tool_use) |
 | `user` | User messages, also contains tool results via `tool_use_result` field |
 | `stream_event` | Streaming deltas (content_block_start, content_block_delta) |
 | `result` | Terminal message indicating completion |
 | `error` | Error messages |
 
 ### Content Block Types (inside assistant.message.content)
+- `thinking` - Extended thinking content with `thinking` field (when `maxThinkingTokens` is set)
 - `text` - Text content with `text` field
 - `tool_use` - Tool invocation with `id`, `name`, and `input` fields
 
@@ -103,8 +110,33 @@ interface ClaudianSettings {
   enableBlocklist: boolean;      // Block dangerous commands
   blockedCommands: string[];     // Regex patterns to block
   showToolUse: boolean;          // Show file operations in chat
+  maxConversations: number;      // Max saved conversations
+  model: ClaudeModel;            // Selected Claude model
+  thinkingBudget: ThinkingBudget; // Extended thinking token budget
 }
+
+type ClaudeModel = 'claude-haiku-4-5' | 'claude-sonnet-4-5' | 'claude-opus-4-5';
+type ThinkingBudget = 'off' | 'low' | 'medium' | 'high';
 ```
+
+## Model Selection
+
+| Model | Description | Default Thinking Budget |
+|-------|-------------|-------------------------|
+| `claude-haiku-4-5` | Fast and efficient (default) | Off |
+| `claude-sonnet-4-5` | Balanced performance | Low (4k tokens) |
+| `claude-opus-4-5` | Most capable | Medium (8k tokens) |
+
+## Thinking Budget
+
+| Budget | Tokens | Description |
+|--------|--------|-------------|
+| Off | 0 | Thinking disabled |
+| Low | 4,000 | Light reasoning |
+| Medium | 8,000 | Moderate reasoning |
+| High | 16,000 | Deep reasoning |
+
+All models support extended thinking. When model is changed, thinking budget resets to model's default.
 
 ## Default Blocked Commands
 
@@ -137,6 +169,7 @@ interface ClaudianSettings {
 - `.claudian-header-btn` - Icon buttons in header (history, new)
 - `.claudian-messages` - Messages scroll area
 - `.claudian-input-container` - Input area wrapper
+- `.claudian-input-wrapper` - Border container for textarea + toolbar
 - `.claudian-input` - Textarea input
 
 ### Chat History
@@ -170,6 +203,23 @@ interface ClaudianSettings {
 - `.claudian-tool-input` - Input parameters section
 - `.claudian-tool-result` - Result output section
 - `.claudian-tool-code` - Code/output display
+
+### Extended Thinking
+- `.claudian-thinking-block` - Thinking block container (collapsible)
+- `.claudian-thinking-header` - Clickable header with brain icon
+- `.claudian-thinking-chevron` - Expand/collapse chevron icon
+- `.claudian-thinking-icon` - Brain icon
+- `.claudian-thinking-label` - Timer label ("Thinking for Xs..." → "Thought for Xs")
+- `.claudian-thinking-content` - Collapsible thinking content (streams in real-time)
+
+### Model Selector
+- `.claudian-input-toolbar` - Toolbar below input textarea
+- `.claudian-model-selector` - Model selector container
+- `.claudian-model-btn` - Current model button (clickable)
+- `.claudian-model-label` - Model name label
+- `.claudian-model-chevron` - Dropdown chevron icon
+- `.claudian-model-dropdown` - Dropdown menu
+- `.claudian-model-option` - Individual model option
 
 ### File Context
 - `.claudian-file-indicator` - Container for attached file chips

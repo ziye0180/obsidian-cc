@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf, MarkdownRenderer, setIcon, TFile } from 'obsidian';
 import type ClaudianPlugin from './main';
-import { VIEW_TYPE_CLAUDIAN, ChatMessage, StreamChunk, ToolCallInfo, ContentBlock } from './types';
+import { VIEW_TYPE_CLAUDIAN, ChatMessage, StreamChunk, ToolCallInfo, ContentBlock, CLAUDE_MODELS, ClaudeModel, THINKING_BUDGETS, ThinkingBudget, DEFAULT_THINKING_BUDGET } from './types';
 
 export class ClaudianView extends ItemView {
   private plugin: ClaudianPlugin;
@@ -14,6 +14,13 @@ export class ClaudianView extends ItemView {
   private currentContentEl: HTMLElement | null = null;
   private currentTextEl: HTMLElement | null = null;
   private currentTextContent: string = '';
+
+  // Thinking block tracking
+  private currentThinkingEl: HTMLElement | null = null;
+  private currentThinkingContent: string = '';
+  private thinkingStartTime: number | null = null;
+  private thinkingTimerInterval: ReturnType<typeof setInterval> | null = null;
+  private thinkingLabelEl: HTMLElement | null = null;
 
   // Thinking indicator
   private thinkingEl: HTMLElement | null = null;
@@ -35,6 +42,13 @@ export class ClaudianView extends ItemView {
   private cachedMarkdownFiles: TFile[] = [];
   private filesCacheDirty = true;
   private cancelRequested = false;
+
+  // Model selector
+  private modelSelectorEl: HTMLElement | null = null;
+  private modelDropdownEl: HTMLElement | null = null;
+
+  // Thinking budget selector
+  private thinkingBudgetEl: HTMLElement | null = null;
 
   private static readonly FLAVOR_TEXTS = [
     'Thinking...',
@@ -142,13 +156,21 @@ export class ClaudianView extends ItemView {
     // File indicator (above textarea)
     this.fileIndicatorEl = this.inputContainerEl.createDiv({ cls: 'claudian-file-indicator' });
 
-    this.inputEl = this.inputContainerEl.createEl('textarea', {
+    // Input box wrapper (contains textarea + toolbar)
+    const inputWrapper = this.inputContainerEl.createDiv({ cls: 'claudian-input-wrapper' });
+
+    this.inputEl = inputWrapper.createEl('textarea', {
       cls: 'claudian-input',
       attr: {
         placeholder: 'Ask Claude anything... (Enter to send, Shift+Enter for newline)',
         rows: '3',
       },
     });
+
+    // Input toolbar (model selector + thinking budget)
+    const inputToolbar = inputWrapper.createDiv({ cls: 'claudian-input-toolbar' });
+    this.createModelSelector(inputToolbar);
+    this.createThinkingBudgetSelector(inputToolbar);
 
     // Event handlers
     this.inputEl.addEventListener('keydown', (e) => {
@@ -216,6 +238,11 @@ export class ClaudianView extends ItemView {
   async onClose() {
     // Clean up thinking indicator interval
     this.hideThinkingIndicator();
+    // Clean up thinking timer interval
+    if (this.thinkingTimerInterval) {
+      clearInterval(this.thinkingTimerInterval);
+      this.thinkingTimerInterval = null;
+    }
     // Save current conversation before closing
     await this.saveCurrentConversation();
   }
@@ -308,7 +335,8 @@ export class ClaudianView extends ItemView {
       this.cancelRequested = false;
       this.currentContentEl = null;
 
-      // Finalize any remaining text block
+      // Finalize any remaining blocks
+      this.finalizeCurrentThinkingBlock(assistantMsg);
       this.finalizeCurrentTextBlock(assistantMsg);
 
       // Auto-save after message completion
@@ -350,18 +378,34 @@ export class ClaudianView extends ItemView {
     msg: ChatMessage
   ) {
     // Hide thinking indicator when real content arrives
-    if (chunk.type === 'text' || chunk.type === 'tool_use') {
+    if (chunk.type === 'text' || chunk.type === 'tool_use' || chunk.type === 'thinking') {
       this.hideThinkingIndicator();
     }
 
     switch (chunk.type) {
+      case 'thinking':
+        // Finalize any current text block first
+        if (this.currentTextEl) {
+          this.finalizeCurrentTextBlock(msg);
+        }
+        await this.appendThinking(chunk.content, msg);
+        break;
+
       case 'text':
+        // Finalize any current thinking block first
+        if (this.currentThinkingEl) {
+          this.finalizeCurrentThinkingBlock(msg);
+        }
         msg.content += chunk.content;
         await this.appendText(chunk.content);
         break;
 
       case 'tool_use':
         if (this.plugin.settings.showToolUse) {
+          // Finalize current blocks before adding tool
+          if (this.currentThinkingEl) {
+            this.finalizeCurrentThinkingBlock(msg);
+          }
           // Finalize current text block before adding tool
           this.finalizeCurrentTextBlock(msg);
 
@@ -435,6 +479,96 @@ export class ClaudianView extends ItemView {
     // Start fresh text block after tool call
     this.currentTextEl = null;
     this.currentTextContent = '';
+  }
+
+  private async appendThinking(content: string, msg: ChatMessage) {
+    if (!this.currentContentEl) return;
+
+    // Create thinking block if needed
+    if (!this.currentThinkingEl) {
+      const thinkingWrapper = this.currentContentEl.createDiv({ cls: 'claudian-thinking-block' });
+
+      // Header (clickable to expand/collapse)
+      const header = thinkingWrapper.createDiv({ cls: 'claudian-thinking-header' });
+
+      // Chevron icon
+      const chevron = header.createSpan({ cls: 'claudian-thinking-chevron' });
+      setIcon(chevron, 'chevron-right');
+
+      // Brain icon
+      const iconEl = header.createSpan({ cls: 'claudian-thinking-icon' });
+      setIcon(iconEl, 'brain');
+
+      // Label with timer
+      this.thinkingLabelEl = header.createSpan({ cls: 'claudian-thinking-label' });
+      this.thinkingStartTime = Date.now();
+      this.updateThinkingTimer();
+
+      // Start timer interval to update label every second
+      this.thinkingTimerInterval = setInterval(() => {
+        this.updateThinkingTimer();
+      }, 1000);
+
+      // Collapsible content (starts collapsed)
+      const contentEl = thinkingWrapper.createDiv({ cls: 'claudian-thinking-content' });
+      contentEl.style.display = 'none';
+
+      this.currentThinkingEl = contentEl;
+      this.currentThinkingContent = '';
+
+      // Toggle expand/collapse on header click
+      let isExpanded = false;
+      header.addEventListener('click', () => {
+        isExpanded = !isExpanded;
+        if (isExpanded) {
+          contentEl.style.display = 'block';
+          thinkingWrapper.addClass('expanded');
+          setIcon(chevron, 'chevron-down');
+        } else {
+          contentEl.style.display = 'none';
+          thinkingWrapper.removeClass('expanded');
+          setIcon(chevron, 'chevron-right');
+        }
+      });
+    }
+
+    this.currentThinkingContent += content;
+    await this.renderContent(this.currentThinkingEl, this.currentThinkingContent);
+  }
+
+  private updateThinkingTimer() {
+    if (!this.thinkingLabelEl || !this.thinkingStartTime) return;
+    const elapsed = Math.floor((Date.now() - this.thinkingStartTime) / 1000);
+    this.thinkingLabelEl.setText(`Thinking for ${elapsed}s...`);
+  }
+
+  private finalizeCurrentThinkingBlock(msg?: ChatMessage) {
+    // Stop the timer
+    if (this.thinkingTimerInterval) {
+      clearInterval(this.thinkingTimerInterval);
+      this.thinkingTimerInterval = null;
+    }
+
+    // Update label to show final duration (without "...")
+    if (this.thinkingLabelEl && this.thinkingStartTime) {
+      const elapsed = Math.floor((Date.now() - this.thinkingStartTime) / 1000);
+      this.thinkingLabelEl.setText(`Thought for ${elapsed}s`);
+    }
+
+    // Save current thinking block to contentBlocks if there's content
+    if (msg && this.currentThinkingContent) {
+      const durationSeconds = this.thinkingStartTime
+        ? Math.floor((Date.now() - this.thinkingStartTime) / 1000)
+        : undefined;
+      msg.contentBlocks = msg.contentBlocks || [];
+      msg.contentBlocks.push({ type: 'thinking', content: this.currentThinkingContent, durationSeconds });
+    }
+
+    // Reset thinking state
+    this.currentThinkingEl = null;
+    this.currentThinkingContent = '';
+    this.thinkingStartTime = null;
+    this.thinkingLabelEl = null;
   }
 
   private addMessage(msg: ChatMessage): HTMLElement {
@@ -763,7 +897,9 @@ export class ClaudianView extends ItemView {
       // Use contentBlocks for proper ordering if available
       if (msg.contentBlocks && msg.contentBlocks.length > 0) {
         for (const block of msg.contentBlocks) {
-          if (block.type === 'text') {
+          if (block.type === 'thinking') {
+            this.renderStoredThinkingBlock(contentEl, block.content, block.durationSeconds);
+          } else if (block.type === 'text') {
             const textEl = contentEl.createDiv({ cls: 'claudian-text-block' });
             this.renderContent(textEl, block.content);
           } else if (block.type === 'tool_use' && this.plugin.settings.showToolUse) {
@@ -845,6 +981,49 @@ export class ClaudianView extends ItemView {
       } else {
         content.style.display = 'none';
         toolEl.removeClass('expanded');
+        setIcon(chevron, 'chevron-right');
+      }
+    });
+  }
+
+  /**
+   * Render a stored thinking block (non-streaming)
+   */
+  private renderStoredThinkingBlock(parentEl: HTMLElement, content: string, durationSeconds?: number) {
+    const thinkingWrapper = parentEl.createDiv({ cls: 'claudian-thinking-block' });
+
+    // Header (clickable to expand/collapse)
+    const header = thinkingWrapper.createDiv({ cls: 'claudian-thinking-header' });
+
+    // Chevron icon
+    const chevron = header.createSpan({ cls: 'claudian-thinking-chevron' });
+    setIcon(chevron, 'chevron-right');
+
+    // Brain icon
+    const iconEl = header.createSpan({ cls: 'claudian-thinking-icon' });
+    setIcon(iconEl, 'brain');
+
+    // Label with duration
+    const labelEl = header.createSpan({ cls: 'claudian-thinking-label' });
+    const labelText = durationSeconds !== undefined ? `Thought for ${durationSeconds}s` : 'Thinking';
+    labelEl.setText(labelText);
+
+    // Collapsible content (starts collapsed)
+    const contentEl = thinkingWrapper.createDiv({ cls: 'claudian-thinking-content' });
+    contentEl.style.display = 'none';
+    this.renderContent(contentEl, content);
+
+    // Toggle expand/collapse on header click
+    let isExpanded = false;
+    header.addEventListener('click', () => {
+      isExpanded = !isExpanded;
+      if (isExpanded) {
+        contentEl.style.display = 'block';
+        thinkingWrapper.addClass('expanded');
+        setIcon(chevron, 'chevron-down');
+      } else {
+        contentEl.style.display = 'none';
+        thinkingWrapper.removeClass('expanded');
         setIcon(chevron, 'chevron-right');
       }
     });
@@ -1241,6 +1420,142 @@ export class ClaudianView extends ItemView {
   private hideMentionDropdown() {
     this.mentionDropdown?.removeClass('visible');
     this.mentionStartIndex = -1;
+  }
+
+  // ============================================
+  // Model Selector Methods
+  // ============================================
+
+  private createModelSelector(parentEl: HTMLElement) {
+    const container = parentEl.createDiv({ cls: 'claudian-model-selector' });
+
+    // Current model button
+    this.modelSelectorEl = container.createDiv({ cls: 'claudian-model-btn' });
+    this.updateModelDisplay();
+
+    // Dropdown menu
+    this.modelDropdownEl = container.createDiv({ cls: 'claudian-model-dropdown' });
+    this.renderModelOptions();
+
+    // Toggle dropdown on click
+    this.modelSelectorEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleModelDropdown();
+    });
+
+    // Close dropdown when clicking outside
+    this.registerDomEvent(document, 'click', () => {
+      this.modelDropdownEl?.removeClass('visible');
+    });
+  }
+
+  private updateModelDisplay() {
+    if (!this.modelSelectorEl) return;
+    const currentModel = this.plugin.settings.model;
+    const modelInfo = CLAUDE_MODELS.find(m => m.value === currentModel);
+    this.modelSelectorEl.empty();
+
+    const labelEl = this.modelSelectorEl.createSpan({ cls: 'claudian-model-label' });
+    labelEl.setText(modelInfo?.label || 'Haiku');
+
+    const chevronEl = this.modelSelectorEl.createSpan({ cls: 'claudian-model-chevron' });
+    setIcon(chevronEl, 'chevron-up');
+  }
+
+  private renderModelOptions() {
+    if (!this.modelDropdownEl) return;
+    this.modelDropdownEl.empty();
+
+    for (const model of CLAUDE_MODELS) {
+      const option = this.modelDropdownEl.createDiv({ cls: 'claudian-model-option' });
+      if (model.value === this.plugin.settings.model) {
+        option.addClass('selected');
+      }
+
+      option.createSpan({ text: model.label });
+
+      option.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await this.selectModel(model.value);
+      });
+    }
+  }
+
+  private toggleModelDropdown() {
+    if (!this.modelDropdownEl) return;
+    const isVisible = this.modelDropdownEl.hasClass('visible');
+    if (isVisible) {
+      this.modelDropdownEl.removeClass('visible');
+    } else {
+      this.renderModelOptions(); // Refresh selection state
+      this.modelDropdownEl.addClass('visible');
+    }
+  }
+
+  private async selectModel(model: ClaudeModel) {
+    this.plugin.settings.model = model;
+    // Update thinking budget to default for the selected model
+    this.plugin.settings.thinkingBudget = DEFAULT_THINKING_BUDGET[model];
+    await this.plugin.saveSettings();
+    this.updateModelDisplay();
+    this.updateThinkingBudgetDisplay();
+    this.modelDropdownEl?.removeClass('visible');
+  }
+
+  // ============================================
+  // Thinking Budget Selector Methods
+  // ============================================
+
+  private createThinkingBudgetSelector(parentEl: HTMLElement) {
+    const container = parentEl.createDiv({ cls: 'claudian-thinking-selector' });
+
+    // Label
+    const labelEl = container.createSpan({ cls: 'claudian-thinking-label-text' });
+    labelEl.setText('Thinking:');
+
+    // Gear buttons container (expandable on hover)
+    this.thinkingBudgetEl = container.createDiv({ cls: 'claudian-thinking-gears' });
+    this.renderThinkingBudgetGears();
+  }
+
+  private renderThinkingBudgetGears() {
+    if (!this.thinkingBudgetEl) return;
+    this.thinkingBudgetEl.empty();
+
+    const currentBudget = this.plugin.settings.thinkingBudget;
+    const currentBudgetInfo = THINKING_BUDGETS.find(b => b.value === currentBudget);
+
+    // Current selection (visible when collapsed)
+    const currentEl = this.thinkingBudgetEl.createDiv({ cls: 'claudian-thinking-current' });
+    currentEl.setText(currentBudgetInfo?.label || 'Off');
+
+    // All options (visible when expanded)
+    const optionsEl = this.thinkingBudgetEl.createDiv({ cls: 'claudian-thinking-options' });
+
+    for (const budget of THINKING_BUDGETS) {
+      const gearEl = optionsEl.createDiv({ cls: 'claudian-thinking-gear' });
+      gearEl.setText(budget.label);
+      gearEl.setAttribute('title', budget.tokens > 0 ? `${budget.tokens.toLocaleString()} tokens` : 'Disabled');
+
+      if (budget.value === currentBudget) {
+        gearEl.addClass('selected');
+      }
+
+      gearEl.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await this.selectThinkingBudget(budget.value);
+      });
+    }
+  }
+
+  private updateThinkingBudgetDisplay() {
+    this.renderThinkingBudgetGears();
+  }
+
+  private async selectThinkingBudget(budget: ThinkingBudget) {
+    this.plugin.settings.thinkingBudget = budget;
+    await this.plugin.saveSettings();
+    this.updateThinkingBudgetDisplay();
   }
 
   private generateId(): string {

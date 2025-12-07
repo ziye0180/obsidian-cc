@@ -2,11 +2,39 @@
 
 export const VIEW_TYPE_CLAUDIAN = 'claudian-view';
 
+// Available Claude models
+export type ClaudeModel = 'claude-haiku-4-5' | 'claude-sonnet-4-5' | 'claude-opus-4-5';
+
+export const CLAUDE_MODELS: { value: ClaudeModel; label: string; description: string }[] = [
+  { value: 'claude-haiku-4-5', label: 'Haiku', description: 'Fast and efficient' },
+  { value: 'claude-sonnet-4-5', label: 'Sonnet', description: 'Balanced performance' },
+  { value: 'claude-opus-4-5', label: 'Opus', description: 'Most capable' },
+];
+
+// Thinking budget options
+export type ThinkingBudget = 'off' | 'low' | 'medium' | 'high';
+
+export const THINKING_BUDGETS: { value: ThinkingBudget; label: string; tokens: number }[] = [
+  { value: 'off', label: 'Off', tokens: 0 },
+  { value: 'low', label: 'Low', tokens: 4000 },
+  { value: 'medium', label: 'Med', tokens: 8000 },
+  { value: 'high', label: 'High', tokens: 16000 },
+];
+
+// Default thinking budget per model
+export const DEFAULT_THINKING_BUDGET: Record<ClaudeModel, ThinkingBudget> = {
+  'claude-haiku-4-5': 'off',
+  'claude-sonnet-4-5': 'low',
+  'claude-opus-4-5': 'medium',
+};
+
 export interface ClaudianSettings {
   enableBlocklist: boolean;
   blockedCommands: string[];
   showToolUse: boolean;
   maxConversations: number;
+  model: ClaudeModel;
+  thinkingBudget: ThinkingBudget;
 }
 
 export const DEFAULT_SETTINGS: ClaudianSettings = {
@@ -22,6 +50,8 @@ export const DEFAULT_SETTINGS: ClaudianSettings = {
   ],
   showToolUse: true,
   maxConversations: 50,
+  model: 'claude-haiku-4-5',
+  thinkingBudget: 'off',
 };
 
 // Conversation persistence types
@@ -46,7 +76,8 @@ export interface ConversationMeta {
 // Content block for tracking order of text and tool calls
 export type ContentBlock =
   | { type: 'text'; content: string }
-  | { type: 'tool_use'; toolId: string };
+  | { type: 'tool_use'; toolId: string }
+  | { type: 'thinking'; content: string; durationSeconds?: number };
 
 // Message types for the chat UI
 export interface ChatMessage {
@@ -74,6 +105,7 @@ export interface ToolCallInfo {
 // Stream chunk types from Claude Agent SDK
 export type StreamChunk =
   | { type: 'text'; content: string }
+  | { type: 'thinking'; content: string }
   | { type: 'tool_use'; id: string; name: string; input: Record<string, unknown> }
   | { type: 'tool_result'; id: string; content: string; isError?: boolean }
   | { type: 'error'; content: string }
@@ -82,8 +114,9 @@ export type StreamChunk =
 
 // SDK Message Types (for type safety in message handling)
 export interface SDKContentBlock {
-  type: 'text' | 'tool_use' | 'tool_result';
+  type: 'text' | 'tool_use' | 'tool_result' | 'thinking';
   text?: string;
+  thinking?: string;  // Extended thinking content
   id?: string;
   name?: string;
   input?: Record<string, unknown>;
@@ -98,10 +131,12 @@ export interface SDKMessageContent {
 
 export interface SDKStreamEvent {
   type: 'content_block_start' | 'content_block_delta';
+  index?: number;  // Content block index for correlating deltas
   content_block?: SDKContentBlock;
   delta?: {
-    type: 'text_delta';
+    type: 'text_delta' | 'thinking_delta';
     text?: string;
+    thinking?: string;
   };
 }
 

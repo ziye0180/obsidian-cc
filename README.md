@@ -9,6 +9,9 @@ An Obsidian plugin that embeds Claude Code as a sidebar chat interface. Your vau
 - **Vault-aware**: Claude operates with your vault as the working directory
 - **File context awareness**: Auto-attach focused note, or use `@` to mention files
 - **Streaming responses**: See Claude's responses in real-time
+- **Extended thinking**: Watch Claude's reasoning process with live timer display
+- **Model selection**: Switch between Haiku, Sonnet, and Opus models
+- **Thinking budget control**: Adjust thinking token budget (Off/Low/Medium/High)
 - **Tool call visualization**: Collapsible UI showing tool inputs and results (like Claude Code CLI)
 - **Chat history persistence**: Conversations saved across sessions with easy switching
 - **Session resume**: Continue previous conversations with full context
@@ -111,9 +114,11 @@ src/
 - [x] Conversation switching with history dropdown
 - [x] File context awareness (auto-attach + @ mention)
 - [x] Context menu: "Ask Claude about this file"
+- [x] Extended thinking display (collapsible thinking blocks with live timer)
+- [x] Model selection (Haiku, Sonnet, Opus)
+- [x] Thinking token budget adjustment (Off/Low/Medium/High)
 - [ ] Open files that Claude edits
 - [ ] Chat history export
-- [ ] Model selection and thinking level adjustment
 
 ## License
 

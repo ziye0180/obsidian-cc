@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as os from 'os';
 import { query, type Options } from '@anthropic-ai/claude-agent-sdk';
 import type ClaudianPlugin from './main';
-import { StreamChunk, ChatMessage, ToolCallInfo, SDKMessage } from './types';
+import { StreamChunk, ChatMessage, ToolCallInfo, SDKMessage, THINKING_BUDGETS } from './types';
 import { SYSTEM_PROMPT } from './systemPrompt';
 import { getVaultPath } from './utils';
 
@@ -212,16 +212,25 @@ export class ClaudianService {
   }
 
   private async *queryViaSDK(prompt: string, cwd: string): AsyncGenerator<StreamChunk> {
+    const selectedModel = this.plugin.settings.model;
+
     const options: Options = {
       cwd,
       systemPrompt: SYSTEM_PROMPT,
       permissionMode: 'bypassPermissions',
       allowDangerouslySkipPermissions: true,
-      model: 'claude-haiku-4-5',
+      model: selectedModel,
       allowedTools: ['Read', 'Write', 'Edit', 'Bash', 'Glob', 'Grep', 'LS'],
       abortController: this.abortController ?? undefined,
       pathToClaudeCodeExecutable: this.resolvedClaudePath!,
     };
+
+    // Enable extended thinking based on thinking budget setting
+    const budgetSetting = this.plugin.settings.thinkingBudget;
+    const budgetConfig = THINKING_BUDGETS.find(b => b.value === budgetSetting);
+    if (budgetConfig && budgetConfig.tokens > 0) {
+      options.maxThinkingTokens = budgetConfig.tokens;
+    }
 
     // Resume previous session if we have a session ID
     if (this.sessionId) {
@@ -282,10 +291,12 @@ export class ClaudianService {
         break;
 
       case 'assistant':
-        // Extract ALL content blocks - both text and tool_use
+        // Extract ALL content blocks - text, tool_use, and thinking
         if (message.message?.content && Array.isArray(message.message.content)) {
           for (const block of message.message.content) {
-            if (block.type === 'text' && block.text) {
+            if (block.type === 'thinking' && block.thinking) {
+              yield { type: 'thinking', content: block.thinking };
+            } else if (block.type === 'text' && block.text) {
               yield { type: 'text', content: block.text };
             } else if (block.type === 'tool_use') {
               yield {
@@ -338,12 +349,18 @@ export class ClaudianService {
             name: event.content_block.name,
             input: event.content_block.input || {},
           };
+        } else if (event?.type === 'content_block_start' && event.content_block?.type === 'thinking') {
+          if (event.content_block.thinking) {
+            yield { type: 'thinking', content: event.content_block.thinking };
+          }
         } else if (event?.type === 'content_block_start' && event.content_block?.type === 'text') {
           if (event.content_block.text) {
             yield { type: 'text', content: event.content_block.text };
           }
         } else if (event?.type === 'content_block_delta') {
-          if (event.delta?.type === 'text_delta' && event.delta.text) {
+          if (event.delta?.type === 'thinking_delta' && event.delta.thinking) {
+            yield { type: 'thinking', content: event.delta.thinking };
+          } else if (event.delta?.type === 'text_delta' && event.delta.text) {
             yield { type: 'text', content: event.delta.text };
           }
         }
