@@ -109,7 +109,8 @@ export class ModelSelector {
     const currentModel = this.callbacks.getSettings().model;
     const models = this.getAvailableModels();
 
-    for (const model of models) {
+    // Reverse order so haiku (first) is closest to trigger at bottom
+    for (const model of [...models].reverse()) {
       const option = this.dropdownEl.createDiv({ cls: 'claudian-model-option' });
       if (model.value === currentModel) {
         option.addClass('selected');
@@ -170,7 +171,8 @@ export class ThinkingBudgetSelector {
     // All options (visible when expanded)
     const optionsEl = this.gearsEl.createDiv({ cls: 'claudian-thinking-options' });
 
-    for (const budget of THINKING_BUDGETS) {
+    // Reverse order so "low" is closest to trigger at bottom
+    for (const budget of [...THINKING_BUDGETS].reverse()) {
       const gearEl = optionsEl.createDiv({ cls: 'claudian-thinking-gear' });
       gearEl.setText(budget.label);
       gearEl.setAttribute('title', budget.tokens > 0 ? `${budget.tokens.toLocaleString()} tokens` : 'Disabled');
