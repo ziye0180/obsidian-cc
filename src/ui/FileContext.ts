@@ -1,5 +1,14 @@
-import { App, TFile, setIcon } from 'obsidian';
+import { App, TFile, setIcon, EventRef } from 'obsidian';
+import { createHash } from 'crypto';
 import { getVaultPath } from '../utils';
+
+/**
+ * Hash state for tracking file content changes
+ */
+interface FileHashState {
+  originalHash: string | null;  // Content before Claude's first edit (null if new file)
+  postEditHash: string;         // Content after Claude's last edit
+}
 
 /**
  * Callbacks for file context interactions
@@ -32,6 +41,15 @@ export class FileContextManager {
   private editedFilesThisSession: Set<string> = new Set();
   private sessionStarted = false;
 
+  // Hash tracking for edited files
+  private editedFileHashes: Map<string, FileHashState> = new Map();
+  private filesBeingEdited: Set<string> = new Set();
+
+  // Vault event listeners
+  private deleteEventRef: EventRef | null = null;
+  private renameEventRef: EventRef | null = null;
+  private modifyEventRef: EventRef | null = null;
+
   // Mention dropdown state
   private mentionStartIndex = -1;
   private selectedMentionIndex = 0;
@@ -60,6 +78,19 @@ export class FileContextManager {
       this.containerEl.insertBefore(this.editedFilesIndicatorEl, firstChild);
       this.containerEl.insertBefore(this.fileIndicatorEl, firstChild);
     }
+
+    // Register vault event listeners for file deletion/rename/modify detection
+    this.deleteEventRef = this.app.vault.on('delete', (file) => {
+      if (file instanceof TFile) this.handleFileDeleted(file.path);
+    });
+
+    this.renameEventRef = this.app.vault.on('rename', (file, oldPath) => {
+      if (file instanceof TFile) this.handleFileRenamed(oldPath, file.path);
+    });
+
+    this.modifyEventRef = this.app.vault.on('modify', (file) => {
+      if (file instanceof TFile) this.handleFileModified(file);
+    });
   }
 
   // ============================================
@@ -166,19 +197,70 @@ export class FileContextManager {
   }
 
   /**
-   * Track a file as edited (from Write/Edit tool completion)
+   * Mark a file as being edited (called from PreToolUse hook)
+   * Captures original hash before Claude edits the file
    */
-  trackEditedFile(toolName: string | undefined, toolInput: Record<string, unknown> | undefined, isError: boolean) {
+  async markFileBeingEdited(toolName: string, toolInput: Record<string, unknown>) {
+    if (!['Write', 'Edit', 'NotebookEdit'].includes(toolName)) return;
+
+    const rawPath = (toolInput?.file_path as string) || (toolInput?.notebook_path as string);
+    const path = this.normalizePathForVault(rawPath);
+    if (!path) return;
+
+    this.filesBeingEdited.add(path);
+
+    // Capture original hash BEFORE edit (only if not already tracked)
+    if (!this.editedFileHashes.has(path)) {
+      const originalHash = await this.computeFileHash(path);  // null if file doesn't exist
+      // Store placeholder - postEditHash will be set in trackEditedFile
+      this.editedFileHashes.set(path, { originalHash, postEditHash: '' });
+    }
+  }
+
+  /**
+   * Track a file as edited (called from PostToolUse hook)
+   */
+  async trackEditedFile(toolName: string | undefined, toolInput: Record<string, unknown> | undefined, isError: boolean) {
     // Only track Write, Edit, NotebookEdit tools
     if (!toolName || !['Write', 'Edit', 'NotebookEdit'].includes(toolName)) return;
-
-    // Don't track if there was an error
-    if (isError) return;
 
     // Extract file path from tool input
     const rawPath = (toolInput?.file_path as string) || (toolInput?.notebook_path as string);
     const filePath = this.normalizePathForVault(rawPath);
     if (!filePath) return;
+
+    // Unmark as being edited
+    this.filesBeingEdited.delete(filePath);
+
+    if (isError) {
+      // Clean up hash state if edit failed and file wasn't previously tracked
+      if (!this.editedFilesThisSession.has(filePath)) {
+        this.editedFileHashes.delete(filePath);
+      }
+      return;
+    }
+
+    // Store post-edit hash
+    const postEditHash = await this.computeFileHash(filePath);
+    const existing = this.editedFileHashes.get(filePath);
+
+    if (postEditHash) {
+      // Check if content is back to original (net effect = no change)
+      if (existing?.originalHash && postEditHash === existing.originalHash) {
+        // File reverted to original - remove tracking
+        this.editedFilesThisSession.delete(filePath);
+        this.editedFileHashes.delete(filePath);
+        this.updateEditedFilesIndicator();
+        this.updateFileIndicator();
+        return;
+      }
+
+      // Update post-edit hash
+      this.editedFileHashes.set(filePath, {
+        originalHash: existing?.originalHash ?? null,
+        postEditHash
+      });
+    }
 
     this.editedFilesThisSession.add(filePath);
     this.updateEditedFilesIndicator();
@@ -283,6 +365,15 @@ export class FileContextManager {
     return this.mentionDropdown?.contains(el) ?? false;
   }
 
+  /**
+   * Clean up event listeners (call on view close)
+   */
+  destroy() {
+    if (this.deleteEventRef) this.app.vault.offref(this.deleteEventRef);
+    if (this.renameEventRef) this.app.vault.offref(this.renameEventRef);
+    if (this.modifyEventRef) this.app.vault.offref(this.modifyEventRef);
+  }
+
   // ============================================
   // Path Normalization
   // ============================================
@@ -385,6 +476,8 @@ export class FileContextManager {
 
   private clearEditedFiles() {
     this.editedFilesThisSession.clear();
+    this.editedFileHashes.clear();
+    this.filesBeingEdited.clear();
     this.updateFileIndicator();
   }
 
@@ -392,6 +485,7 @@ export class FileContextManager {
     const normalizedPath = this.normalizePathForVault(path);
     if (normalizedPath && this.editedFilesThisSession.has(normalizedPath)) {
       this.editedFilesThisSession.delete(normalizedPath);
+      this.editedFileHashes.delete(normalizedPath);
       this.updateEditedFilesIndicator();
       this.updateFileIndicator();
     }
@@ -401,6 +495,99 @@ export class FileContextManager {
     const normalizedPath = this.normalizePathForVault(path);
     if (!normalizedPath) return false;
     return this.editedFilesThisSession.has(normalizedPath);
+  }
+
+  /**
+   * Compute a strong hash of file content for change detection
+   * Uses SHA-256 over the full content
+   */
+  private async computeFileHash(path: string): Promise<string | null> {
+    try {
+      const file = this.app.vault.getAbstractFileByPath(path);
+      if (!(file instanceof TFile)) return null;
+      const content = await this.app.vault.read(file);
+      return await this.computeContentHash(content);
+    } catch {
+      return null;  // File doesn't exist
+    }
+  }
+
+  /**
+   * Hash full content with SHA-256 (WebCrypto when available, Node crypto fallback)
+   */
+  private async computeContentHash(content: string): Promise<string> {
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+      const encoded = new TextEncoder().encode(content);
+      const digest = await crypto.subtle.digest('SHA-256', encoded);
+      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Fallback for environments without WebCrypto
+    return createHash('sha256').update(content, 'utf8').digest('hex');
+  }
+
+  /**
+   * Handle file deletion - remove from tracking
+   */
+  private handleFileDeleted(path: string) {
+    const normalized = this.normalizePathForVault(path);
+    if (normalized && this.editedFilesThisSession.has(normalized)) {
+      this.editedFilesThisSession.delete(normalized);
+      this.editedFileHashes.delete(normalized);
+      this.filesBeingEdited.delete(normalized);
+      this.updateEditedFilesIndicator();
+      this.updateFileIndicator();
+    }
+  }
+
+  /**
+   * Handle file rename - update path in tracking
+   */
+  private handleFileRenamed(oldPath: string, newPath: string) {
+    const normalizedOld = this.normalizePathForVault(oldPath);
+    const normalizedNew = this.normalizePathForVault(newPath);
+    if (normalizedOld && this.editedFilesThisSession.has(normalizedOld)) {
+      this.editedFilesThisSession.delete(normalizedOld);
+      const hashState = this.editedFileHashes.get(normalizedOld);
+      this.editedFileHashes.delete(normalizedOld);
+
+      if (normalizedNew) {
+        this.editedFilesThisSession.add(normalizedNew);
+        if (hashState) this.editedFileHashes.set(normalizedNew, hashState);
+      }
+      this.updateEditedFilesIndicator();
+      this.updateFileIndicator();
+    }
+  }
+
+  /**
+   * Handle file modification - check if content reverted to original
+   */
+  private async handleFileModified(file: TFile) {
+    const normalized = this.normalizePathForVault(file.path);
+    if (!normalized) return;
+
+    // Ignore if Claude is currently editing this file
+    if (this.filesBeingEdited.has(normalized)) return;
+
+    // Ignore if not a tracked edited file
+    if (!this.editedFilesThisSession.has(normalized)) return;
+
+    const hashState = this.editedFileHashes.get(normalized);
+    if (!hashState) return;
+
+    const currentHash = await this.computeFileHash(normalized);
+    if (!currentHash) return;
+
+    // Only remove chip if content reverted to ORIGINAL
+    // This avoids race condition with Claude's subsequent edits
+    if (hashState.originalHash && currentHash === hashState.originalHash) {
+      // Content reverted to original - remove tracking
+      this.editedFilesThisSession.delete(normalized);
+      this.editedFileHashes.delete(normalized);
+      this.updateEditedFilesIndicator();
+      this.updateFileIndicator();
+    }
   }
 
   private getNonAttachedEditedFiles(): string[] {

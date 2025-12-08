@@ -390,20 +390,26 @@ export class ClaudianService {
       this.createVaultRestrictionHook(),
     ];
 
+    // Create file hash tracking hooks
+    const fileHashPreHook = this.createFileHashPreHook();
+    const fileHashPostHook = this.createFileHashPostHook();
+
     // Apply permission mode
     if (permissionMode === 'yolo') {
       // Yolo mode: bypass permissions but use hooks to enforce blocklist and vault restriction
       options.permissionMode = 'bypassPermissions';
       options.allowDangerouslySkipPermissions = true;
       options.hooks = {
-        PreToolUse: securityHooks,
+        PreToolUse: [...securityHooks, fileHashPreHook],
+        PostToolUse: [fileHashPostHook],
       };
     } else {
       // Safe mode: use hooks for security, canUseTool for approvals
       options.permissionMode = 'default';
       options.canUseTool = this.createSafeModeCallback();
       options.hooks = {
-        PreToolUse: securityHooks,
+        PreToolUse: [...securityHooks, fileHashPreHook],
+        PostToolUse: [fileHashPostHook],
       };
     }
 
@@ -971,5 +977,52 @@ export class ClaudianService {
       default:
         return `${toolName}: ${JSON.stringify(input)}`;
     }
+  }
+
+  /**
+   * Create PreToolUse hook to capture original file hash before editing
+   */
+  private createFileHashPreHook(): HookCallbackMatcher {
+    return {
+      matcher: 'Write|Edit|NotebookEdit',
+      hooks: [
+        async (hookInput) => {
+          const input = hookInput as {
+            tool_name: string;
+            tool_input: Record<string, unknown>;
+          };
+          await this.plugin.view?.fileContextManager?.markFileBeingEdited(
+            input.tool_name,
+            input.tool_input
+          );
+          return { continue: true };
+        },
+      ],
+    };
+  }
+
+  /**
+   * Create PostToolUse hook to store post-edit hash after tool completion
+   */
+  private createFileHashPostHook(): HookCallbackMatcher {
+    return {
+      matcher: 'Write|Edit|NotebookEdit',
+      hooks: [
+        async (hookInput) => {
+          const input = hookInput as {
+            tool_name: string;
+            tool_input: Record<string, unknown>;
+            tool_result?: { is_error?: boolean };
+          };
+          const isError = input.tool_result?.is_error ?? false;
+          await this.plugin.view?.fileContextManager?.trackEditedFile(
+            input.tool_name,
+            input.tool_input,
+            isError
+          );
+          return { continue: true };
+        },
+      ],
+    };
   }
 }

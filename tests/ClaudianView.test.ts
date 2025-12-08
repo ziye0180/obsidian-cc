@@ -4,11 +4,15 @@
  */
 
 import { TFile, WorkspaceLeaf } from 'obsidian';
+import { createHash } from 'crypto';
 import { ClaudianView } from '../src/ClaudianView';
 import { FileContextManager } from '../src/ui/FileContext';
 
 // Helper to create a mock plugin
 function createMockPlugin(settingsOverrides = {}) {
+  // Track registered event handlers for vault events
+  const vaultEventHandlers: Map<string, Function[]> = new Map();
+
   return {
     settings: {
       enableBlocklist: true,
@@ -28,7 +32,21 @@ function createMockPlugin(settingsOverrides = {}) {
         },
         getAbstractFileByPath: jest.fn(),
         getMarkdownFiles: jest.fn().mockReturnValue([]),
-        on: jest.fn(),
+        read: jest.fn().mockResolvedValue('mock file content'),
+        on: jest.fn((event: string, handler: Function) => {
+          if (!vaultEventHandlers.has(event)) {
+            vaultEventHandlers.set(event, []);
+          }
+          vaultEventHandlers.get(event)!.push(handler);
+          return { event, handler };  // Return EventRef-like object
+        }),
+        offref: jest.fn(),
+        // Helper to trigger vault events in tests
+        _triggerEvent: (event: string, ...args: any[]) => {
+          const handlers = vaultEventHandlers.get(event) || [];
+          handlers.forEach(h => h(...args));
+        },
+        _eventHandlers: vaultEventHandlers,
       },
       workspace: {
         getLeaf: jest.fn().mockReturnValue({
@@ -72,6 +90,8 @@ function createMockPlugin(settingsOverrides = {}) {
     updateConversation: jest.fn().mockResolvedValue(undefined),
   } as any;
 }
+
+const hashContent = (content: string) => createHash('sha256').update(content, 'utf8').digest('hex');
 
 // Helper to create a mock WorkspaceLeaf
 function createMockLeaf() {
@@ -204,8 +224,10 @@ describe('FileContextManager - Edited Files Tracking', () => {
       const rawPath = '/test/vault/notes/test.md';
       const normalizedPath = 'notes/test.md';
 
-      // Simulate a Write tool completing
-      fileContextManager.trackEditedFile('Write', { file_path: rawPath }, false);
+      // First call markFileBeingEdited (PreToolUse hook)
+      await fileContextManager.markFileBeingEdited('Write', { file_path: rawPath });
+      // Then call trackEditedFile (PostToolUse hook)
+      await fileContextManager.trackEditedFile('Write', { file_path: rawPath }, false);
 
       expect((fileContextManager as any).editedFilesThisSession.has(normalizedPath)).toBe(true);
     });
@@ -214,8 +236,9 @@ describe('FileContextManager - Edited Files Tracking', () => {
       const rawPath = '/test/vault/notes/edited.md';
       const normalizedPath = 'notes/edited.md';
 
-      // Simulate an Edit tool completing
-      fileContextManager.trackEditedFile('Edit', { file_path: rawPath }, false);
+      // Simulate PreToolUse and PostToolUse hooks
+      await fileContextManager.markFileBeingEdited('Edit', { file_path: rawPath });
+      await fileContextManager.trackEditedFile('Edit', { file_path: rawPath }, false);
 
       expect((fileContextManager as any).editedFilesThisSession.has(normalizedPath)).toBe(true);
     });
@@ -225,7 +248,8 @@ describe('FileContextManager - Edited Files Tracking', () => {
       const normalizedPath = 'notes/error.md';
 
       // Simulate a Write tool completing with error
-      fileContextManager.trackEditedFile('Write', { file_path: rawPath }, true);
+      await fileContextManager.markFileBeingEdited('Write', { file_path: rawPath });
+      await fileContextManager.trackEditedFile('Write', { file_path: rawPath }, true);
 
       expect((fileContextManager as any).editedFilesThisSession.has(normalizedPath)).toBe(false);
     });
@@ -234,15 +258,17 @@ describe('FileContextManager - Edited Files Tracking', () => {
       const rawPath = '/test/vault/notes/read.md';
       const normalizedPath = 'notes/read.md';
 
-      // Simulate a Read tool completing
-      fileContextManager.trackEditedFile('Read', { file_path: rawPath }, false);
+      // Simulate a Read tool completing (should be ignored)
+      await fileContextManager.markFileBeingEdited('Read', { file_path: rawPath });
+      await fileContextManager.trackEditedFile('Read', { file_path: rawPath }, false);
 
       expect((fileContextManager as any).editedFilesThisSession.has(normalizedPath)).toBe(false);
     });
 
     it('should NOT track files from Bash tool', async () => {
-      // Simulate a Bash tool completing
-      fileContextManager.trackEditedFile('Bash', { command: 'ls -la' }, false);
+      // Simulate a Bash tool completing (should be ignored)
+      await fileContextManager.markFileBeingEdited('Bash', { command: 'ls -la' });
+      await fileContextManager.trackEditedFile('Bash', { command: 'ls -la' }, false);
 
       expect((fileContextManager as any).editedFilesThisSession.size).toBe(0);
     });
@@ -252,7 +278,8 @@ describe('FileContextManager - Edited Files Tracking', () => {
       const normalizedPath = 'notebook.ipynb';
 
       // Simulate NotebookEdit tool completing
-      fileContextManager.trackEditedFile('NotebookEdit', { notebook_path: notebookPath }, false);
+      await fileContextManager.markFileBeingEdited('NotebookEdit', { notebook_path: notebookPath });
+      await fileContextManager.trackEditedFile('NotebookEdit', { notebook_path: notebookPath }, false);
 
       expect((fileContextManager as any).editedFilesThisSession.has(normalizedPath)).toBe(true);
     });
@@ -261,7 +288,8 @@ describe('FileContextManager - Edited Files Tracking', () => {
       const rawPath = '/test/vault/notes/absolute.md';
       const normalizedPath = 'notes/absolute.md';
 
-      fileContextManager.trackEditedFile('Write', { file_path: rawPath }, false);
+      await fileContextManager.markFileBeingEdited('Write', { file_path: rawPath });
+      await fileContextManager.trackEditedFile('Write', { file_path: rawPath }, false);
       expect((fileContextManager as any).editedFilesThisSession.has(normalizedPath)).toBe(true);
 
       // Dismiss via private method for testing
@@ -296,13 +324,19 @@ describe('FileContextManager - Edited Files Tracking', () => {
     it('should remove file from edited set when file is focused', async () => {
       const filePath = 'notes/edited.md';
       (fileContextManager as any).editedFilesThisSession.add(filePath);
+      (fileContextManager as any).editedFileHashes.set(filePath, {
+        originalHash: 'hash-original',
+        postEditHash: 'hash-edited',
+      });
 
       expect((fileContextManager as any).editedFilesThisSession.has(filePath)).toBe(true);
+      expect((fileContextManager as any).editedFileHashes.has(filePath)).toBe(true);
 
       // Simulate focusing on the file (via private method)
       (fileContextManager as any).dismissEditedFile(filePath);
 
       expect((fileContextManager as any).editedFilesThisSession.has(filePath)).toBe(false);
+      expect((fileContextManager as any).editedFileHashes.has(filePath)).toBe(false);
     });
 
     it('should dismiss edited indicator when focusing file', async () => {
@@ -688,5 +722,314 @@ describe('FileContextManager - Excluded Tags', () => {
       expect(hasExcluded).toBe(false);
       // File CAN be added to attachedFiles
     });
+  });
+});
+
+describe('FileContextManager - File Hash Tracking', () => {
+  let fileContextManager: FileContextManager;
+  let mockPlugin: any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockPlugin = createMockPlugin();
+    fileContextManager = createFileContextManager(mockPlugin);
+  });
+
+  describe('markFileBeingEdited', () => {
+    it('should mark file as being edited and capture original hash', async () => {
+      const filePath = 'notes/test.md';
+      const mockFile = new TFile(filePath);
+      mockPlugin.app.vault.getAbstractFileByPath.mockReturnValue(mockFile);
+      mockPlugin.app.vault.read.mockResolvedValue('original content');
+
+      await fileContextManager.markFileBeingEdited('Write', { file_path: filePath });
+
+      expect((fileContextManager as any).filesBeingEdited.has(filePath)).toBe(true);
+      expect((fileContextManager as any).editedFileHashes.has(filePath)).toBe(true);
+      const hashState = (fileContextManager as any).editedFileHashes.get(filePath);
+      expect(hashState.originalHash).not.toBeNull();
+    });
+
+    it('should NOT mark file for non-edit tools', async () => {
+      const filePath = 'notes/test.md';
+
+      await fileContextManager.markFileBeingEdited('Read', { file_path: filePath });
+
+      expect((fileContextManager as any).filesBeingEdited.has(filePath)).toBe(false);
+    });
+
+    it('should capture null originalHash for new files', async () => {
+      const filePath = 'notes/new-file.md';
+      mockPlugin.app.vault.getAbstractFileByPath.mockReturnValue(null);
+
+      await fileContextManager.markFileBeingEdited('Write', { file_path: filePath });
+
+      const hashState = (fileContextManager as any).editedFileHashes.get(filePath);
+      expect(hashState.originalHash).toBeNull();
+    });
+  });
+
+  describe('trackEditedFile with hash tracking', () => {
+    it('should store post-edit hash after successful edit', async () => {
+      const filePath = 'notes/test.md';
+      const mockFile = new TFile(filePath);
+      mockPlugin.app.vault.getAbstractFileByPath.mockReturnValue(mockFile);
+      mockPlugin.app.vault.read
+        .mockResolvedValueOnce('original content')  // For markFileBeingEdited
+        .mockResolvedValueOnce('new content');      // For trackEditedFile
+
+      await fileContextManager.markFileBeingEdited('Write', { file_path: filePath });
+      await fileContextManager.trackEditedFile('Write', { file_path: filePath }, false);
+
+      const hashState = (fileContextManager as any).editedFileHashes.get(filePath);
+      expect(hashState.postEditHash).not.toBe('');
+    });
+
+    it('should remove tracking if content reverts to original', async () => {
+      const filePath = 'notes/test.md';
+      const mockFile = new TFile(filePath);
+      mockPlugin.app.vault.getAbstractFileByPath.mockReturnValue(mockFile);
+      // Same content for both reads = revert to original
+      mockPlugin.app.vault.read.mockResolvedValue('same content');
+
+      await fileContextManager.markFileBeingEdited('Write', { file_path: filePath });
+      await fileContextManager.trackEditedFile('Write', { file_path: filePath }, false);
+
+      // File should not be tracked because content matches original
+      expect((fileContextManager as any).editedFilesThisSession.has(filePath)).toBe(false);
+    });
+
+    it('should unmark filesBeingEdited on error', async () => {
+      const filePath = 'notes/error.md';
+
+      await fileContextManager.markFileBeingEdited('Write', { file_path: filePath });
+      expect((fileContextManager as any).filesBeingEdited.has(filePath)).toBe(true);
+
+      await fileContextManager.trackEditedFile('Write', { file_path: filePath }, true);
+      expect((fileContextManager as any).filesBeingEdited.has(filePath)).toBe(false);
+    });
+  });
+
+  describe('File deletion handling', () => {
+    it('should remove chip when file is deleted', async () => {
+      const filePath = 'notes/deleted.md';
+
+      // Manually add to edited files
+      (fileContextManager as any).editedFilesThisSession.add(filePath);
+      (fileContextManager as any).editedFileHashes.set(filePath, {
+        originalHash: 'hash1',
+        postEditHash: 'hash2',
+      });
+
+      // Trigger delete event
+      const mockFile = new TFile(filePath);
+      (fileContextManager as any).handleFileDeleted(filePath);
+
+      expect((fileContextManager as any).editedFilesThisSession.has(filePath)).toBe(false);
+      expect((fileContextManager as any).editedFileHashes.has(filePath)).toBe(false);
+    });
+
+    it('should ignore delete for non-tracked files', () => {
+      const filePath = 'notes/not-tracked.md';
+
+      // This should not throw
+      (fileContextManager as any).handleFileDeleted(filePath);
+
+      expect((fileContextManager as any).editedFilesThisSession.size).toBe(0);
+    });
+  });
+
+  describe('File rename handling', () => {
+    it('should update path when file is renamed', () => {
+      const oldPath = 'notes/old-name.md';
+      const newPath = 'notes/new-name.md';
+
+      // Add file to tracking
+      (fileContextManager as any).editedFilesThisSession.add(oldPath);
+      (fileContextManager as any).editedFileHashes.set(oldPath, {
+        originalHash: 'hash1',
+        postEditHash: 'hash2',
+      });
+
+      // Trigger rename
+      (fileContextManager as any).handleFileRenamed(oldPath, newPath);
+
+      expect((fileContextManager as any).editedFilesThisSession.has(oldPath)).toBe(false);
+      expect((fileContextManager as any).editedFilesThisSession.has(newPath)).toBe(true);
+      expect((fileContextManager as any).editedFileHashes.has(oldPath)).toBe(false);
+      expect((fileContextManager as any).editedFileHashes.has(newPath)).toBe(true);
+    });
+  });
+
+  describe('File revert detection', () => {
+    it('should remove chip when content reverts to original', async () => {
+      const filePath = 'notes/reverted.md';
+      const mockFile = new TFile(filePath);
+      mockPlugin.app.vault.getAbstractFileByPath.mockReturnValue(mockFile);
+
+      // Setup: file was edited
+      (fileContextManager as any).editedFilesThisSession.add(filePath);
+      (fileContextManager as any).editedFileHashes.set(filePath, {
+        originalHash: hashContent('original content'),
+        postEditHash: hashContent('new content'),
+      });
+
+      // Simulate file content reverting to original
+      mockPlugin.app.vault.read.mockResolvedValue('original content');
+
+      await (fileContextManager as any).handleFileModified(mockFile);
+
+      expect((fileContextManager as any).editedFilesThisSession.has(filePath)).toBe(false);
+    });
+
+    it('should keep chip when content differs from both original and edit', async () => {
+      const filePath = 'notes/modified.md';
+      const mockFile = new TFile(filePath);
+      mockPlugin.app.vault.getAbstractFileByPath.mockReturnValue(mockFile);
+
+      // Setup: file was edited
+      (fileContextManager as any).editedFilesThisSession.add(filePath);
+      (fileContextManager as any).editedFileHashes.set(filePath, {
+        originalHash: hashContent('original content'),
+        postEditHash: hashContent('new content'),
+      });
+
+      // Simulate file content changed to something else entirely
+      mockPlugin.app.vault.read.mockResolvedValue('completely different content');
+
+      await (fileContextManager as any).handleFileModified(mockFile);
+
+      // Chip should stay (conservative approach)
+      expect((fileContextManager as any).editedFilesThisSession.has(filePath)).toBe(true);
+    });
+
+    it('should keep chip when only middle content changes with same length and boundaries', async () => {
+      const filePath = 'notes/boundary-change.md';
+      const mockFile = new TFile(filePath);
+      mockPlugin.app.vault.getAbstractFileByPath.mockReturnValue(mockFile);
+
+      const originalContent = 'A'.repeat(100) + '1234567890' + 'B'.repeat(100);
+      const changedContent = 'A'.repeat(100) + 'abcdefghij' + 'B'.repeat(100); // Same length, different middle
+
+      (fileContextManager as any).editedFilesThisSession.add(filePath);
+      (fileContextManager as any).editedFileHashes.set(filePath, {
+        originalHash: hashContent(originalContent),
+        postEditHash: hashContent(changedContent),
+      });
+
+      mockPlugin.app.vault.read.mockResolvedValue(changedContent);
+
+      await (fileContextManager as any).handleFileModified(mockFile);
+
+      expect((fileContextManager as any).editedFilesThisSession.has(filePath)).toBe(true);
+    });
+
+    it('should ignore modify events while file is being edited', async () => {
+      const filePath = 'notes/being-edited.md';
+      const mockFile = new TFile(filePath);
+      mockPlugin.app.vault.getAbstractFileByPath.mockReturnValue(mockFile);
+
+      // Setup: file is being edited by Claude
+      (fileContextManager as any).editedFilesThisSession.add(filePath);
+      (fileContextManager as any).filesBeingEdited.add(filePath);
+      (fileContextManager as any).editedFileHashes.set(filePath, {
+        originalHash: hashContent('original content'),
+        postEditHash: '',
+      });
+
+      // This should be ignored because file is being edited
+      await (fileContextManager as any).handleFileModified(mockFile);
+
+      // Chip should still be there
+      expect((fileContextManager as any).editedFilesThisSession.has(filePath)).toBe(true);
+    });
+  });
+
+  describe('Session cleanup', () => {
+    it('should clear all hash state on resetForNewConversation', () => {
+      // Setup some state
+      (fileContextManager as any).editedFilesThisSession.add('file1.md');
+      (fileContextManager as any).editedFileHashes.set('file1.md', {
+        originalHash: 'hash1',
+        postEditHash: 'hash2',
+      });
+      (fileContextManager as any).filesBeingEdited.add('file2.md');
+
+      fileContextManager.resetForNewConversation();
+
+      expect((fileContextManager as any).editedFilesThisSession.size).toBe(0);
+      expect((fileContextManager as any).editedFileHashes.size).toBe(0);
+      expect((fileContextManager as any).filesBeingEdited.size).toBe(0);
+    });
+
+    it('should clear all hash state on resetForLoadedConversation', () => {
+      // Setup some state
+      (fileContextManager as any).editedFilesThisSession.add('file1.md');
+      (fileContextManager as any).editedFileHashes.set('file1.md', {
+        originalHash: 'hash1',
+        postEditHash: 'hash2',
+      });
+
+      fileContextManager.resetForLoadedConversation(true);
+
+      expect((fileContextManager as any).editedFilesThisSession.size).toBe(0);
+      expect((fileContextManager as any).editedFileHashes.size).toBe(0);
+    });
+  });
+
+  describe('destroy cleanup', () => {
+    it('should unregister vault event listeners', () => {
+      fileContextManager.destroy();
+
+      expect(mockPlugin.app.vault.offref).toHaveBeenCalledTimes(3);
+    });
+  });
+});
+
+describe('FileContextManager - Border indicator sync with @ mentions', () => {
+  let fileContextManager: FileContextManager;
+  let mockPlugin: any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockPlugin = createMockPlugin();
+    fileContextManager = createFileContextManager(mockPlugin);
+  });
+
+  it('should remove border from attached file when file is deleted', () => {
+    const filePath = 'notes/attached.md';
+
+    // File is both attached and edited
+    (fileContextManager as any).attachedFiles.add(filePath);
+    (fileContextManager as any).editedFilesThisSession.add(filePath);
+    (fileContextManager as any).editedFileHashes.set(filePath, {
+      originalHash: 'hash1',
+      postEditHash: 'hash2',
+    });
+
+    // Verify file is marked as edited
+    expect((fileContextManager as any).isFileEdited(filePath)).toBe(true);
+
+    // Trigger delete
+    (fileContextManager as any).handleFileDeleted(filePath);
+
+    // File should no longer be marked as edited
+    expect((fileContextManager as any).isFileEdited(filePath)).toBe(false);
+  });
+
+  it('should update border indicator path when attached file is renamed', () => {
+    const oldPath = 'notes/old.md';
+    const newPath = 'notes/new.md';
+
+    // File is both attached and edited
+    (fileContextManager as any).attachedFiles.add(oldPath);
+    (fileContextManager as any).editedFilesThisSession.add(oldPath);
+
+    // Trigger rename
+    (fileContextManager as any).handleFileRenamed(oldPath, newPath);
+
+    // Old path should not be edited, new path should be
+    expect((fileContextManager as any).isFileEdited(oldPath)).toBe(false);
+    expect((fileContextManager as any).isFileEdited(newPath)).toBe(true);
   });
 });

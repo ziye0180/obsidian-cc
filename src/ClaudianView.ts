@@ -54,7 +54,7 @@ export class ClaudianView extends ItemView {
   private historyDropdown: HTMLElement | null = null;
 
   // File context manager
-  private fileContextManager: FileContextManager | null = null;
+  public fileContextManager: FileContextManager | null = null;
 
   // Image context manager
   private imageContextManager: ImageContextManager | null = null;
@@ -315,6 +315,8 @@ export class ClaudianView extends ItemView {
     this.currentThinkingState = null;
     // Remove approval callback
     this.plugin.agentService.setApprovalCallback(null);
+    // Clean up file context manager (unregister vault event listeners)
+    this.fileContextManager?.destroy();
     // Save current conversation before closing
     await this.saveCurrentConversation();
   }

@@ -22,7 +22,7 @@ An Obsidian plugin that embeds Claude Agent (using Claude Agent SDK) as a sideba
 - **Safety blocklist**: Block dangerous commands even in Yolo mode
 - **Vault confinement**: All tools (including Bash paths) are restricted to the vault with symlink-safe checks
 - **Cancel streaming**: Press Escape to stop a response mid-stream
-- **Edited files indicator**: Border highlight on attached edited files, separate “Edited:” chips for non-attached edits, auto-dismiss on focus, and click-to-open tabs (session-scoped)
+- **Edited files indicator**: Border highlight on attached edited files, separate “Edited:” chips for non-attached edits, SHA-256 revert detection to auto-clear on delete/rename/revert, auto-dismiss on focus, and click-to-open tabs (session-scoped)
 
 ## Requirements
 

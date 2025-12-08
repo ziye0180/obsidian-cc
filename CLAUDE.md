@@ -35,7 +35,7 @@ src/
 | `ClaudianView` | Core chat view, message streaming, conversation management |
 | `ApprovalModal` | Permission dialogs for Safe mode tool approval |
 | `InputToolbar` | Model/thinking/permission selectors below textarea |
-| `FileContext` | File attachment state, @mention dropdown, edited files indicator |
+| `FileContext` | File attachment state, @mention dropdown, edited files indicator with hash-based revert/delete detection |
 | `ImageContext` | Image drag/drop, paste, path detection, preview display |
 | `ToolCallRenderer` | Tool call display with expand/collapse and status |
 | `ThinkingBlockRenderer` | Extended thinking blocks with live timer |
@@ -138,6 +138,12 @@ const thinkingState = createThinkingBlock(contentEl, renderContentFn);
 await appendThinkingContent(thinkingState, content, renderContentFn);
 finalizeThinkingBlock(thinkingState);
 ```
+
+### Edited File Tracking (revert/delete aware)
+- Pre-tool hook captures the original file hash before Write/Edit/NotebookEdit.
+- Post-tool hook records post-edit hash and marks files as edited.
+- Obsidian vault events (`delete`, `rename`, `modify`) remove or update indicators when files are deleted, renamed, or reverted to the original SHA-256 hash.
+- Opening an edited file dismisses the indicator and clears hash state so the next edit re-baselines.
 
 ## SDK Message Types
 
