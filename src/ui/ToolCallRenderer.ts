@@ -134,13 +134,19 @@ export function renderToolCall(
 
   // Header (clickable to expand/collapse)
   const header = toolEl.createDiv({ cls: 'claudian-tool-header' });
+  header.setAttribute('tabindex', '0');
+  header.setAttribute('role', 'button');
+  header.setAttribute('aria-expanded', 'false');
+  header.setAttribute('aria-label', `${getToolLabel(toolCall.name, toolCall.input)} - click to expand details`);
 
-  // Chevron icon
+  // Chevron icon (decorative)
   const chevron = header.createSpan({ cls: 'claudian-tool-chevron' });
+  chevron.setAttribute('aria-hidden', 'true');
   setIcon(chevron, 'chevron-right');
 
-  // Tool icon
+  // Tool icon (decorative)
   const iconEl = header.createSpan({ cls: 'claudian-tool-icon' });
+  iconEl.setAttribute('aria-hidden', 'true');
   setToolIcon(iconEl, toolCall.name);
 
   // Tool label
@@ -150,6 +156,7 @@ export function renderToolCall(
   // Status indicator
   const statusEl = header.createSpan({ cls: 'claudian-tool-status' });
   statusEl.addClass(`status-${toolCall.status}`);
+  statusEl.setAttribute('aria-label', `Status: ${toolCall.status}`);
   if (toolCall.status === 'running') {
     statusEl.createSpan({ cls: 'claudian-spinner' });
   }
@@ -170,17 +177,30 @@ export function renderToolCall(
   const resultCode = resultSection.createEl('pre', { cls: 'claudian-tool-code claudian-tool-result-code' });
   resultCode.setText('Running...');
 
-  // Toggle expand/collapse on header click
-  header.addEventListener('click', () => {
+  // Toggle expand/collapse handler
+  const toggleExpand = () => {
     toolCall.isExpanded = !toolCall.isExpanded;
     if (toolCall.isExpanded) {
       content.style.display = 'block';
       toolEl.addClass('expanded');
       setIcon(chevron, 'chevron-down');
+      header.setAttribute('aria-expanded', 'true');
     } else {
       content.style.display = 'none';
       toolEl.removeClass('expanded');
       setIcon(chevron, 'chevron-right');
+      header.setAttribute('aria-expanded', 'false');
+    }
+  };
+
+  // Click handler
+  header.addEventListener('click', toggleExpand);
+
+  // Keyboard handler (Enter/Space)
+  header.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleExpand();
     }
   });
 
@@ -229,13 +249,19 @@ export function renderStoredToolCall(parentEl: HTMLElement, toolCall: ToolCallIn
 
   // Header
   const header = toolEl.createDiv({ cls: 'claudian-tool-header' });
+  header.setAttribute('tabindex', '0');
+  header.setAttribute('role', 'button');
+  header.setAttribute('aria-expanded', 'false');
+  header.setAttribute('aria-label', `${getToolLabel(toolCall.name, toolCall.input)} - click to expand details`);
 
-  // Chevron icon
+  // Chevron icon (decorative)
   const chevron = header.createSpan({ cls: 'claudian-tool-chevron' });
+  chevron.setAttribute('aria-hidden', 'true');
   setIcon(chevron, 'chevron-right');
 
-  // Tool icon
+  // Tool icon (decorative)
   const iconEl = header.createSpan({ cls: 'claudian-tool-icon' });
+  iconEl.setAttribute('aria-hidden', 'true');
   setToolIcon(iconEl, toolCall.name);
 
   // Tool label
@@ -245,6 +271,7 @@ export function renderStoredToolCall(parentEl: HTMLElement, toolCall: ToolCallIn
   // Status indicator (already completed)
   const statusEl = header.createSpan({ cls: 'claudian-tool-status' });
   statusEl.addClass(`status-${toolCall.status}`);
+  statusEl.setAttribute('aria-label', `Status: ${toolCall.status}`);
   if (toolCall.status === 'completed') {
     setIcon(statusEl, 'check');
   } else if (toolCall.status === 'error') {
@@ -269,18 +296,31 @@ export function renderStoredToolCall(parentEl: HTMLElement, toolCall: ToolCallIn
   const resultCode = resultSection.createEl('pre', { cls: 'claudian-tool-code' });
   resultCode.setText(toolCall.result ? truncateResult(toolCall.result) : 'No result');
 
-  // Toggle expand/collapse on header click
+  // Toggle expand/collapse handler
   let isExpanded = false;
-  header.addEventListener('click', () => {
+  const toggleExpand = () => {
     isExpanded = !isExpanded;
     if (isExpanded) {
       content.style.display = 'block';
       toolEl.addClass('expanded');
       setIcon(chevron, 'chevron-down');
+      header.setAttribute('aria-expanded', 'true');
     } else {
       content.style.display = 'none';
       toolEl.removeClass('expanded');
       setIcon(chevron, 'chevron-right');
+      header.setAttribute('aria-expanded', 'false');
+    }
+  };
+
+  // Click handler
+  header.addEventListener('click', toggleExpand);
+
+  // Keyboard handler (Enter/Space)
+  header.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleExpand();
     }
   });
 

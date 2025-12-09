@@ -36,6 +36,7 @@ export class ApprovalModal extends Modal {
 
     const toolEl = infoEl.createDiv({ cls: 'claudian-approval-tool' });
     const iconEl = toolEl.createSpan({ cls: 'claudian-approval-icon' });
+    iconEl.setAttribute('aria-hidden', 'true');
     setIcon(iconEl, this.getToolIcon(this.toolName));
     toolEl.createSpan({ text: this.toolName, cls: 'claudian-approval-tool-name' });
 
@@ -52,14 +53,29 @@ export class ApprovalModal extends Modal {
     // Buttons
     const buttonsEl = contentEl.createDiv({ cls: 'claudian-approval-buttons' });
 
-    const denyBtn = buttonsEl.createEl('button', { text: 'Deny', cls: 'claudian-approval-btn claudian-deny-btn' });
+    const denyBtn = buttonsEl.createEl('button', {
+      text: 'Deny',
+      cls: 'claudian-approval-btn claudian-deny-btn',
+      attr: { 'aria-label': `Deny ${this.toolName} action` }
+    });
     denyBtn.addEventListener('click', () => this.handleDecision('deny'));
 
-    const allowBtn = buttonsEl.createEl('button', { text: 'Allow Once', cls: 'claudian-approval-btn claudian-allow-btn' });
+    const allowBtn = buttonsEl.createEl('button', {
+      text: 'Allow once',
+      cls: 'claudian-approval-btn claudian-allow-btn',
+      attr: { 'aria-label': `Allow ${this.toolName} action once` }
+    });
     allowBtn.addEventListener('click', () => this.handleDecision('allow'));
 
-    const alwaysBtn = buttonsEl.createEl('button', { text: 'Always Allow', cls: 'claudian-approval-btn claudian-always-btn' });
+    const alwaysBtn = buttonsEl.createEl('button', {
+      text: 'Always allow',
+      cls: 'claudian-approval-btn claudian-always-btn',
+      attr: { 'aria-label': `Always allow ${this.toolName} actions` }
+    });
     alwaysBtn.addEventListener('click', () => this.handleDecision('allow-always'));
+
+    // Focus first button for keyboard accessibility
+    denyBtn.focus();
   }
 
   private getToolIcon(toolName: string): string {

@@ -23,6 +23,8 @@ interface MockElement {
   dataset: Record<string, string>;
   style: Record<string, string>;
   empty: () => void;
+  setAttribute: (name: string, value: string) => void;
+  getAttribute: (name: string) => string | null;
 }
 
 function createMockElement(tag = 'div'): MockElement {
@@ -30,6 +32,7 @@ function createMockElement(tag = 'div'): MockElement {
   const classList = new Set<string>();
   const dataset: Record<string, string> = {};
   const style: Record<string, string> = {};
+  const attributes: Map<string, string> = new Map();
   const eventListeners: Map<string, Array<(e: any) => void>> = new Map();
   let textContent = '';
 
@@ -91,6 +94,12 @@ function createMockElement(tag = 'div'): MockElement {
     },
     empty: () => {
       children.length = 0;
+    },
+    setAttribute: (name: string, value: string) => {
+      attributes.set(name, value);
+    },
+    getAttribute: (name: string) => {
+      return attributes.get(name) ?? null;
     },
   };
 

@@ -80,8 +80,8 @@ describe('ClaudianPlugin', () => {
       await plugin.onload();
 
       expect((plugin.addCommand as jest.Mock)).toHaveBeenCalledWith({
-        id: 'open-claudian',
-        name: 'Open Claudian',
+        id: 'open-view',
+        name: 'Open chat view',
         callback: expect.any(Function),
       });
     });

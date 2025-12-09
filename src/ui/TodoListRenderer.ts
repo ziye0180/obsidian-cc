@@ -56,19 +56,25 @@ export function renderTodoList(
     container.addClass('expanded');
   }
 
-  // Header (clickable to collapse/expand)
-  const header = container.createDiv({ cls: 'claudian-todo-header' });
-
-  const chevron = header.createDiv({ cls: 'claudian-todo-chevron' });
-  setIcon(chevron, isExpanded ? 'chevron-down' : 'chevron-right');
-
-  const icon = header.createDiv({ cls: 'claudian-todo-icon' });
-  setIcon(icon, 'list-checks');
-
   // Count completed vs total
   const completedCount = todos.filter(t => t.status === 'completed').length;
   const totalCount = todos.length;
   const currentTask = todos.find(t => t.status === 'in_progress');
+
+  // Header (clickable to collapse/expand)
+  const header = container.createDiv({ cls: 'claudian-todo-header' });
+  header.setAttribute('tabindex', '0');
+  header.setAttribute('role', 'button');
+  header.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+  header.setAttribute('aria-label', `Task list - ${completedCount} of ${totalCount} completed - click to ${isExpanded ? 'collapse' : 'expand'}`);
+
+  const chevron = header.createDiv({ cls: 'claudian-todo-chevron' });
+  chevron.setAttribute('aria-hidden', 'true');
+  setIcon(chevron, isExpanded ? 'chevron-down' : 'chevron-right');
+
+  const icon = header.createDiv({ cls: 'claudian-todo-icon' });
+  icon.setAttribute('aria-hidden', 'true');
+  setIcon(icon, 'list-checks');
 
   const label = header.createDiv({ cls: 'claudian-todo-label' });
   if (currentTask) {
@@ -90,6 +96,7 @@ export function renderTodoList(
     });
 
     const statusIcon = itemEl.createDiv({ cls: 'claudian-todo-status-icon' });
+    statusIcon.setAttribute('aria-hidden', 'true');
     setIcon(statusIcon, getStatusIcon(todo.status));
 
     const text = itemEl.createDiv({ cls: 'claudian-todo-text' });
@@ -97,17 +104,30 @@ export function renderTodoList(
     text.setText(todo.status === 'in_progress' ? todo.activeForm : todo.content);
   }
 
-  // Toggle collapse on header click
-  header.addEventListener('click', () => {
+  // Toggle collapse handler
+  const toggleExpand = () => {
     const expanded = container.hasClass('expanded');
     if (expanded) {
       container.removeClass('expanded');
       setIcon(chevron, 'chevron-right');
       content.style.display = 'none';
+      header.setAttribute('aria-expanded', 'false');
     } else {
       container.addClass('expanded');
       setIcon(chevron, 'chevron-down');
       content.style.display = 'block';
+      header.setAttribute('aria-expanded', 'true');
+    }
+  };
+
+  // Click handler
+  header.addEventListener('click', toggleExpand);
+
+  // Keyboard handler (Enter/Space)
+  header.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleExpand();
     }
   });
 

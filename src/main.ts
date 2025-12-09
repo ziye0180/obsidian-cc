@@ -42,8 +42,8 @@ export default class ClaudianPlugin extends Plugin {
 
     // Add command to open view
     this.addCommand({
-      id: 'open-claudian',
-      name: 'Open Claudian',
+      id: 'open-view',
+      name: 'Open chat view',
       callback: () => {
         this.activateView();
       },

@@ -28,13 +28,19 @@ export function createThinkingBlock(
 
   // Header (clickable to expand/collapse)
   const header = wrapperEl.createDiv({ cls: 'claudian-thinking-header' });
+  header.setAttribute('tabindex', '0');
+  header.setAttribute('role', 'button');
+  header.setAttribute('aria-expanded', 'false');
+  header.setAttribute('aria-label', 'Extended thinking - click to expand');
 
-  // Chevron icon
+  // Chevron icon (decorative)
   const chevron = header.createSpan({ cls: 'claudian-thinking-chevron' });
+  chevron.setAttribute('aria-hidden', 'true');
   setIcon(chevron, 'chevron-right');
 
-  // Brain icon
+  // Brain icon (decorative)
   const iconEl = header.createSpan({ cls: 'claudian-thinking-icon' });
+  iconEl.setAttribute('aria-hidden', 'true');
   setIcon(iconEl, 'brain');
 
   // Label with timer
@@ -52,18 +58,31 @@ export function createThinkingBlock(
   const contentEl = wrapperEl.createDiv({ cls: 'claudian-thinking-content' });
   contentEl.style.display = 'none';
 
-  // Toggle expand/collapse on header click
+  // Toggle expand/collapse handler
   let isExpanded = false;
-  header.addEventListener('click', () => {
+  const toggleExpand = () => {
     isExpanded = !isExpanded;
     if (isExpanded) {
       contentEl.style.display = 'block';
       wrapperEl.addClass('expanded');
       setIcon(chevron, 'chevron-down');
+      header.setAttribute('aria-expanded', 'true');
     } else {
       contentEl.style.display = 'none';
       wrapperEl.removeClass('expanded');
       setIcon(chevron, 'chevron-right');
+      header.setAttribute('aria-expanded', 'false');
+    }
+  };
+
+  // Click handler
+  header.addEventListener('click', toggleExpand);
+
+  // Keyboard handler (Enter/Space)
+  header.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleExpand();
     }
   });
 
@@ -130,13 +149,19 @@ export function renderStoredThinkingBlock(
 
   // Header (clickable to expand/collapse)
   const header = wrapperEl.createDiv({ cls: 'claudian-thinking-header' });
+  header.setAttribute('tabindex', '0');
+  header.setAttribute('role', 'button');
+  header.setAttribute('aria-expanded', 'false');
+  header.setAttribute('aria-label', 'Extended thinking - click to expand');
 
-  // Chevron icon
+  // Chevron icon (decorative)
   const chevron = header.createSpan({ cls: 'claudian-thinking-chevron' });
+  chevron.setAttribute('aria-hidden', 'true');
   setIcon(chevron, 'chevron-right');
 
-  // Brain icon
+  // Brain icon (decorative)
   const iconEl = header.createSpan({ cls: 'claudian-thinking-icon' });
+  iconEl.setAttribute('aria-hidden', 'true');
   setIcon(iconEl, 'brain');
 
   // Label with duration
@@ -149,18 +174,31 @@ export function renderStoredThinkingBlock(
   contentEl.style.display = 'none';
   renderContent(contentEl, content);
 
-  // Toggle expand/collapse on header click
+  // Toggle expand/collapse handler
   let isExpanded = false;
-  header.addEventListener('click', () => {
+  const toggleExpand = () => {
     isExpanded = !isExpanded;
     if (isExpanded) {
       contentEl.style.display = 'block';
       wrapperEl.addClass('expanded');
       setIcon(chevron, 'chevron-down');
+      header.setAttribute('aria-expanded', 'true');
     } else {
       contentEl.style.display = 'none';
       wrapperEl.removeClass('expanded');
       setIcon(chevron, 'chevron-right');
+      header.setAttribute('aria-expanded', 'false');
+    }
+  };
+
+  // Click handler
+  header.addEventListener('click', toggleExpand);
+
+  // Keyboard handler (Enter/Space)
+  header.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleExpand();
     }
   });
 

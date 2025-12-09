@@ -738,7 +738,6 @@ export class ClaudianView extends ItemView {
   private async handleSubagentChunk(chunk: StreamChunk, msg: ChatMessage): Promise<void> {
     // Extract parentToolUseId from chunk (caller already verified it exists and is truthy)
     if (!('parentToolUseId' in chunk) || !chunk.parentToolUseId) {
-      console.warn('handleSubagentChunk called without parentToolUseId');
       return;
     }
     const parentToolUseId = chunk.parentToolUseId;
@@ -746,7 +745,6 @@ export class ClaudianView extends ItemView {
 
     if (!subagentState) {
       // Orphan subagent message - shouldn't happen for sync subagents
-      console.warn(`Received chunk for unknown subagent: ${parentToolUseId}`);
       return;
     }
 
@@ -880,12 +878,6 @@ export class ClaudianView extends ItemView {
     if (!this.asyncSubagentManager.isPendingAsyncTask(chunk.id)) {
       return false;
     }
-
-    console.log('[ClaudianView] Async Task tool_result:', {
-      id: chunk.id,
-      content: chunk.content,
-      isError: chunk.isError,
-    });
 
     // Handle result via manager (extracts agent_id, transitions state)
     // Note: For async tasks, isError=true means the task failed to LAUNCH

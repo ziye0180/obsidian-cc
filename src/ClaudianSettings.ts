@@ -15,8 +15,8 @@ export class ClaudianSettingTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.addClass('claudian-settings');
 
-    // General section
-    new Setting(containerEl).setName('General').setHeading();
+    // Customization section
+    new Setting(containerEl).setName('Customization').setHeading();
 
     new Setting(containerEl)
       .setName('Show tool usage')
@@ -156,7 +156,7 @@ export class ClaudianSettingTab extends PluginSettingTab {
         .setDesc('Remove all permanently approved actions')
         .addButton((button) =>
           button
-            .setButtonText('Clear All')
+            .setButtonText('Clear all')
             .setWarning()
             .onClick(async () => {
               this.plugin.settings.approvedActions = [];
