@@ -158,6 +158,19 @@ export class FileContextManager {
   }
 
   /**
+   * Set attached files (for restoring persisted state)
+   */
+  setAttachedFiles(files: string[]) {
+    this.attachedFiles.clear();
+    for (const file of files) {
+      this.attachedFiles.add(file);
+    }
+    // Also mark them as "sent" so they won't re-send context on next message
+    this.lastSentFiles = new Set(this.attachedFiles);
+    this.updateFileIndicator();
+  }
+
+  /**
    * Auto-attach currently focused file (for new sessions)
    */
   autoAttachActiveFile() {
@@ -325,8 +338,10 @@ export class FileContextManager {
     // Extract search text after @
     const searchText = textBeforeCursor.substring(lastAtIndex + 1);
 
-    // Check if search text contains newlines (closed mention)
-    if (/[\n]/.test(searchText)) {
+    // Check if search text contains whitespace (completed mention)
+    // After selecting a file, the text becomes "@filename " - any whitespace
+    // after the @ means the mention is complete and user has moved on
+    if (/\s/.test(searchText)) {
       this.hideMentionDropdown();
       return;
     }

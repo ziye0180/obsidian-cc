@@ -1175,6 +1175,9 @@ export class ClaudianView extends ItemView {
     this.messages = [];
     this.messagesEl.empty();
 
+    // Clear input box
+    this.inputEl.value = '';
+
     // Reset file context
     this.fileContextManager?.resetForNewConversation();
     this.fileContextManager?.autoAttachActiveFile();
@@ -1201,7 +1204,10 @@ export class ClaudianView extends ItemView {
     const hasMessages = this.messages.length > 0;
     this.fileContextManager?.resetForLoadedConversation(hasMessages);
 
-    if (isNewConversation || !hasMessages) {
+    // Restore attached files from persisted state
+    if (conversation.attachedFiles && conversation.attachedFiles.length > 0) {
+      this.fileContextManager?.setAttachedFiles(conversation.attachedFiles);
+    } else if (isNewConversation || !hasMessages) {
       this.fileContextManager?.autoAttachActiveFile();
     }
 
@@ -1224,8 +1230,16 @@ export class ClaudianView extends ItemView {
     this.currentConversationId = conversation.id;
     this.messages = [...conversation.messages];
 
+    // Clear input box
+    this.inputEl.value = '';
+
     // Reset file context
     this.fileContextManager?.resetForLoadedConversation(this.messages.length > 0);
+
+    // Restore attached files from persisted state
+    if (conversation.attachedFiles && conversation.attachedFiles.length > 0) {
+      this.fileContextManager?.setAttachedFiles(conversation.attachedFiles);
+    }
 
     this.renderMessages();
     this.historyDropdown?.removeClass('visible');
@@ -1235,9 +1249,13 @@ export class ClaudianView extends ItemView {
     if (!this.currentConversationId) return;
 
     const sessionId = this.plugin.agentService.getSessionId();
+    const attachedFiles = this.fileContextManager
+      ? Array.from(this.fileContextManager.getAttachedFiles())
+      : [];
     await this.plugin.updateConversation(this.currentConversationId, {
       messages: this.getPersistedMessages(),
       sessionId: sessionId,
+      attachedFiles: attachedFiles,
     });
   }
 

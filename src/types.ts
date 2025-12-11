@@ -97,6 +97,7 @@ export interface Conversation {
   updatedAt: number;
   sessionId: string | null;
   messages: ChatMessage[];
+  attachedFiles?: string[];  // Persisted file context (@ mentions)
 }
 
 export interface ConversationMeta {
