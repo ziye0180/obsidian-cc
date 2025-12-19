@@ -10,7 +10,7 @@ import type {
   SubagentInfo,
   SubagentMode,
   ToolCallInfo,
-} from './types';
+} from '../types';
 
 /** Callback for UI state updates when async subagent state changes. */
 export type AsyncSubagentStateChangeCallback = (subagent: SubagentInfo) => void;

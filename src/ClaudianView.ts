@@ -8,10 +8,10 @@
 import type { WorkspaceLeaf } from 'obsidian';
 import { ItemView, MarkdownRenderer, Notice, setIcon } from 'obsidian';
 
-import { AsyncSubagentManager } from './AsyncSubagentManager';
 import { getImageAttachmentDataUri } from './images/imageLoader';
-import { InstructionRefineService } from './InstructionRefineService';
 import type ClaudianPlugin from './main';
+import { AsyncSubagentManager } from './services/AsyncSubagentManager';
+import { InstructionRefineService } from './services/InstructionRefineService';
 import { isWriteEditTool, TOOL_AGENT_OUTPUT, TOOL_BASH, TOOL_TASK, TOOL_TODO_WRITE } from './tools/toolNames';
 import {
   type ChatMessage,

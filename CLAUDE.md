@@ -13,9 +13,10 @@ src/
 ├── ClaudianService.ts   # Claude Agent SDK wrapper
 ├── ClaudianSettings.ts  # Settings tab
 ├── utils.ts             # Vault, env, session utilities
-├── AsyncSubagentManager.ts # Async subagent state machine
-├── InlineEditService.ts # Inline text editing service
-├── InstructionRefineService.ts # # instruction refinement
+├── services/            # Agent services and subagent state
+│   ├── AsyncSubagentManager.ts # Async subagent state machine
+│   ├── InlineEditService.ts # Inline text editing service
+│   └── InstructionRefineService.ts # Instruction refinement service
 ├── system-prompt/       # System prompts for different agents
 ├── sdk/                 # SDK message transformation
 ├── hooks/               # PreToolUse/PostToolUse hooks
@@ -34,6 +35,7 @@ src/
 | `security/` | Approval, blocklist, path validation |
 | `tools/` | Tool names, icons, input parsing |
 | `images/` | Image caching with SHA-256 dedup |
+| `services/` | Agent services and subagent state |
 | `types/` | Type definitions |
 | `ui/` | All UI components |
 

@@ -1,4 +1,4 @@
-import { AsyncSubagentManager } from '../src/AsyncSubagentManager';
+import { AsyncSubagentManager } from '../src/services/AsyncSubagentManager';
 import type { SubagentInfo, ToolCallInfo } from '../src/types';
 
 const createManager = () => {

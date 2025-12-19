@@ -9,8 +9,8 @@
 import type { App, Editor} from 'obsidian';
 import { MarkdownView, Notice } from 'obsidian';
 
-import { type CursorContext,type InlineEditMode, InlineEditService } from '../InlineEditService';
 import type ClaudianPlugin from '../main';
+import { type CursorContext,type InlineEditMode, InlineEditService } from '../services/InlineEditService';
 import { TOOL_BASH } from '../tools/toolNames';
 import { getVaultPath, isCommandBlocked } from '../utils';
 import { ApprovalModal } from './ApprovalModal';

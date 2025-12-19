@@ -8,9 +8,9 @@
 import type { HookCallbackMatcher, Options } from '@anthropic-ai/claude-agent-sdk';
 import { query as agentQuery } from '@anthropic-ai/claude-agent-sdk';
 
-import type ClaudianPlugin from './main';
-import { getInlineEditSystemPrompt } from './system-prompt/inlineEdit';
-import { getPathFromToolInput } from './tools/toolInput';
+import type ClaudianPlugin from '../main';
+import { getInlineEditSystemPrompt } from '../system-prompt/inlineEdit';
+import { getPathFromToolInput } from '../tools/toolInput';
 import {
   isReadOnlyTool,
   READ_ONLY_TOOLS,
@@ -18,14 +18,14 @@ import {
   TOOL_GREP,
   TOOL_LS,
   TOOL_READ,
-} from './tools/toolNames';
-import { THINKING_BUDGETS } from './types';
+} from '../tools/toolNames';
+import { THINKING_BUDGETS } from '../types';
 import {
   findClaudeCLIPath,
   getVaultPath,
   isPathWithinVault as isPathWithinVaultUtil,
   parseEnvironmentVariables,
-} from './utils';
+} from '../utils';
 
 export type InlineEditMode = 'selection' | 'cursor';
 

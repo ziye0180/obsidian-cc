@@ -17,8 +17,8 @@ import {
 jest.mock('fs');
 
 // Now import after all mocks are set up
-import type { InlineEditRequest } from '../src/InlineEditService';
-import { buildCursorContext, InlineEditService } from '../src/InlineEditService';
+import type { InlineEditRequest } from '../src/services/InlineEditService';
+import { buildCursorContext, InlineEditService } from '../src/services/InlineEditService';
 import { getPathFromToolInput } from '../src/tools/toolInput';
 
 // Create a mock plugin

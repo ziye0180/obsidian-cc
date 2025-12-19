@@ -12,7 +12,7 @@ import { ClaudianService } from './ClaudianService';
 import { ClaudianSettingTab } from './ClaudianSettings';
 import { ClaudianView } from './ClaudianView';
 import { deleteCachedImages } from './images/imageCache';
-import { buildCursorContext } from './InlineEditService';
+import { buildCursorContext } from './services/InlineEditService';
 import type {
   ClaudianSettings,
   Conversation,
