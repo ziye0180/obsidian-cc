@@ -202,30 +202,27 @@ function getContextPathInstructions(allowedContextPaths: string[]): string {
     return '';
   }
 
-  const formattedPaths = uniquePaths.map((p) => `- ${p}`).join('\n');
+  // Extract folder name as alias (last segment of path)
+  const formattedPaths = uniquePaths
+    .map((p) => {
+      const segments = p.replace(/\/+$/, '').split('/');
+      const folderName = segments[segments.length - 1] || p;
+      return `- \`${folderName}\` → ${p}`;
+    })
+    .join('\n');
 
   return `
 
-## Allowed Context Paths
+## Extra Context Paths
 
-You may read files from the following paths outside the vault for additional context:
+The user has selected these directories as relevant to their tasks. Proactively read from them when helpful:
 
 ${formattedPaths}
 
 Rules:
 - These paths are READ-ONLY (do not write, edit, or create files in them)
-- If a path appears in both context and export lists, it is read-write for that root
-- Use absolute paths or ~ when referencing these directories
-- Read these files when they contain relevant context for the user's request
-
-Examples:
-
-\`\`\`
-# Reading from context paths
-Read file_path="~/data/reference.json"
-Glob pattern="~/data/**/*.md"
-Grep pattern="keyword" path="~/data/"
-\`\`\``;
+- If a path is in both context and export lists, it is read-write
+- When user refers to a folder by name (e.g., "check Workspace"), use the corresponding path`;
 }
 
 /** Generates instructions for handling embedded images in notes. */
