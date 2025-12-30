@@ -16,6 +16,7 @@ export interface Options {
   resume?: string;
   maxThinkingTokens?: number;
   canUseTool?: CanUseTool;
+  systemPrompt?: string | { content: string; cacheControl?: { type: string } };
   hooks?: {
     PreToolUse?: HookCallbackMatcher[];
   };
