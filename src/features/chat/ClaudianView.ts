@@ -447,6 +447,7 @@ export class ClaudianView extends ItemView {
         setPlanModeActive: (_active) => {
           this.updatePlanModeUiState();
         },
+        getTodoPanel: () => this.todoPanel,
       },
       {}
     );

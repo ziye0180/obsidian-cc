@@ -761,7 +761,7 @@ describe('utils.ts', () => {
     beforeEach(() => {
       Object.defineProperty(process, 'platform', { value: 'win32' });
       // Force Windows-style separator to detect regressions when comparisons rely on path.sep.
-      path.sep = '\\';
+      Object.defineProperty(path, 'sep', { value: '\\', writable: true });
       jest.spyOn(path, 'isAbsolute').mockImplementation((p: any) => {
         const value = String(p);
         return /^[A-Za-z]:[\\/]/.test(value) || originalIsAbsolute(value);
@@ -773,7 +773,7 @@ describe('utils.ts', () => {
 
     afterEach(() => {
       Object.defineProperty(process, 'platform', { value: originalPlatform });
-      path.sep = originalSep;
+      Object.defineProperty(path, 'sep', { value: originalSep, writable: true });
       jest.restoreAllMocks();
     });
 

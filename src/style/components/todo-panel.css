@@ -30,28 +30,30 @@
   outline-offset: 2px;
 }
 
-/* Chevron */
-.claudian-todo-panel-chevron {
-  font-size: 10px;
-  color: var(--text-muted);
-  width: 12px;
-  text-align: center;
+/* List icon */
+.claudian-todo-panel-icon {
+  display: flex;
+  align-items: center;
+  color: var(--interactive-accent);
+  flex-shrink: 0;
+}
+
+.claudian-todo-panel-icon svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* Label */
 .claudian-todo-panel-label {
+  font-family: var(--font-monospace);
   font-size: 13px;
   font-weight: 500;
   color: var(--interactive-accent);
 }
 
-/* Separator dot */
-.claudian-todo-panel-separator {
-  color: var(--text-muted);
-}
-
 /* Current task preview (collapsed state) */
 .claudian-todo-panel-current {
+  font-family: var(--font-monospace);
   font-size: 13px;
   color: var(--text-muted);
   overflow: hidden;
@@ -96,6 +98,7 @@
 }
 
 .claudian-todo-panel-content .claudian-todo-text {
+  font-family: var(--font-monospace);
   font-size: 13px;
   line-height: 1.4;
   flex: 1;
@@ -125,5 +128,4 @@
 
 .claudian-todo-panel-content .claudian-todo-completed .claudian-todo-text {
   color: var(--text-muted);
-  text-decoration: line-through;
 }

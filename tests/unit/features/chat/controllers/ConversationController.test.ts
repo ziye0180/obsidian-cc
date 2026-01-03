@@ -132,6 +132,9 @@ function createMockDeps(overrides: Partial<ConversationControllerDeps> = {}): Co
     triggerPendingPlanApproval: jest.fn(),
     getTitleGenerationService: () => null,
     setPlanModeActive: jest.fn(),
+    getTodoPanel: () => ({
+      remount: jest.fn(),
+    }) as any,
     ...overrides,
   };
 }
@@ -180,6 +183,18 @@ describe('ConversationController - Queue Management', () => {
 
       expect(fileContextManager.resetForNewConversation).toHaveBeenCalled();
       expect(fileContextManager.autoAttachActiveFile).toHaveBeenCalled();
+    });
+
+    it('should clear todos for new conversation', async () => {
+      // Set up existing todos
+      deps.state.currentTodos = [
+        { content: 'Existing todo', status: 'pending', activeForm: 'Doing existing todo' }
+      ];
+      expect(deps.state.currentTodos).not.toBeNull();
+
+      await controller.createNew();
+
+      expect(deps.state.currentTodos).toBeNull();
     });
 
     it('should switch to existing empty conversation instead of creating new one', async () => {

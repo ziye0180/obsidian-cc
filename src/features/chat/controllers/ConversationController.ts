@@ -9,7 +9,7 @@ import { setIcon } from 'obsidian';
 
 import type { Conversation } from '../../../core/types';
 import type ClaudianPlugin from '../../../main';
-import { type ContextPathSelector, extractLastTodosFromMessages, type FileContextManager, type ImageContextManager, type McpServerSelector } from '../../../ui';
+import { type ContextPathSelector, extractLastTodosFromMessages, type FileContextManager, type ImageContextManager, type McpServerSelector, type TodoPanel } from '../../../ui';
 import type { MessageRenderer } from '../rendering/MessageRenderer';
 import type { AsyncSubagentManager } from '../services/AsyncSubagentManager';
 import type { TitleGenerationService } from '../services/TitleGenerationService';
@@ -52,6 +52,8 @@ export interface ConversationControllerDeps {
   getTitleGenerationService: () => TitleGenerationService | null;
   /** Set plan mode active state (updates UI toggle and file context). */
   setPlanModeActive: (active: boolean) => void;
+  /** Get TodoPanel for remounting after messagesEl.empty(). */
+  getTodoPanel: () => TodoPanel | null;
 }
 
 /**
@@ -91,6 +93,7 @@ export class ConversationController {
     state.currentConversationId = conversation.id;
     state.clearMessages();
     state.usage = null;
+    state.currentTodos = null;
 
     // Clear approved plan and pending plan for new conversation
     this.deps.setApprovedPlan(null);
@@ -100,6 +103,9 @@ export class ConversationController {
 
     const messagesEl = this.deps.getMessagesEl();
     messagesEl.empty();
+
+    // Remount TodoPanel after clearing (messagesEl.empty() removes it from DOM)
+    this.deps.getTodoPanel()?.remount();
 
     // Recreate welcome element after clearing messages
     const welcomeEl = messagesEl.createDiv({ cls: 'claudian-welcome' });

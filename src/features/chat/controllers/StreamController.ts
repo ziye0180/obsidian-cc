@@ -201,26 +201,28 @@ export class StreamController {
     msg.toolCalls = msg.toolCalls || [];
     msg.toolCalls.push(toolCall);
 
-    if (plugin.settings.showToolUse) {
+    // TodoWrite always updates the persistent bottom panel regardless of showToolUse setting
+    if (chunk.name === TOOL_TODO_WRITE) {
+      const todos = parseTodoInput(chunk.input);
+      if (todos) {
+        this.deps.state.currentTodos = todos;
+      } else {
+        console.warn('[StreamController] TodoWrite input parsing failed', {
+          toolId: chunk.id,
+          inputKeys: Object.keys(chunk.input),
+        });
+        // If showToolUse is on and parsing failed, render as raw tool call for debugging
+        if (plugin.settings.showToolUse && state.currentContentEl) {
+          msg.contentBlocks = msg.contentBlocks || [];
+          msg.contentBlocks.push({ type: 'tool_use', toolId: chunk.id });
+          renderToolCall(state.currentContentEl, toolCall, state.toolCallElements, plugin.settings.toolCallExpandedByDefault);
+        }
+      }
+    } else if (plugin.settings.showToolUse) {
       msg.contentBlocks = msg.contentBlocks || [];
       msg.contentBlocks.push({ type: 'tool_use', toolId: chunk.id });
 
-      if (chunk.name === TOOL_TODO_WRITE) {
-        const todos = parseTodoInput(chunk.input);
-        if (todos) {
-          // Only update persistent bottom panel - no inline rendering
-          this.deps.state.currentTodos = todos;
-        } else {
-          // Fallback: render tool call so invalid input is visible for debugging
-          console.warn('[StreamController] TodoWrite input parsing failed, rendering as raw tool call', {
-            toolId: chunk.id,
-            inputKeys: Object.keys(chunk.input),
-          });
-          if (state.currentContentEl) {
-            renderToolCall(state.currentContentEl, toolCall, state.toolCallElements, plugin.settings.toolCallExpandedByDefault);
-          }
-        }
-      } else if (isWriteEditTool(chunk.name)) {
+      if (isWriteEditTool(chunk.name)) {
         const writeEditState = createWriteEditBlock(state.currentContentEl!, toolCall);
         state.writeEditStates.set(chunk.id, writeEditState);
         state.toolCallElements.set(chunk.id, writeEditState.wrapperEl);

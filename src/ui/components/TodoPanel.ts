@@ -37,6 +37,23 @@ export class TodoPanel {
   }
 
   /**
+   * Remount the panel after the container was cleared.
+   * Called when messagesEl.empty() removes the panel from DOM.
+   */
+  remount(): void {
+    if (!this.containerEl) {
+      console.warn('[TodoPanel] Cannot remount - no containerEl set');
+      return;
+    }
+    // Destroy old references and recreate
+    this.panelEl = null;
+    this.todoContainerEl = null;
+    this.todoHeaderEl = null;
+    this.todoContentEl = null;
+    this.createPanel();
+  }
+
+  /**
    * Create the panel structure.
    */
   private createPanel(): void {
@@ -134,11 +151,11 @@ export class TodoPanel {
 
     this.todoHeaderEl.empty();
 
-    // Chevron
-    const chevron = document.createElement('span');
-    chevron.className = 'claudian-todo-panel-chevron';
-    chevron.textContent = this.isExpanded ? '▾' : '▸';
-    this.todoHeaderEl.appendChild(chevron);
+    // List icon
+    const icon = document.createElement('span');
+    icon.className = 'claudian-todo-panel-icon';
+    setIcon(icon, 'list-checks');
+    this.todoHeaderEl.appendChild(icon);
 
     // Label
     const label = document.createElement('span');
@@ -148,11 +165,6 @@ export class TodoPanel {
 
     // Current task (only when collapsed)
     if (!this.isExpanded && currentTask) {
-      const separator = document.createElement('span');
-      separator.className = 'claudian-todo-panel-separator';
-      separator.textContent = ' • ';
-      this.todoHeaderEl.appendChild(separator);
-
       const current = document.createElement('span');
       current.className = 'claudian-todo-panel-current';
       current.textContent = currentTask.activeForm;
@@ -215,12 +227,6 @@ export class TodoPanel {
    */
   private updateDisplay(): void {
     if (!this.todoContentEl || !this.todoHeaderEl) return;
-
-    // Update chevron
-    const chevron = this.todoHeaderEl.querySelector('.claudian-todo-panel-chevron');
-    if (chevron) {
-      chevron.textContent = this.isExpanded ? '▾' : '▸';
-    }
 
     // Show/hide content
     this.todoContentEl.style.display = this.isExpanded ? 'block' : 'none';

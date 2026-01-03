@@ -357,22 +357,10 @@ describe('TodoPanel', () => {
       expect(content!.style.display).toBe('none');
     });
 
-    it('should update chevron on toggle', () => {
-      const header = containerEl.querySelector('.claudian-todo-panel-header');
-
-      // Initial state - collapsed
-      let chevron = containerEl.querySelector('.claudian-todo-panel-chevron');
-      expect(chevron?.textContent).toBe('▸');
-
-      // First click - expand
-      header!.click();
-      chevron = containerEl.querySelector('.claudian-todo-panel-chevron');
-      expect(chevron?.textContent).toBe('▾');
-
-      // Second click - collapse
-      header!.click();
-      chevron = containerEl.querySelector('.claudian-todo-panel-chevron');
-      expect(chevron?.textContent).toBe('▸');
+    it('should show list icon in header', () => {
+      const icon = containerEl.querySelector('.claudian-todo-panel-icon');
+      expect(icon).not.toBeNull();
+      expect(icon?.getAttribute('data-icon')).toBe('list-checks');
     });
 
     it('should hide current task when expanded', () => {
