@@ -144,21 +144,19 @@ which claude
 # Example output: /Users/you/.volta/bin/claude
 ```
 
-**Windows (PowerShell):**
+**Windows (npm install):**
 ```powershell
-where.exe claude
-# Example output: C:\Users\you\AppData\Roaming\npm\claude.cmd
-```
-
-**Windows (npm global install):**
-If `where claude` returns nothing, find the cli.js directly:
-```powershell
+# Find the npm global modules directory
 npm root -g
 # Example: C:\Users\you\AppData\Roaming\npm\node_modules
-# Then use: C:\Users\you\AppData\Roaming\npm\node_modules\@anthropic-ai\claude-code\cli.js
+
+# The CLI path is:
+# {npm root -g}\@anthropic-ai\claude-code\cli.js
 ```
 
-Copy the output path and paste it into **Settings → Advanced → Claude CLI path**.
+> **Note**: `where.exe claude` returns `.cmd` wrapper files (e.g., `claude.cmd`). Don't use these — use the `cli.js` path instead.
+
+Copy the `cli.js` path and paste it into **Settings → Advanced → Claude CLI path**.
 
 **Alternative**: Add your Node.js bin directory to the PATH environment variable in **Settings → Environment → Custom variables**:
 ```
