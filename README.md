@@ -165,6 +165,20 @@ If you encounter `spawn claude ENOENT` or `Claude CLI not found`, the plugin can
 
 **Alternative**: Add your Node.js bin directory to PATH in Settings → Environment → Custom variables.
 
+### npm CLI and Node.js not in same directory
+
+If using npm-installed CLI, check if `claude` and `node` are in the same directory:
+```bash
+dirname $(which claude)
+dirname $(which node)
+```
+
+If different, GUI apps like Obsidian may not find Node.js.
+
+**Solutions**:
+1. Install native binary (recommended)
+2. Add Node.js path to Settings → Environment: `PATH=/path/to/node/bin`
+
 **Still having issues?** [Open a GitHub issue](https://github.com/YishenTu/claudian/issues) with your platform, CLI path, and error message.
 
 ## Architecture
