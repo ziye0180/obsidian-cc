@@ -23,7 +23,7 @@ import type ClaudianPlugin from '../../main';
 import { prependContextFiles } from '../../utils/context';
 import { type CursorContext } from '../../utils/editor';
 import { getEnhancedPath, parseEnvironmentVariables } from '../../utils/env';
-import { getPathAccessType, getVaultPath } from '../../utils/path';
+import { getPathAccessType, getVaultPath, type PathAccessType } from '../../utils/path';
 
 export type InlineEditMode = 'selection' | 'cursor';
 
@@ -305,7 +305,7 @@ export class InlineEditService {
 
           // Use getPathAccessType for consistent path access control
           // This allows vault and ~/.claude/ paths (context/readwrite params are undefined)
-          let accessType: string;
+          let accessType: PathAccessType;
           try {
             accessType = getPathAccessType(filePath, undefined, undefined, vaultPath);
           } catch {
