@@ -7,13 +7,13 @@ Claudian - 一个将 Claude Code 嵌入侧边栏聊天界面的 Obsidian 插件�
 ## 命令
 
 ```bash
-npm run dev        # 开发模式（监听）
-npm run build      # 生产构建
-npm run typecheck  # 类型检查
-npm run lint       # 代码检查
-npm run lint:fix   # 代码检查并自动修复
-npm run test       # 运行测试
-npm run test:watch # 监听模式运行测试
+bun run dev        # 开发模式（监听）
+bun run build      # 生产构建
+bun run typecheck  # 类型检查
+bun run lint       # 代码检查
+bun run lint:fix   # 代码检查并自动修复
+bun run test       # 运行测试
+bun run test:watch # 监听模式运行测试
 ```
 
 ## 架构
@@ -32,9 +32,9 @@ npm run test:watch # 监听模式运行测试
 ## 测试
 
 ```bash
-npm run test -- --selectProjects unit        # 运行单元测试
-npm run test -- --selectProjects integration # 运行集成测试
-npm run test:coverage -- --selectProjects unit # 单元测试覆盖率
+bun run test -- --selectProjects unit        # 运行单元测试
+bun run test -- --selectProjects integration # 运行集成测试
+bun run test:coverage -- --selectProjects unit # 单元测试覆盖率
 ```
 
 测试文件在 `tests/unit/` 和 `tests/integration/` 中镜像 `src/` 结构。
@@ -66,7 +66,7 @@ npm run test:coverage -- --selectProjects unit # 单元测试覆盖率
   - 对于 bug 修复，在修复之前先写一个能复现 bug 的测试
   - 测试行为和公共 API，而非内部实现细节
   - 对于琐碎的改动（重命名、移动文件、配置调整）跳过 TDD——但仍然验证现有测试通过
-- 编辑后运行 `npm run typecheck && npm run lint && npm run test && npm run build`
+- 编辑后运行 `bun run typecheck && bun run lint && bun run test && bun run build`
 - 生产代码中不要有 `console.*`
   - 如果需要通知用户，使用 Obsidian 的通知系统
   - 使用 `console.log` 调试，但提交前删除

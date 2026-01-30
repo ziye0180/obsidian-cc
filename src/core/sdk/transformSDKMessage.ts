@@ -35,7 +35,7 @@ export function* transformSDKMessage(
   options?: TransformOptions
 ): Generator<TransformEvent> {
   // null = main agent, non-null = subagent context
-  const parentToolUseId = message.type === 'result'
+  const parentToolUseId = message.type === 'result' || message.type === 'tool_use_summary'
     ? null
     : message.parent_tool_use_id ?? null;
 
@@ -176,6 +176,10 @@ export function* transformSDKMessage(
     case 'result':
       // Usage is now extracted from assistant messages for accuracy (excludes subagent tokens)
       // Result message usage is aggregated across main + subagents, causing inaccurate spikes
+      break;
+
+    case 'tool_use_summary':
+      // Compact mode tool use summary - no UI action needed
       break;
 
     case 'error':

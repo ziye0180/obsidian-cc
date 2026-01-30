@@ -70,8 +70,8 @@
 
 2. 安装依赖并构建：
    ```bash
-   npm install
-   npm run build
+   bun install
+   bun run build
    ```
 
 3. 在 Obsidian 中启用插件：
@@ -81,13 +81,13 @@
 
 ```bash
 # 监听模式
-npm run dev
+bun run dev
 
 # 生产构建
-npm run build
+bun run build
 ```
 
-> **提示**：复制 `.env.local.example` 为 `.env.local` 或运行 `npm install` 并设置你的 Vault 路径以在开发期间自动复制文件。
+> **提示**：复制 `.env.local.example` 为 `.env.local` 或运行 `bun install` 并设置你的 Vault 路径以在开发期间自动复制文件。
 
 ## 使用方法
 

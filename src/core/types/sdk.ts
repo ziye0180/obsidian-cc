@@ -78,5 +78,14 @@ export interface SDKResultMessage {
   model?: string;
 }
 
+/** SDK tool_use_summary message (compact mode). */
+export interface SDKToolUseSummaryMessage {
+  type: 'tool_use_summary';
+  summary: string;
+  preceding_tool_use_ids: string[];
+  uuid?: string;
+  session_id?: string;
+}
+
 /** SDK message structure from the Claude Agent SDK. */
-export type SDKMessage = SDKNonResultMessage | SDKResultMessage;
+export type SDKMessage = SDKNonResultMessage | SDKResultMessage | SDKToolUseSummaryMessage;
