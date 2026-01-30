@@ -645,7 +645,7 @@ export class ConversationController {
       personalize('Welcome back') + '!',
       personalize("What's new") + '?',
       ...(name ? [`${name} returns!`] : []),
-      'You are absolutely right!',
+      'Hello ziye how can I help you today?',
     ];
 
     // Combine day + time + general greetings, pick randomly
