@@ -1,73 +1,73 @@
 # CLAUDE.md
 
-## Project Overview
+## 项目概述
 
-Claudian - An Obsidian plugin that embeds Claude Code as a sidebar chat interface. The vault directory becomes Claude's working directory, giving it full agentic capabilities: file read/write, bash commands, and multi-step workflows.
+Claudian - 一个将 Claude Code 嵌入侧边栏聊天界面的 Obsidian 插件。Vault 目录成为 Claude 的工作目录，赋予它完整的代理能力：文件读写、bash 命令和多步骤工作流。
 
-## Commands
-
-```bash
-npm run dev        # Development (watch mode)
-npm run build      # Production build
-npm run typecheck  # Type check
-npm run lint       # Lint code
-npm run lint:fix   # Lint and auto-fix
-npm run test       # Run tests
-npm run test:watch # Run tests in watch mode
-```
-
-## Architecture
-
-| Layer | Purpose | Details |
-|-------|---------|---------|
-| **core** | Infrastructure (no feature deps) | See [`src/core/CLAUDE.md`](src/core/CLAUDE.md) |
-| **features/chat** | Main sidebar interface | See [`src/features/chat/CLAUDE.md`](src/features/chat/CLAUDE.md) |
-| **features/inline-edit** | Inline edit modal | `InlineEditService`, read-only tools |
-| **features/settings** | Settings tab | UI components for all settings |
-| **shared** | Reusable UI | Dropdowns, modals, @-mention, icons |
-| **i18n** | Internationalization | 10 locales |
-| **utils** | Utility functions | date, path, env, editor, session, markdown, diff, context, sdkSession, frontmatter, slashCommand, mcp, claudeCli, externalContext, externalContextScanner, fileLink, imageEmbed, inlineEdit |
-| **style** | Modular CSS | See [`src/style/CLAUDE.md`](src/style/CLAUDE.md) |
-
-## Tests
+## 命令
 
 ```bash
-npm run test -- --selectProjects unit        # Run unit tests
-npm run test -- --selectProjects integration # Run integration tests
-npm run test:coverage -- --selectProjects unit # Unit coverage
+npm run dev        # 开发模式（监听）
+npm run build      # 生产构建
+npm run typecheck  # 类型检查
+npm run lint       # 代码检查
+npm run lint:fix   # 代码检查并自动修复
+npm run test       # 运行测试
+npm run test:watch # 监听模式运行测试
 ```
 
-Tests mirror `src/` structure in `tests/unit/` and `tests/integration/`.
+## 架构
 
-## Storage
+| 层级 | 用途 | 详情 |
+|------|------|------|
+| **core** | 基础设施（无 feature 依赖） | 参见 [`src/core/CLAUDE.md`](src/core/CLAUDE.md) |
+| **features/chat** | 主侧边栏界面 | 参见 [`src/features/chat/CLAUDE.md`](src/features/chat/CLAUDE.md) |
+| **features/inline-edit** | 内联编辑模态框 | `InlineEditService`，只读工具 |
+| **features/settings** | 设置标签页 | 所有设置的 UI 组件 |
+| **shared** | 可复用 UI | 下拉菜单、模态框、@-mention、图标 |
+| **i18n** | 国际化 | 10 种语言 |
+| **utils** | 工具函数 | date、path、env、editor、session、markdown、diff、context、sdkSession、frontmatter、slashCommand、mcp、claudeCli、externalContext、externalContextScanner、fileLink、imageEmbed、inlineEdit |
+| **style** | 模块化 CSS | 参见 [`src/style/CLAUDE.md`](src/style/CLAUDE.md) |
 
-| File | Contents |
-|------|----------|
-| `.claude/settings.json` | CC-compatible: permissions, env, enabledPlugins |
-| `.claude/claudian-settings.json` | Claudian-specific settings (model, UI, etc.) |
-| `.claude/settings.local.json` | Local overrides (gitignored) |
-| `.claude/mcp.json` | MCP server configs |
-| `.claude/commands/*.md` | Slash commands (YAML frontmatter) |
-| `.claude/agents/*.md` | Custom agents (YAML frontmatter) |
-| `.claude/skills/*/SKILL.md` | Skill definitions |
-| `.claude/sessions/*.meta.json` | Session metadata |
-| `~/.claude/projects/{vault}/*.jsonl` | SDK-native session messages |
+## 测试
 
-## Development Notes
+```bash
+npm run test -- --selectProjects unit        # 运行单元测试
+npm run test -- --selectProjects integration # 运行集成测试
+npm run test:coverage -- --selectProjects unit # 单元测试覆盖率
+```
 
-- **SDK-first**: Proactively use native Claude SDK features over custom implementations. If the SDK provides a capability, use it — do not reinvent it. This ensures compatibility with Claude Code.
-- **SDK exploration**: When developing SDK-related features, write a throwaway test script (e.g., in `dev/`) that calls the real SDK to observe actual response shapes, event sequences, and edge cases. Real output lands in `~/.claude/` or `{vault}/.claude/` — inspect those files to understand patterns and formats. Run this before writing implementation or tests — real output beats guessing at types and formats. This is the default first step for any SDK integration work.
-- **Comments**: Only comment WHY, not WHAT. No JSDoc that restates the function name (`/** Get servers. */` on `getServers()`), no narrating inline comments (`// Create the channel` before `new Channel()`), no module-level docs on barrel `index.ts` files. Keep JSDoc only when it adds non-obvious context (edge cases, constraints, surprising behavior).
-- **TDD workflow**: For new functions/modules and bug fixes, follow red-green-refactor:
-  1. Write a failing test first in the mirrored path under `tests/unit/` (or `tests/integration/`)
-  2. Run it with `npm run test -- --selectProjects unit --testPathPattern <pattern>` to confirm it fails
-  3. Write the minimal implementation to make it pass
-  4. Refactor, keeping tests green
-  - For bug fixes, write a test that reproduces the bug before fixing it
-  - Test behavior and public API, not internal implementation details
-  - Skip TDD for trivial changes (renaming, moving files, config tweaks) — but still verify existing tests pass
-- Run `npm run typecheck && npm run lint && npm run test && npm run build` after editing
-- No `console.*` in production code 
-  - use Obsidian's notification system if user should be notified
-  - use `console.log` for debugging, but remove it before committing
-- Generated docs/test scripts go in `dev/`.
+测试文件在 `tests/unit/` 和 `tests/integration/` 中镜像 `src/` 结构。
+
+## 存储
+
+| 文件 | 内容 |
+|------|------|
+| `.claude/settings.json` | CC 兼容：权限、环境变量、enabledPlugins |
+| `.claude/claudian-settings.json` | Claudian 特定设置（模型、UI 等） |
+| `.claude/settings.local.json` | 本地覆盖（已 gitignore） |
+| `.claude/mcp.json` | MCP 服务器配置 |
+| `.claude/commands/*.md` | 斜杠命令（YAML frontmatter） |
+| `.claude/agents/*.md` | 自定义代理（YAML frontmatter） |
+| `.claude/skills/*/SKILL.md` | 技能定义 |
+| `.claude/sessions/*.meta.json` | 会话元数据 |
+| `~/.claude/projects/{vault}/*.jsonl` | SDK 原生会话消息 |
+
+## 开发注意事项
+
+- **SDK 优先**：优先使用 Claude SDK 原生功能，而非自定义实现。如果 SDK 提供了某个能力，直接使用——不要重复造轮子。这确保与 Claude Code 的兼容性。
+- **SDK 探索**：开发 SDK 相关功能时，先写一个一次性测试脚本（如在 `dev/` 目录），调用真实 SDK 观察实际的响应结构、事件序列和边界情况。真实输出会落在 `~/.claude/` 或 `{vault}/.claude/`——检查这些文件来理解模式和格式。在写实现或测试之前先运行这个——真实输出胜过猜测类型和格式。这是任何 SDK 集成工作的默认第一步。
+- **注释**：只注释 WHY，不注释 WHAT。不要写重复函数名的 JSDoc（如在 `getServers()` 上写 `/** Get servers. */`），不要写叙述性的内联注释（如在 `new Channel()` 前写 `// Create the channel`），不要在 barrel `index.ts` 文件上写模块级文档。仅在添加非显而易见的上下文时保留 JSDoc（边界情况、约束、意外行为）。
+- **TDD 工作流**：对于新函数/模块和 bug 修复，遵循红-绿-重构：
+  1. 首先在 `tests/unit/`（或 `tests/integration/`）的镜像路径下写一个失败的测试
+  2. 用 `npm run test -- --selectProjects unit --testPathPattern <pattern>` 运行确认它失败
+  3. 写最小实现使其通过
+  4. 重构，保持测试绿色
+  - 对于 bug 修复，在修复之前先写一个能复现 bug 的测试
+  - 测试行为和公共 API，而非内部实现细节
+  - 对于琐碎的改动（重命名、移动文件、配置调整）跳过 TDD——但仍然验证现有测试通过
+- 编辑后运行 `npm run typecheck && npm run lint && npm run test && npm run build`
+- 生产代码中不要有 `console.*`
+  - 如果需要通知用户，使用 Obsidian 的通知系统
+  - 使用 `console.log` 调试，但提交前删除
+- 生成的文档/测试脚本放在 `dev/` 目录。

@@ -1,3 +1,3 @@
-## Agents
+## 代理
 
-Read CLAUDE.md for the agent overview and instructions.
+阅读 CLAUDE.md 了解代理概述和使用说明。
