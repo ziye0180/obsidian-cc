@@ -3,6 +3,7 @@ import { Notice } from 'obsidian';
 import type { ApprovalCallbackOptions, ClaudianService } from '../../../core/agent';
 import { detectBuiltInCommand } from '../../../core/commands';
 import type { ChatMessage } from '../../../core/types';
+import { t } from '../../../i18n';
 import type ClaudianPlugin from '../../../main';
 import { type ApprovalDecision, ApprovalModal } from '../../../shared/modals/ApprovalModal';
 import { InstructionModal } from '../../../shared/modals/InstructionConfirmModal';
@@ -266,7 +267,7 @@ export class InputController {
     if (this.deps.ensureServiceInitialized) {
       const ready = await this.deps.ensureServiceInitialized();
       if (!ready) {
-        new Notice('Failed to initialize agent service. Please try again.');
+        new Notice(t('input.initFailed'));
         streamController.hideThinkingIndicator();
         state.isStreaming = false;
         return;
@@ -275,7 +276,7 @@ export class InputController {
 
     const agentService = this.getAgentService();
     if (!agentService) {
-      new Notice('Agent service not available. Please reload the plugin.');
+      new Notice(t('input.serviceUnavailable'));
       return;
     }
     try {
@@ -538,7 +539,7 @@ export class InputController {
             plugin.settings.systemPrompt = appendMarkdownSnippet(currentPrompt, finalInstruction);
             await plugin.saveSettings();
 
-            new Notice('Instruction added to custom system prompt');
+            new Notice(t('input.instructionAdded'));
             instructionModeManager?.clear();
           },
           onReject: () => {
@@ -598,13 +599,13 @@ export class InputController {
       } else if (result.refinedInstruction) {
         modal.showConfirmation(result.refinedInstruction);
       } else {
-        new Notice('No instruction received');
-        modal.showError('No instruction received');
+        new Notice(t('input.noInstruction'));
+        modal.showError(t('input.noInstruction'));
         instructionModeManager?.clear();
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      new Notice(`Error: ${errorMsg}`);
+      new Notice(t('input.instructionError', { message: errorMsg }));
       modal?.showError(errorMsg);
       instructionModeManager?.clear();
     }
@@ -652,12 +653,12 @@ export class InputController {
       case 'add-dir': {
         const externalContextSelector = this.deps.getExternalContextSelector();
         if (!externalContextSelector) {
-          new Notice('External context selector not available.');
+          new Notice(t('input.externalContextUnavailable'));
           return;
         }
         const result = externalContextSelector.addExternalContext(args);
         if (result.success) {
-          new Notice(`Added external context: ${result.normalizedPath}`);
+          new Notice(t('input.externalContextAdded', { path: result.normalizedPath }));
         } else {
           new Notice(result.error);
         }
@@ -665,7 +666,7 @@ export class InputController {
       }
       default:
         // Unknown command - notify user
-        new Notice(`Unknown command: ${action}`);
+        new Notice(t('input.unknownCommand', { command: action }));
     }
   }
 }

@@ -298,6 +298,28 @@
       "saveFailed": "Falha ao salvar o prompt"
     }
   },
+  "history": {
+    "title": "Conversas",
+    "search": "Pesquisar conversas...",
+    "empty": "Sem conversas",
+    "currentSession": "Sessão atual"
+  },
+  "header": {
+    "newTab": "Nova aba",
+    "newConversation": "Nova conversa",
+    "chatHistory": "Histórico de chat",
+    "maxTabs": "Máximo de {count} abas permitidas"
+  },
+  "input": {
+    "initFailed": "Falha ao inicializar o serviço de agente. Por favor, tente novamente.",
+    "serviceUnavailable": "Serviço de agente não disponível. Por favor, recarregue o plugin.",
+    "instructionAdded": "Instrução adicionada ao prompt de sistema personalizado",
+    "noInstruction": "Nenhuma instrução recebida",
+    "instructionError": "Erro: {message}",
+    "externalContextUnavailable": "Seletor de contexto externo não disponível.",
+    "externalContextAdded": "Contexto externo adicionado: {path}",
+    "unknownCommand": "Comando desconhecido: {command}"
+  },
   "export": {
     "noMessages": "Nenhuma mensagem para exportar",
     "success": "Exportado para {fileName}",

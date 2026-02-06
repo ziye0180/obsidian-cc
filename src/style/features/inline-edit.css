@@ -4,7 +4,7 @@
 .cm-line .claudian-selection-highlight,
 .claudian-selection-highlight {
   background: var(--text-selection) !important;
-  border-radius: 2px;
+  border-radius: var(--claudian-radius-sm);
   padding: 3px 0;
   margin: -3px 0;
 }

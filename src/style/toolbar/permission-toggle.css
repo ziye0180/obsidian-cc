@@ -17,7 +17,7 @@
 .claudian-toggle-switch {
   width: 32px;
   height: 18px;
-  border-radius: 9px;
+  border-radius: var(--claudian-radius-lg);
   background: var(--background-modifier-border);
   cursor: pointer;
   position: relative;

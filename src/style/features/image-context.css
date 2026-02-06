@@ -83,7 +83,7 @@
   width: 10px;
   height: 2px;
   background: var(--text-muted);
-  border-radius: 1px;
+  border-radius: var(--claudian-radius-sm);
   transition: background 0.15s ease;
 }
 
@@ -168,7 +168,7 @@
 
 .claudian-message-image:hover {
   transform: scale(1.03);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--claudian-shadow-dropdown);
 }
 
 .claudian-message-image img {

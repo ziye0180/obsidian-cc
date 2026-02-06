@@ -298,6 +298,28 @@
       "saveFailed": "プロンプトの保存に失敗しました"
     }
   },
+  "history": {
+    "title": "会話履歴",
+    "search": "会話を検索...",
+    "empty": "会話がありません",
+    "currentSession": "現在のセッション"
+  },
+  "header": {
+    "newTab": "新しいタブ",
+    "newConversation": "新しい会話",
+    "chatHistory": "チャット履歴",
+    "maxTabs": "最大 {count} タブまで許可されています"
+  },
+  "input": {
+    "initFailed": "エージェントサービスの初期化に失敗しました。もう一度お試しください。",
+    "serviceUnavailable": "エージェントサービスが利用できません。プラグインを再読み込みしてください。",
+    "instructionAdded": "カスタムシステムプロンプトに指示を追加しました",
+    "noInstruction": "指示を受信していません",
+    "instructionError": "エラー：{message}",
+    "externalContextUnavailable": "外部コンテキストセレクターが利用できません。",
+    "externalContextAdded": "外部コンテキストを追加しました：{path}",
+    "unknownCommand": "不明なコマンド：{command}"
+  },
   "export": {
     "noMessages": "エクスポートするメッセージがありません",
     "success": "{fileName} にエクスポートしました",

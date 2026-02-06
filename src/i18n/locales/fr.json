@@ -298,6 +298,28 @@
       "saveFailed": "Échec de la sauvegarde du prompt"
     }
   },
+  "history": {
+    "title": "Conversations",
+    "search": "Rechercher des conversations...",
+    "empty": "Aucune conversation",
+    "currentSession": "Session actuelle"
+  },
+  "header": {
+    "newTab": "Nouvel onglet",
+    "newConversation": "Nouvelle conversation",
+    "chatHistory": "Historique du chat",
+    "maxTabs": "Maximum {count} onglets autorisés"
+  },
+  "input": {
+    "initFailed": "Impossible d'initialiser le service d'agent. Veuillez réessayer.",
+    "serviceUnavailable": "Service d'agent non disponible. Veuillez recharger le plugin.",
+    "instructionAdded": "Instruction ajoutée au prompt système personnalisé",
+    "noInstruction": "Aucune instruction reçue",
+    "instructionError": "Erreur : {message}",
+    "externalContextUnavailable": "Le sélecteur de contexte externe n'est pas disponible.",
+    "externalContextAdded": "Contexte externe ajouté : {path}",
+    "unknownCommand": "Commande inconnue : {command}"
+  },
   "export": {
     "noMessages": "Aucun message à exporter",
     "success": "Exporté vers {fileName}",

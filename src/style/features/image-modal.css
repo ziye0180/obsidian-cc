@@ -25,7 +25,7 @@
   max-height: 90vh;
   object-fit: contain;
   border-radius: var(--claudian-radius-lg);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--claudian-shadow-modal);
 }
 
 .claudian-image-modal-close {
@@ -42,7 +42,7 @@
   cursor: pointer;
   font-size: 20px;
   color: var(--text-muted);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--claudian-shadow-dropdown);
   transition: background 0.15s ease, color 0.15s ease;
 }
 

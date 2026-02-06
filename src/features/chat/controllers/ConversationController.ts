@@ -482,7 +482,7 @@ export class ConversationController {
 
     // Header: title + close button + search input
     const dropdownHeader = container.createDiv({ cls: 'claudian-history-header' });
-    dropdownHeader.createSpan({ text: 'Conversations' });
+    dropdownHeader.createSpan({ text: t('history.title') });
 
     const closeBtn = dropdownHeader.createEl('button', { cls: 'claudian-action-btn' });
     setIcon(closeBtn, 'x');
@@ -494,15 +494,16 @@ export class ConversationController {
 
     const searchInput = dropdownHeader.createEl('input', {
       cls: 'claudian-history-search',
-      attr: { type: 'text', placeholder: 'Search conversations...' },
+      attr: { type: 'text', placeholder: t('history.search'), 'aria-label': t('history.search') },
     });
     searchInput.addEventListener('click', (e) => e.stopPropagation());
 
     const list = container.createDiv({ cls: 'claudian-history-list' });
+    list.setAttribute('role', 'listbox');
     const allConversations = plugin.getConversationList();
 
     if (allConversations.length === 0) {
-      list.createDiv({ cls: 'claudian-history-empty', text: 'No conversations' });
+      list.createDiv({ cls: 'claudian-history-empty', text: t('history.empty') });
       return;
     }
 
@@ -523,6 +524,8 @@ export class ConversationController {
         cls: `claudian-history-item${isCurrent ? ' active' : ''}`,
         attr: { 'data-group': group },
       });
+      item.setAttribute('role', 'option');
+      item.setAttribute('tabindex', '-1');
 
       // Mark first item in each date group for CSS ::before rendering
       if (isFirstInGroup) {
@@ -537,7 +540,7 @@ export class ConversationController {
       titleEl.setAttribute('title', conv.title);
       content.createDiv({
         cls: 'claudian-history-item-date',
-        text: isCurrent ? 'Current session' : this.formatDate(conv.lastResponseAt ?? conv.createdAt),
+        text: isCurrent ? t('history.currentSession') : this.formatDate(conv.lastResponseAt ?? conv.createdAt),
       });
 
       if (!isCurrent) {
@@ -605,7 +608,40 @@ export class ConversationController {
           // Silently ignore deletion errors
         }
       });
+
+      // Keyboard navigation for history items
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          item.click();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = item.nextElementSibling as HTMLElement;
+          if (next?.classList.contains('claudian-history-item')) next.focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = item.previousElementSibling as HTMLElement;
+          if (prev?.classList.contains('claudian-history-item')) {
+            prev.focus();
+          } else {
+            searchInput.focus();
+          }
+        } else if (e.key === 'Escape') {
+          container.removeClass('visible');
+        }
+      });
     }
+
+    // Keyboard navigation for search input
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const firstVisible = list.querySelector('.claudian-history-item:not([style*="display: none"])') as HTMLElement;
+        firstVisible?.focus();
+      } else if (e.key === 'Escape') {
+        container.removeClass('visible');
+      }
+    });
 
     // Debounced search filtering
     let searchTimer: ReturnType<typeof setTimeout> | null = null;

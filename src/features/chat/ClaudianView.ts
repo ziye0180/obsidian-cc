@@ -252,7 +252,7 @@ export class ClaudianView extends ItemView {
     // New tab button (plus icon)
     const newTabBtn = this.headerActionsContent.createDiv({ cls: 'claudian-header-btn claudian-new-tab-btn' });
     setIcon(newTabBtn, 'square-plus');
-    newTabBtn.setAttribute('aria-label', 'New tab');
+    newTabBtn.setAttribute('aria-label', t('header.newTab'));
     newTabBtn.addEventListener('click', async () => {
       await this.handleNewTab();
     });
@@ -260,7 +260,7 @@ export class ClaudianView extends ItemView {
     // New conversation button (square-pen icon - new conversation in current tab)
     const newBtn = this.headerActionsContent.createDiv({ cls: 'claudian-header-btn' });
     setIcon(newBtn, 'square-pen');
-    newBtn.setAttribute('aria-label', 'New conversation');
+    newBtn.setAttribute('aria-label', t('header.newConversation'));
     newBtn.addEventListener('click', async () => {
       await this.tabManager?.createNewConversation();
       this.updateHistoryDropdown();
@@ -282,7 +282,7 @@ export class ClaudianView extends ItemView {
     const historyContainer = this.headerActionsContent.createDiv({ cls: 'claudian-history-container' });
     const historyBtn = historyContainer.createDiv({ cls: 'claudian-header-btn' });
     setIcon(historyBtn, 'history');
-    historyBtn.setAttribute('aria-label', 'Chat history');
+    historyBtn.setAttribute('aria-label', t('header.chatHistory'));
 
     this.historyDropdown = historyContainer.createDiv({ cls: 'claudian-history-menu' });
 
@@ -354,7 +354,7 @@ export class ClaudianView extends ItemView {
     const tab = await this.tabManager?.createTab();
     if (!tab) {
       const maxTabs = this.plugin.settings.maxTabs ?? 3;
-      new Notice(`Maximum ${maxTabs} tabs allowed`);
+      new Notice(t('header.maxTabs', { count: String(maxTabs) }));
       return;
     }
     this.updateTabBarVisibility();

@@ -298,6 +298,28 @@
       "saveFailed": "Fehler beim Speichern des Prompts"
     }
   },
+  "history": {
+    "title": "Unterhaltungen",
+    "search": "Unterhaltungen durchsuchen...",
+    "empty": "Keine Unterhaltungen",
+    "currentSession": "Aktuelle Sitzung"
+  },
+  "header": {
+    "newTab": "Neuer Tab",
+    "newConversation": "Neue Unterhaltung",
+    "chatHistory": "Chat-Verlauf",
+    "maxTabs": "Maximal {count} Tabs erlaubt"
+  },
+  "input": {
+    "initFailed": "Agentendienst konnte nicht initialisiert werden. Bitte versuchen Sie es erneut.",
+    "serviceUnavailable": "Agentendienst nicht verfügbar. Bitte laden Sie das Plugin neu.",
+    "instructionAdded": "Anweisung zum benutzerdefinierten System-Prompt hinzugefügt",
+    "noInstruction": "Keine Anweisung empfangen",
+    "instructionError": "Fehler: {message}",
+    "externalContextUnavailable": "Externer Kontextauswähler nicht verfügbar.",
+    "externalContextAdded": "Externen Kontext hinzugefügt: {path}",
+    "unknownCommand": "Unbekannter Befehl: {command}"
+  },
   "export": {
     "noMessages": "Keine Nachrichten zum Exportieren",
     "success": "Exportiert nach {fileName}",

@@ -298,6 +298,28 @@
       "saveFailed": "Ошибка сохранения промпта"
     }
   },
+  "history": {
+    "title": "Беседы",
+    "search": "Поиск бесед...",
+    "empty": "Нет бесед",
+    "currentSession": "Текущая сессия"
+  },
+  "header": {
+    "newTab": "Новая вкладка",
+    "newConversation": "Новая беседа",
+    "chatHistory": "История чата",
+    "maxTabs": "Максимум {count} вкладок"
+  },
+  "input": {
+    "initFailed": "Не удалось инициализировать сервис агента. Пожалуйста, попробуйте снова.",
+    "serviceUnavailable": "Сервис агента недоступен. Пожалуйста, перезагрузите плагин.",
+    "instructionAdded": "Инструкция добавлена в пользовательский системный промпт",
+    "noInstruction": "Инструкция не получена",
+    "instructionError": "Ошибка: {message}",
+    "externalContextUnavailable": "Селектор внешнего контекста недоступен.",
+    "externalContextAdded": "Добавлен внешний контекст: {path}",
+    "unknownCommand": "Неизвестная команда: {command}"
+  },
   "export": {
     "noMessages": "Нет сообщений для экспорта",
     "success": "Экспортировано в {fileName}",

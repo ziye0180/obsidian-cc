@@ -248,6 +248,28 @@ export type TranslationKey =
   | 'promptManager.validation.contentRequired'
   | 'promptManager.validation.saveFailed'
 
+  // History panel
+  | 'history.title'
+  | 'history.search'
+  | 'history.empty'
+  | 'history.currentSession'
+
+  // Header buttons
+  | 'header.newTab'
+  | 'header.newConversation'
+  | 'header.chatHistory'
+  | 'header.maxTabs'
+
+  // Input controller
+  | 'input.initFailed'
+  | 'input.serviceUnavailable'
+  | 'input.instructionAdded'
+  | 'input.noInstruction'
+  | 'input.instructionError'
+  | 'input.externalContextUnavailable'
+  | 'input.externalContextAdded'
+  | 'input.unknownCommand'
+
   // Conversation export
   | 'export.noMessages'
   | 'export.success'

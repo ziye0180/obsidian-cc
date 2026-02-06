@@ -298,6 +298,28 @@
       "saveFailed": "儲存提示詞失敗"
     }
   },
+  "history": {
+    "title": "對話記錄",
+    "search": "搜尋對話...",
+    "empty": "暫無對話",
+    "currentSession": "目前工作階段"
+  },
+  "header": {
+    "newTab": "新分頁",
+    "newConversation": "新對話",
+    "chatHistory": "對話記錄",
+    "maxTabs": "最多允許 {count} 個分頁"
+  },
+  "input": {
+    "initFailed": "代理服務初始化失敗，請重試。",
+    "serviceUnavailable": "代理服務不可用，請重新載入外掛程式。",
+    "instructionAdded": "指令已新增到自訂系統提示詞",
+    "noInstruction": "未收到指令",
+    "instructionError": "錯誤：{message}",
+    "externalContextUnavailable": "外部上下文選擇器不可用。",
+    "externalContextAdded": "已新增外部上下文：{path}",
+    "unknownCommand": "未知命令：{command}"
+  },
   "export": {
     "noMessages": "沒有可匯出的訊息",
     "success": "已匯出到 {fileName}",

@@ -298,6 +298,28 @@
       "saveFailed": "Failed to save prompt"
     }
   },
+  "history": {
+    "title": "Conversations",
+    "search": "Search conversations...",
+    "empty": "No conversations",
+    "currentSession": "Current session"
+  },
+  "header": {
+    "newTab": "New tab",
+    "newConversation": "New conversation",
+    "chatHistory": "Chat history",
+    "maxTabs": "Maximum {count} tabs allowed"
+  },
+  "input": {
+    "initFailed": "Failed to initialize agent service. Please try again.",
+    "serviceUnavailable": "Agent service not available. Please reload the plugin.",
+    "instructionAdded": "Instruction added to custom system prompt",
+    "noInstruction": "No instruction received",
+    "instructionError": "Error: {message}",
+    "externalContextUnavailable": "External context selector not available.",
+    "externalContextAdded": "Added external context: {path}",
+    "unknownCommand": "Unknown command: {command}"
+  },
   "export": {
     "noMessages": "No messages to export",
     "success": "Exported to {fileName}",
