@@ -2,6 +2,7 @@ import { Notice, setIcon } from 'obsidian';
 
 import type { ClaudianService } from '../../../core/agent';
 import type { Conversation } from '../../../core/types';
+import { t } from '../../../i18n';
 import type ClaudianPlugin from '../../../main';
 import { cleanupThinkingBlock } from '../rendering';
 import type { MessageRenderer } from '../rendering/MessageRenderer';
@@ -816,7 +817,7 @@ export class ConversationController {
 
     const conversation = await plugin.getConversationById(targetId);
     if (!conversation || conversation.messages.length === 0) {
-      new Notice('No messages to export');
+      new Notice(t('export.noMessages'));
       return;
     }
 
@@ -827,9 +828,9 @@ export class ConversationController {
 
     try {
       await plugin.storage.getAdapter().write(fileName, markdown);
-      new Notice(`Exported to ${fileName}`);
+      new Notice(t('export.success', { fileName }));
     } catch (error) {
-      new Notice('Export failed: ' + (error instanceof Error ? error.message : String(error)));
+      new Notice(t('export.failed', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
 
@@ -839,8 +840,8 @@ export class ConversationController {
 
     lines.push(`# ${conversation.title}`);
     lines.push('');
-    lines.push(`*Exported from Claudian on ${new Date().toLocaleDateString()}*`);
-    lines.push(`*Created: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}*`);
+    lines.push(`*${t('export.headerExported', { date: new Date().toLocaleDateString() })}*`);
+    lines.push(`*${t('export.headerCreated', { date: `${date.toLocaleDateString()} ${date.toLocaleTimeString()}` })}*`);
     lines.push('');
     lines.push('---');
     lines.push('');
@@ -848,7 +849,7 @@ export class ConversationController {
     for (const msg of conversation.messages) {
       if (msg.isRebuiltContext || msg.isInterrupt) continue;
 
-      const roleLabel = msg.role === 'user' ? 'User' : 'Assistant';
+      const roleLabel = msg.role === 'user' ? t('export.roleUser') : t('export.roleAssistant');
       lines.push(`## ${roleLabel}`);
       lines.push('');
 
@@ -858,9 +859,9 @@ export class ConversationController {
 
       if (msg.toolCalls && msg.toolCalls.length > 0) {
         for (const tool of msg.toolCalls) {
-          lines.push(`> **Tool:** ${tool.name}`);
+          lines.push(`> **${t('export.toolLabel', { name: tool.name })}**`);
           if (tool.status === 'error') {
-            lines.push('> *Error*');
+            lines.push(`> *${t('export.toolError')}*`);
           }
         }
         lines.push('');

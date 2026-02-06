@@ -4,6 +4,7 @@ import { ItemView, Notice, setIcon } from 'obsidian';
 import { PromptAggregator } from '../../core/storage/PromptAggregator';
 import { VIEW_TYPE_CLAUDIAN } from '../../core/types';
 import type { PromptTemplate } from '../../core/types/prompts';
+import { t } from '../../i18n';
 import type ClaudianPlugin from '../../main';
 import { LOGO_SVG } from './constants';
 import { TabBar, TabManager } from './tabs';
@@ -268,7 +269,7 @@ export class ClaudianView extends ItemView {
     // Prompt quick panel button
     const promptBtn = this.headerActionsContent.createDiv({ cls: 'claudian-header-btn' });
     setIcon(promptBtn, 'sparkles');
-    promptBtn.setAttribute('aria-label', 'Quick prompts');
+    promptBtn.setAttribute('aria-label', t('promptPanel.title'));
     promptBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       this.togglePromptDropdown();
@@ -477,12 +478,15 @@ export class ClaudianView extends ItemView {
     if (!this.promptDropdown) return;
     this.promptDropdown.empty();
 
+    this.promptDropdown.setAttribute('role', 'dialog');
+    this.promptDropdown.setAttribute('aria-label', t('promptPanel.title'));
+
     const aggregator = new PromptAggregator(this.plugin);
     const templates = aggregator.getAll();
 
     // Header
     const header = this.promptDropdown.createDiv({ cls: 'claudian-prompt-quick-header' });
-    header.createSpan({ text: 'Prompts' });
+    header.createSpan({ text: t('promptPanel.title') });
 
     const closeBtn = header.createEl('button', { cls: 'claudian-action-btn' });
     setIcon(closeBtn, 'x');
@@ -494,18 +498,28 @@ export class ClaudianView extends ItemView {
     // Search input
     const searchInput = header.createEl('input', {
       cls: 'claudian-prompt-quick-search',
-      attr: { type: 'text', placeholder: 'Search prompts...' },
+      attr: { type: 'text', placeholder: t('promptPanel.search'), 'aria-label': t('promptPanel.search') },
     });
     searchInput.addEventListener('click', (e) => e.stopPropagation());
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const firstVisible = list.querySelector('.claudian-prompt-quick-item:not([style*="display: none"])') as HTMLElement;
+        firstVisible?.focus();
+      } else if (e.key === 'Escape') {
+        this.promptDropdown?.removeClass('visible');
+      }
+    });
 
     // List container
     const list = this.promptDropdown.createDiv({ cls: 'claudian-prompt-quick-list' });
+    list.setAttribute('role', 'listbox');
 
     // Filter out system prompts
     const userTemplates = templates.filter(t => t.source !== 'system');
 
     if (userTemplates.length === 0) {
-      list.createDiv({ cls: 'claudian-prompt-quick-empty', text: 'No prompts configured' });
+      list.createDiv({ cls: 'claudian-prompt-quick-empty', text: t('promptPanel.empty') });
       return;
     }
 
@@ -549,6 +563,8 @@ export class ClaudianView extends ItemView {
         'data-desc': template.description ?? '',
       },
     });
+    item.setAttribute('role', 'option');
+    item.setAttribute('tabindex', '-1');
 
     const content = item.createDiv({ cls: 'claudian-prompt-quick-item-content' });
 
@@ -578,6 +594,30 @@ export class ClaudianView extends ItemView {
       this.applyPromptToChat(template, aggregator);
       this.promptDropdown?.removeClass('visible');
     });
+
+    // Keyboard navigation
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.applyPromptToChat(template, aggregator);
+        this.promptDropdown?.removeClass('visible');
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = item.nextElementSibling as HTMLElement;
+        if (next?.classList.contains('claudian-prompt-quick-item')) next.focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = item.previousElementSibling as HTMLElement;
+        if (prev?.classList.contains('claudian-prompt-quick-item')) {
+          prev.focus();
+        } else {
+          const searchEl = this.promptDropdown?.querySelector('.claudian-prompt-quick-search') as HTMLInputElement;
+          searchEl?.focus();
+        }
+      } else if (e.key === 'Escape') {
+        this.promptDropdown?.removeClass('visible');
+      }
+    });
   }
 
   private applyPromptToChat(template: PromptTemplate, aggregator: PromptAggregator): void {
@@ -589,7 +629,7 @@ export class ClaudianView extends ItemView {
     activeTab.dom.inputEl.dispatchEvent(new Event('input'));
 
     aggregator.recordUsage(template.id);
-    new Notice(`Prompt "${template.name}" applied`);
+    new Notice(t('promptPanel.applied', { name: template.name }));
   }
 
   // ============================================

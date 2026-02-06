@@ -298,6 +298,23 @@
       "saveFailed": "Failed to save prompt"
     }
   },
+  "export": {
+    "noMessages": "No messages to export",
+    "success": "Exported to {fileName}",
+    "failed": "Export failed: {error}",
+    "headerExported": "Exported from Claudian on {date}",
+    "headerCreated": "Created: {date}",
+    "roleUser": "User",
+    "roleAssistant": "Assistant",
+    "toolLabel": "Tool: {name}",
+    "toolError": "Error"
+  },
+  "promptPanel": {
+    "title": "Prompts",
+    "search": "Search prompts...",
+    "empty": "No prompts configured",
+    "applied": "Prompt \"{name}\" applied"
+  },
   "branch": {
     "branchOf": "{current} of {total}"
   }

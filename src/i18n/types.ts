@@ -248,5 +248,22 @@ export type TranslationKey =
   | 'promptManager.validation.contentRequired'
   | 'promptManager.validation.saveFailed'
 
+  // Conversation export
+  | 'export.noMessages'
+  | 'export.success'
+  | 'export.failed'
+  | 'export.headerExported'
+  | 'export.headerCreated'
+  | 'export.roleUser'
+  | 'export.roleAssistant'
+  | 'export.toolLabel'
+  | 'export.toolError'
+
+  // Prompt quick panel
+  | 'promptPanel.title'
+  | 'promptPanel.search'
+  | 'promptPanel.empty'
+  | 'promptPanel.applied'
+
   // Branch navigation
   | 'branch.branchOf';
