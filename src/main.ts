@@ -30,7 +30,7 @@ import {
 import { ClaudianView } from './features/chat/ClaudianView';
 import { type InlineEditContext, InlineEditModal } from './features/inline-edit/ui/InlineEditModal';
 import { ClaudianSettingTab } from './features/settings/ClaudianSettings';
-import { setLocale } from './i18n';
+import { setLocale, t } from './i18n';
 import { ClaudeCliResolver } from './utils/claudeCli';
 import { buildCursorContext } from './utils/editor';
 import { getCurrentModelFromEnvironment, getModelsFromEnvironment, parseEnvironmentVariables } from './utils/env';
@@ -111,7 +111,7 @@ export default class ClaudianPlugin extends Plugin {
         const result = await modal.openAndWait();
 
         if (result.decision === 'accept' && result.editedText !== undefined) {
-          new Notice(editContext.mode === 'cursor' ? 'Inserted' : 'Edit applied');
+          new Notice(editContext.mode === 'cursor' ? t('app.inserted') : t('app.editApplied'));
         }
       },
     });
@@ -398,7 +398,7 @@ export default class ClaudianPlugin extends Plugin {
     );
 
     if (failedCount > 0) {
-      new Notice(`Failed to load ${failedCount} conversation${failedCount > 1 ? 's' : ''}`);
+      new Notice(t('app.loadFailed', { count: String(failedCount) }));
     }
     setLocale(this.settings.locale);
 
@@ -519,7 +519,7 @@ export default class ClaudianPlugin extends Plugin {
         }
       }
       if (failedTabs > 0) {
-        new Notice(`Environment changes applied, but ${failedTabs} tab(s) failed to restart.`);
+        new Notice(t('app.envRestartFailed', { count: String(failedTabs) }));
       }
     }
 

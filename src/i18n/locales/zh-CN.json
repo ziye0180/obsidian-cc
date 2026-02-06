@@ -298,6 +298,70 @@
       "saveFailed": "保存提示词失败"
     }
   },
+  "slashSettings": {
+    "templateRequired": "提示词模板不能为空",
+    "duplicateCommand": "命令 \"/{name}\" 已存在",
+    "saveFailed": "保存{type}失败",
+    "convertFailed": "转换为技能失败",
+    "deleteFailed": "删除{type}失败",
+    "saved": "{type} \"/{name}\" 已{action}",
+    "deleted": "{type} \"/{name}\" 已删除",
+    "duplicateSkill": "技能 \"/{name}\" 已存在",
+    "converted": "已将 \"/{name}\" 转换为技能"
+  },
+  "mcp": {
+    "reloadFailed": "设置已保存但重新加载失败。更改将在下次会话时生效。",
+    "clipboardEmpty": "剪贴板为空",
+    "noValidConfig": "剪贴板中未找到有效的 MCP 配置",
+    "enterServerName": "请输入服务器名称",
+    "readClipboardFailed": "读取剪贴板失败",
+    "serverExists": "服务器 \"{name}\" 已存在",
+    "noNewServers": "没有新的 MCP 服务器可导入",
+    "serverToggled": "MCP 服务器 \"{name}\" 已{state}",
+    "serverDeleted": "MCP 服务器 \"{name}\" 已删除",
+    "validation": {
+      "nameRequired": "请输入服务器名称",
+      "nameInvalid": "服务器名称只能包含字母、数字、点、连字符和下划线",
+      "commandRequired": "请输入命令",
+      "urlRequired": "请输入 URL"
+    }
+  },
+  "envSnippets": {
+    "insertFailed": "插入片段失败",
+    "deleteFailed": "删除片段失败",
+    "saved": "环境变量片段 \"{name}\" 已保存",
+    "updated": "环境变量片段 \"{name}\" 已更新",
+    "deleted": "环境变量片段 \"{name}\" 已删除"
+  },
+  "plugins": {
+    "togglePartialFail": "插件已切换，但部分标签页重启失败。",
+    "toggled": "插件 \"{id}\" 已{state}",
+    "toggleError": "切换插件失败：{message}",
+    "refreshed": "插件列表已刷新",
+    "refreshError": "刷新插件失败：{message}"
+  },
+  "toolbar": {
+    "invalidPaths": "已移除 {count} 个无效的外部上下文路径：{paths}",
+    "directoryMissing": "无法保留 \"{path}\" — 目录已不存在",
+    "folderAlreadyAdded": "该文件夹已添加为外部上下文。",
+    "folderPickerFailed": "无法打开文件夹选择器。"
+  },
+  "fileContext": {
+    "openFailed": "无法打开文件：{path}",
+    "openError": "打开文件失败：{message}"
+  },
+  "inlineEdit": {
+    "attachFailed": "附加文件失败：路径无效"
+  },
+  "security": {
+    "commandBlocked": "命令已被安全策略阻止"
+  },
+  "app": {
+    "loadFailed": "加载 {count} 个对话失败",
+    "envRestartFailed": "环境变量已应用，但 {count} 个标签页重启失败。",
+    "inserted": "已插入",
+    "editApplied": "编辑已应用"
+  },
   "history": {
     "title": "对话记录",
     "search": "搜索对话...",

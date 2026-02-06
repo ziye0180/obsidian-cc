@@ -248,6 +248,68 @@ export type TranslationKey =
   | 'promptManager.validation.contentRequired'
   | 'promptManager.validation.saveFailed'
 
+  // Slash command settings
+  | 'slashSettings.templateRequired'
+  | 'slashSettings.duplicateCommand'
+  | 'slashSettings.saveFailed'
+  | 'slashSettings.convertFailed'
+  | 'slashSettings.deleteFailed'
+  | 'slashSettings.saved'
+  | 'slashSettings.deleted'
+  | 'slashSettings.duplicateSkill'
+  | 'slashSettings.converted'
+
+  // MCP settings
+  | 'mcp.reloadFailed'
+  | 'mcp.clipboardEmpty'
+  | 'mcp.noValidConfig'
+  | 'mcp.enterServerName'
+  | 'mcp.readClipboardFailed'
+  | 'mcp.serverExists'
+  | 'mcp.noNewServers'
+  | 'mcp.serverToggled'
+  | 'mcp.serverDeleted'
+  | 'mcp.validation.nameRequired'
+  | 'mcp.validation.nameInvalid'
+  | 'mcp.validation.commandRequired'
+  | 'mcp.validation.urlRequired'
+
+  // Environment snippets
+  | 'envSnippets.insertFailed'
+  | 'envSnippets.deleteFailed'
+  | 'envSnippets.saved'
+  | 'envSnippets.updated'
+  | 'envSnippets.deleted'
+
+  // Plugin settings
+  | 'plugins.togglePartialFail'
+  | 'plugins.toggled'
+  | 'plugins.toggleError'
+  | 'plugins.refreshed'
+  | 'plugins.refreshError'
+
+  // Toolbar
+  | 'toolbar.invalidPaths'
+  | 'toolbar.directoryMissing'
+  | 'toolbar.folderAlreadyAdded'
+  | 'toolbar.folderPickerFailed'
+
+  // File context
+  | 'fileContext.openFailed'
+  | 'fileContext.openError'
+
+  // Inline edit
+  | 'inlineEdit.attachFailed'
+
+  // Security
+  | 'security.commandBlocked'
+
+  // App
+  | 'app.loadFailed'
+  | 'app.envRestartFailed'
+  | 'app.inserted'
+  | 'app.editApplied'
+
   // History panel
   | 'history.title'
   | 'history.search'

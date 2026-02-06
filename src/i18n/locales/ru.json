@@ -298,6 +298,70 @@
       "saveFailed": "Ошибка сохранения промпта"
     }
   },
+  "slashSettings": {
+    "templateRequired": "Шаблон промпта обязателен",
+    "duplicateCommand": "Команда \"/{name}\" уже существует",
+    "saveFailed": "Не удалось сохранить {type}",
+    "convertFailed": "Не удалось конвертировать в навык",
+    "deleteFailed": "Не удалось удалить {type}",
+    "saved": "{type} \"/{name}\" {action}",
+    "deleted": "{type} \"/{name}\" удалён",
+    "duplicateSkill": "Навык \"/{name}\" уже существует",
+    "converted": "\"/{name}\" конвертирован в навык"
+  },
+  "mcp": {
+    "reloadFailed": "Настройка сохранена, но перезагрузка не удалась. Изменения будут применены в следующей сессии.",
+    "clipboardEmpty": "Буфер обмена пуст",
+    "noValidConfig": "В буфере обмена не найдена действительная конфигурация MCP",
+    "enterServerName": "Введите имя сервера",
+    "readClipboardFailed": "Не удалось прочитать буфер обмена",
+    "serverExists": "Сервер \"{name}\" уже существует",
+    "noNewServers": "Новые MCP серверы не импортированы",
+    "serverToggled": "MCP сервер \"{name}\" {state}",
+    "serverDeleted": "MCP сервер \"{name}\" удалён",
+    "validation": {
+      "nameRequired": "Пожалуйста, введите имя сервера",
+      "nameInvalid": "Имя сервера может содержать только буквы, цифры, точки, дефисы и подчёркивания",
+      "commandRequired": "Пожалуйста, введите команду",
+      "urlRequired": "Пожалуйста, введите URL"
+    }
+  },
+  "envSnippets": {
+    "insertFailed": "Не удалось вставить сниппет",
+    "deleteFailed": "Не удалось удалить сниппет",
+    "saved": "Сниппет окружения \"{name}\" сохранён",
+    "updated": "Сниппет окружения \"{name}\" обновлён",
+    "deleted": "Сниппет окружения \"{name}\" удалён"
+  },
+  "plugins": {
+    "togglePartialFail": "Плагин переключён, но некоторые вкладки не удалось перезапустить.",
+    "toggled": "Плагин \"{id}\" {state}",
+    "toggleError": "Ошибка переключения плагина: {message}",
+    "refreshed": "Список плагинов обновлён",
+    "refreshError": "Ошибка обновления плагинов: {message}"
+  },
+  "toolbar": {
+    "invalidPaths": "Удалено {count} недействительных внешних контекстных путей: {paths}",
+    "directoryMissing": "Невозможно сохранить \"{path}\" — директория больше не существует",
+    "folderAlreadyAdded": "Эта папка уже добавлена как внешний контекст.",
+    "folderPickerFailed": "Не удалось открыть выбор папки."
+  },
+  "fileContext": {
+    "openFailed": "Не удалось открыть файл: {path}",
+    "openError": "Ошибка открытия файла: {message}"
+  },
+  "inlineEdit": {
+    "attachFailed": "Не удалось прикрепить файл: недействительный путь"
+  },
+  "security": {
+    "commandBlocked": "Команда заблокирована политикой безопасности"
+  },
+  "app": {
+    "loadFailed": "Не удалось загрузить {count} бесед(у)",
+    "envRestartFailed": "Изменения окружения применены, но {count} вкладок не удалось перезапустить.",
+    "inserted": "Вставлено",
+    "editApplied": "Правка применена"
+  },
   "history": {
     "title": "Беседы",
     "search": "Поиск бесед...",

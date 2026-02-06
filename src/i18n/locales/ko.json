@@ -298,6 +298,70 @@
       "saveFailed": "프롬프트 저장 실패"
     }
   },
+  "slashSettings": {
+    "templateRequired": "프롬프트 템플릿은 필수입니다",
+    "duplicateCommand": "\"/{name}\"이라는 이름의 명령어가 이미 존재합니다",
+    "saveFailed": "{type} 저장에 실패했습니다",
+    "convertFailed": "스킬로 변환에 실패했습니다",
+    "deleteFailed": "{type} 삭제에 실패했습니다",
+    "saved": "{type} \"/{name}\" {action}",
+    "deleted": "{type} \"/{name}\" 삭제됨",
+    "duplicateSkill": "\"/{name}\"이라는 이름의 스킬이 이미 존재합니다",
+    "converted": "\"/{name}\"을(를) 스킬로 변환했습니다"
+  },
+  "mcp": {
+    "reloadFailed": "설정이 저장되었지만 다시 로드에 실패했습니다. 변경 사항은 다음 세션에서 적용됩니다.",
+    "clipboardEmpty": "클립보드가 비어 있습니다",
+    "noValidConfig": "클립보드에서 유효한 MCP 구성을 찾을 수 없습니다",
+    "enterServerName": "서버 이름을 입력하세요",
+    "readClipboardFailed": "클립보드 읽기에 실패했습니다",
+    "serverExists": "서버 \"{name}\"이(가) 이미 존재합니다",
+    "noNewServers": "새로 가져올 MCP 서버가 없습니다",
+    "serverToggled": "MCP 서버 \"{name}\" {state}",
+    "serverDeleted": "MCP 서버 \"{name}\" 삭제됨",
+    "validation": {
+      "nameRequired": "서버 이름을 입력하세요",
+      "nameInvalid": "서버 이름은 영문자, 숫자, 점, 하이픈, 밑줄만 포함할 수 있습니다",
+      "commandRequired": "명령어를 입력하세요",
+      "urlRequired": "URL을 입력하세요"
+    }
+  },
+  "envSnippets": {
+    "insertFailed": "스니펫 삽입에 실패했습니다",
+    "deleteFailed": "스니펫 삭제에 실패했습니다",
+    "saved": "환경 변수 스니펫 \"{name}\" 저장됨",
+    "updated": "환경 변수 스니펫 \"{name}\" 업데이트됨",
+    "deleted": "환경 변수 스니펫 \"{name}\" 삭제됨"
+  },
+  "plugins": {
+    "togglePartialFail": "플러그인이 전환되었지만 일부 탭이 재시작에 실패했습니다.",
+    "toggled": "플러그인 \"{id}\" {state}",
+    "toggleError": "플러그인 전환 실패: {message}",
+    "refreshed": "플러그인 목록이 새로고침되었습니다",
+    "refreshError": "플러그인 새로고침 실패: {message}"
+  },
+  "toolbar": {
+    "invalidPaths": "유효하지 않은 외부 컨텍스트 경로 {count}개를 제거했습니다: {paths}",
+    "directoryMissing": "\"{path}\"을(를) 유지할 수 없습니다 — 디렉토리가 더 이상 존재하지 않습니다",
+    "folderAlreadyAdded": "이 폴더는 이미 외부 컨텍스트로 추가되어 있습니다.",
+    "folderPickerFailed": "폴더 선택기를 열 수 없습니다."
+  },
+  "fileContext": {
+    "openFailed": "파일을 열 수 없습니다: {path}",
+    "openError": "파일 열기 실패: {message}"
+  },
+  "inlineEdit": {
+    "attachFailed": "파일 첨부 실패: 유효하지 않은 경로"
+  },
+  "security": {
+    "commandBlocked": "보안 정책에 의해 명령어가 차단되었습니다"
+  },
+  "app": {
+    "loadFailed": "{count}개의 대화 로드에 실패했습니다",
+    "envRestartFailed": "환경 변수가 적용되었지만 {count}개의 탭이 재시작에 실패했습니다.",
+    "inserted": "삽입됨",
+    "editApplied": "편집 적용됨"
+  },
   "history": {
     "title": "대화 기록",
     "search": "대화 검색...",

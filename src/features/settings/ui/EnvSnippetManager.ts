@@ -230,7 +230,7 @@ export class EnvSnippetManager {
         try {
           await this.insertSnippet(snippet);
         } catch {
-          new Notice('Failed to insert snippet');
+          new Notice(t('envSnippets.insertFailed'));
         }
       });
 
@@ -254,7 +254,7 @@ export class EnvSnippetManager {
             await this.deleteSnippet(snippet);
           }
         } catch {
-          new Notice('Failed to delete snippet');
+          new Notice(t('envSnippets.deleteFailed'));
         }
       });
     }
@@ -269,7 +269,7 @@ export class EnvSnippetManager {
         this.plugin.settings.envSnippets.push(snippet);
         await this.plugin.saveSettings();
         this.render();
-        new Notice(`Environment snippet "${snippet.name}" saved`);
+        new Notice(t('envSnippets.saved', { name: snippet.name }));
       }
     );
     modal.open();
@@ -311,7 +311,7 @@ export class EnvSnippetManager {
           this.plugin.settings.envSnippets[index] = updatedSnippet;
           await this.plugin.saveSettings();
           this.render();
-          new Notice(`Environment snippet "${updatedSnippet.name}" updated`);
+          new Notice(t('envSnippets.updated', { name: updatedSnippet.name }));
         }
       }
     );
@@ -322,7 +322,7 @@ export class EnvSnippetManager {
     this.plugin.settings.envSnippets = this.plugin.settings.envSnippets.filter(s => s.id !== snippet.id);
     await this.plugin.saveSettings();
     this.render();
-    new Notice(`Environment snippet "${snippet.name}" deleted`);
+    new Notice(t('envSnippets.deleted', { name: snippet.name }));
   }
 
   public refresh() {

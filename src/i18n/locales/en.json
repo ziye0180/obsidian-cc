@@ -298,6 +298,70 @@
       "saveFailed": "Failed to save prompt"
     }
   },
+  "slashSettings": {
+    "templateRequired": "Prompt template is required",
+    "duplicateCommand": "A command named \"/{name}\" already exists",
+    "saveFailed": "Failed to save {type}",
+    "convertFailed": "Failed to convert to skill",
+    "deleteFailed": "Failed to delete {type}",
+    "saved": "{type} \"/{name}\" {action}",
+    "deleted": "{type} \"/{name}\" deleted",
+    "duplicateSkill": "A skill named \"/{name}\" already exists",
+    "converted": "Converted \"/{name}\" to skill"
+  },
+  "mcp": {
+    "reloadFailed": "Setting saved but reload failed. Changes will apply on next session.",
+    "clipboardEmpty": "Clipboard is empty",
+    "noValidConfig": "No valid MCP configuration found in clipboard",
+    "enterServerName": "Enter a name for the server",
+    "readClipboardFailed": "Failed to read clipboard",
+    "serverExists": "Server \"{name}\" already exists",
+    "noNewServers": "No new MCP servers imported",
+    "serverToggled": "MCP server \"{name}\" {state}",
+    "serverDeleted": "MCP server \"{name}\" deleted",
+    "validation": {
+      "nameRequired": "Please enter a server name",
+      "nameInvalid": "Server name can only contain letters, numbers, dots, hyphens, and underscores",
+      "commandRequired": "Please enter a command",
+      "urlRequired": "Please enter a URL"
+    }
+  },
+  "envSnippets": {
+    "insertFailed": "Failed to insert snippet",
+    "deleteFailed": "Failed to delete snippet",
+    "saved": "Environment snippet \"{name}\" saved",
+    "updated": "Environment snippet \"{name}\" updated",
+    "deleted": "Environment snippet \"{name}\" deleted"
+  },
+  "plugins": {
+    "togglePartialFail": "Plugin toggled, but some tabs failed to restart.",
+    "toggled": "Plugin \"{id}\" {state}",
+    "toggleError": "Failed to toggle plugin: {message}",
+    "refreshed": "Plugin list refreshed",
+    "refreshError": "Failed to refresh plugins: {message}"
+  },
+  "toolbar": {
+    "invalidPaths": "Removed {count} invalid external context path(s): {paths}",
+    "directoryMissing": "Cannot persist \"{path}\" - directory no longer exists",
+    "folderAlreadyAdded": "This folder is already added as an external context.",
+    "folderPickerFailed": "Unable to open folder picker."
+  },
+  "fileContext": {
+    "openFailed": "Could not open file: {path}",
+    "openError": "Failed to open file: {message}"
+  },
+  "inlineEdit": {
+    "attachFailed": "Failed to attach file: invalid path"
+  },
+  "security": {
+    "commandBlocked": "Command blocked by security policy"
+  },
+  "app": {
+    "loadFailed": "Failed to load {count} conversation(s)",
+    "envRestartFailed": "Environment changes applied, but {count} tab(s) failed to restart.",
+    "inserted": "Inserted",
+    "editApplied": "Edit applied"
+  },
   "history": {
     "title": "Conversations",
     "search": "Search conversations...",

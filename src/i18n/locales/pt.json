@@ -298,6 +298,70 @@
       "saveFailed": "Falha ao salvar o prompt"
     }
   },
+  "slashSettings": {
+    "templateRequired": "O modelo de prompt e obrigatorio",
+    "duplicateCommand": "Um comando chamado \"/{name}\" ja existe",
+    "saveFailed": "Falha ao salvar {type}",
+    "convertFailed": "Falha ao converter para habilidade",
+    "deleteFailed": "Falha ao excluir {type}",
+    "saved": "{type} \"/{name}\" {action}",
+    "deleted": "{type} \"/{name}\" excluido",
+    "duplicateSkill": "Uma habilidade chamada \"/{name}\" ja existe",
+    "converted": "\"/{name}\" convertido para habilidade"
+  },
+  "mcp": {
+    "reloadFailed": "Configuracao salva, mas o recarregamento falhou. As alteracoes serao aplicadas na proxima sessao.",
+    "clipboardEmpty": "A area de transferencia esta vazia",
+    "noValidConfig": "Nenhuma configuracao MCP valida encontrada na area de transferencia",
+    "enterServerName": "Insira um nome para o servidor",
+    "readClipboardFailed": "Falha ao ler a area de transferencia",
+    "serverExists": "O servidor \"{name}\" ja existe",
+    "noNewServers": "Nenhum novo servidor MCP importado",
+    "serverToggled": "Servidor MCP \"{name}\" {state}",
+    "serverDeleted": "Servidor MCP \"{name}\" excluido",
+    "validation": {
+      "nameRequired": "Por favor, insira um nome de servidor",
+      "nameInvalid": "O nome do servidor so pode conter letras, numeros, pontos, hifens e underscores",
+      "commandRequired": "Por favor, insira um comando",
+      "urlRequired": "Por favor, insira uma URL"
+    }
+  },
+  "envSnippets": {
+    "insertFailed": "Falha ao inserir o snippet",
+    "deleteFailed": "Falha ao excluir o snippet",
+    "saved": "Snippet de ambiente \"{name}\" salvo",
+    "updated": "Snippet de ambiente \"{name}\" atualizado",
+    "deleted": "Snippet de ambiente \"{name}\" excluido"
+  },
+  "plugins": {
+    "togglePartialFail": "Plugin alternado, mas algumas abas falharam ao reiniciar.",
+    "toggled": "Plugin \"{id}\" {state}",
+    "toggleError": "Falha ao alternar o plugin: {message}",
+    "refreshed": "Lista de plugins atualizada",
+    "refreshError": "Falha ao atualizar os plugins: {message}"
+  },
+  "toolbar": {
+    "invalidPaths": "{count} caminho(s) de contexto externo invalido(s) removido(s): {paths}",
+    "directoryMissing": "Nao e possivel manter \"{path}\" — o diretorio nao existe mais",
+    "folderAlreadyAdded": "Esta pasta ja foi adicionada como contexto externo.",
+    "folderPickerFailed": "Nao foi possivel abrir o seletor de pastas."
+  },
+  "fileContext": {
+    "openFailed": "Nao foi possivel abrir o arquivo: {path}",
+    "openError": "Falha ao abrir o arquivo: {message}"
+  },
+  "inlineEdit": {
+    "attachFailed": "Falha ao anexar arquivo: caminho invalido"
+  },
+  "security": {
+    "commandBlocked": "Comando bloqueado pela politica de seguranca"
+  },
+  "app": {
+    "loadFailed": "Falha ao carregar {count} conversa(s)",
+    "envRestartFailed": "Alteracoes de ambiente aplicadas, mas {count} aba(s) falharam ao reiniciar.",
+    "inserted": "Inserido",
+    "editApplied": "Edicao aplicada"
+  },
   "history": {
     "title": "Conversas",
     "search": "Pesquisar conversas...",

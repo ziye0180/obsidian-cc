@@ -298,6 +298,70 @@
       "saveFailed": "Fehler beim Speichern des Prompts"
     }
   },
+  "slashSettings": {
+    "templateRequired": "Prompt-Vorlage ist erforderlich",
+    "duplicateCommand": "Ein Befehl namens \"/{name}\" existiert bereits",
+    "saveFailed": "{type} konnte nicht gespeichert werden",
+    "convertFailed": "Konvertierung zu Fähigkeit fehlgeschlagen",
+    "deleteFailed": "{type} konnte nicht gelöscht werden",
+    "saved": "{type} \"/{name}\" {action}",
+    "deleted": "{type} \"/{name}\" gelöscht",
+    "duplicateSkill": "Eine Fähigkeit namens \"/{name}\" existiert bereits",
+    "converted": "\"/{name}\" in Fähigkeit konvertiert"
+  },
+  "mcp": {
+    "reloadFailed": "Einstellung gespeichert, aber Neuladen fehlgeschlagen. Änderungen werden in der nächsten Sitzung übernommen.",
+    "clipboardEmpty": "Zwischenablage ist leer",
+    "noValidConfig": "Keine gültige MCP-Konfiguration in der Zwischenablage gefunden",
+    "enterServerName": "Geben Sie einen Namen für den Server ein",
+    "readClipboardFailed": "Zwischenablage konnte nicht gelesen werden",
+    "serverExists": "Server \"{name}\" existiert bereits",
+    "noNewServers": "Keine neuen MCP-Server importiert",
+    "serverToggled": "MCP-Server \"{name}\" {state}",
+    "serverDeleted": "MCP-Server \"{name}\" gelöscht",
+    "validation": {
+      "nameRequired": "Bitte geben Sie einen Servernamen ein",
+      "nameInvalid": "Servername darf nur Buchstaben, Zahlen, Punkte, Bindestriche und Unterstriche enthalten",
+      "commandRequired": "Bitte geben Sie einen Befehl ein",
+      "urlRequired": "Bitte geben Sie eine URL ein"
+    }
+  },
+  "envSnippets": {
+    "insertFailed": "Snippet konnte nicht eingefügt werden",
+    "deleteFailed": "Snippet konnte nicht gelöscht werden",
+    "saved": "Umgebungsvariablen-Snippet \"{name}\" gespeichert",
+    "updated": "Umgebungsvariablen-Snippet \"{name}\" aktualisiert",
+    "deleted": "Umgebungsvariablen-Snippet \"{name}\" gelöscht"
+  },
+  "plugins": {
+    "togglePartialFail": "Plugin umgeschaltet, aber einige Tabs konnten nicht neu gestartet werden.",
+    "toggled": "Plugin \"{id}\" {state}",
+    "toggleError": "Fehler beim Umschalten des Plugins: {message}",
+    "refreshed": "Plugin-Liste aktualisiert",
+    "refreshError": "Fehler beim Aktualisieren der Plugins: {message}"
+  },
+  "toolbar": {
+    "invalidPaths": "{count} ungültige(n) externe(n) Kontextpfad(e) entfernt: {paths}",
+    "directoryMissing": "\"{path}\" kann nicht beibehalten werden — Verzeichnis existiert nicht mehr",
+    "folderAlreadyAdded": "Dieser Ordner ist bereits als externer Kontext hinzugefügt.",
+    "folderPickerFailed": "Ordnerauswahl konnte nicht geöffnet werden."
+  },
+  "fileContext": {
+    "openFailed": "Datei konnte nicht geöffnet werden: {path}",
+    "openError": "Fehler beim Öffnen der Datei: {message}"
+  },
+  "inlineEdit": {
+    "attachFailed": "Datei konnte nicht angehängt werden: ungültiger Pfad"
+  },
+  "security": {
+    "commandBlocked": "Befehl durch Sicherheitsrichtlinie blockiert"
+  },
+  "app": {
+    "loadFailed": "{count} Unterhaltung(en) konnten nicht geladen werden",
+    "envRestartFailed": "Umgebungsänderungen übernommen, aber {count} Tab(s) konnten nicht neu gestartet werden.",
+    "inserted": "Eingefügt",
+    "editApplied": "Bearbeitung angewendet"
+  },
   "history": {
     "title": "Unterhaltungen",
     "search": "Unterhaltungen durchsuchen...",

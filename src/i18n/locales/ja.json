@@ -298,6 +298,70 @@
       "saveFailed": "プロンプトの保存に失敗しました"
     }
   },
+  "slashSettings": {
+    "templateRequired": "プロンプトテンプレートは必須です",
+    "duplicateCommand": "\"/{name}\" という名前のコマンドは既に存在します",
+    "saveFailed": "{type}の保存に失敗しました",
+    "convertFailed": "スキルへの変換に失敗しました",
+    "deleteFailed": "{type}の削除に失敗しました",
+    "saved": "{type} \"/{name}\" を{action}しました",
+    "deleted": "{type} \"/{name}\" を削除しました",
+    "duplicateSkill": "\"/{name}\" という名前のスキルは既に存在します",
+    "converted": "\"/{name}\" をスキルに変換しました"
+  },
+  "mcp": {
+    "reloadFailed": "設定は保存されましたが、リロードに失敗しました。変更は次のセッションで適用されます。",
+    "clipboardEmpty": "クリップボードが空です",
+    "noValidConfig": "クリップボードに有効な MCP 設定が見つかりません",
+    "enterServerName": "サーバー名を入力してください",
+    "readClipboardFailed": "クリップボードの読み取りに失敗しました",
+    "serverExists": "サーバー \"{name}\" は既に存在します",
+    "noNewServers": "新しい MCP サーバーはインポートされませんでした",
+    "serverToggled": "MCP サーバー \"{name}\" を{state}しました",
+    "serverDeleted": "MCP サーバー \"{name}\" を削除しました",
+    "validation": {
+      "nameRequired": "サーバー名を入力してください",
+      "nameInvalid": "サーバー名には英字、数字、ドット、ハイフン、アンダースコアのみ使用できます",
+      "commandRequired": "コマンドを入力してください",
+      "urlRequired": "URL を入力してください"
+    }
+  },
+  "envSnippets": {
+    "insertFailed": "スニペットの挿入に失敗しました",
+    "deleteFailed": "スニペットの削除に失敗しました",
+    "saved": "環境変数スニペット \"{name}\" を保存しました",
+    "updated": "環境変数スニペット \"{name}\" を更新しました",
+    "deleted": "環境変数スニペット \"{name}\" を削除しました"
+  },
+  "plugins": {
+    "togglePartialFail": "プラグインを切り替えましたが、一部のタブの再起動に失敗しました。",
+    "toggled": "プラグイン \"{id}\" を{state}しました",
+    "toggleError": "プラグインの切り替えに失敗しました：{message}",
+    "refreshed": "プラグインリストを更新しました",
+    "refreshError": "プラグインの更新に失敗しました：{message}"
+  },
+  "toolbar": {
+    "invalidPaths": "無効な外部コンテキストパスを {count} 件削除しました：{paths}",
+    "directoryMissing": "\"{path}\" を保持できません — ディレクトリが存在しません",
+    "folderAlreadyAdded": "このフォルダは既に外部コンテキストとして追加されています。",
+    "folderPickerFailed": "フォルダピッカーを開けません。"
+  },
+  "fileContext": {
+    "openFailed": "ファイルを開けませんでした：{path}",
+    "openError": "ファイルを開くのに失敗しました：{message}"
+  },
+  "inlineEdit": {
+    "attachFailed": "ファイルの添付に失敗しました：無効なパス"
+  },
+  "security": {
+    "commandBlocked": "コマンドはセキュリティポリシーによりブロックされました"
+  },
+  "app": {
+    "loadFailed": "{count} 件の会話の読み込みに失敗しました",
+    "envRestartFailed": "環境変数の変更を適用しましたが、{count} 件のタブの再起動に失敗しました。",
+    "inserted": "挿入しました",
+    "editApplied": "編集を適用しました"
+  },
   "history": {
     "title": "会話履歴",
     "search": "会話を検索...",

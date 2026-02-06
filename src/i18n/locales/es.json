@@ -298,6 +298,70 @@
       "saveFailed": "Error al guardar el prompt"
     }
   },
+  "slashSettings": {
+    "templateRequired": "La plantilla de prompt es obligatoria",
+    "duplicateCommand": "Ya existe un comando llamado \"/{name}\"",
+    "saveFailed": "Error al guardar {type}",
+    "convertFailed": "Error al convertir a habilidad",
+    "deleteFailed": "Error al eliminar {type}",
+    "saved": "{type} \"/{name}\" {action}",
+    "deleted": "{type} \"/{name}\" eliminado",
+    "duplicateSkill": "Ya existe una habilidad llamada \"/{name}\"",
+    "converted": "\"/{name}\" convertido a habilidad"
+  },
+  "mcp": {
+    "reloadFailed": "Configuración guardada pero la recarga falló. Los cambios se aplicarán en la próxima sesión.",
+    "clipboardEmpty": "El portapapeles está vacío",
+    "noValidConfig": "No se encontró configuración MCP válida en el portapapeles",
+    "enterServerName": "Ingrese un nombre para el servidor",
+    "readClipboardFailed": "Error al leer el portapapeles",
+    "serverExists": "El servidor \"{name}\" ya existe",
+    "noNewServers": "No se importaron nuevos servidores MCP",
+    "serverToggled": "Servidor MCP \"{name}\" {state}",
+    "serverDeleted": "Servidor MCP \"{name}\" eliminado",
+    "validation": {
+      "nameRequired": "Por favor ingrese un nombre de servidor",
+      "nameInvalid": "El nombre del servidor solo puede contener letras, números, puntos, guiones y guiones bajos",
+      "commandRequired": "Por favor ingrese un comando",
+      "urlRequired": "Por favor ingrese una URL"
+    }
+  },
+  "envSnippets": {
+    "insertFailed": "Error al insertar el fragmento",
+    "deleteFailed": "Error al eliminar el fragmento",
+    "saved": "Fragmento de entorno \"{name}\" guardado",
+    "updated": "Fragmento de entorno \"{name}\" actualizado",
+    "deleted": "Fragmento de entorno \"{name}\" eliminado"
+  },
+  "plugins": {
+    "togglePartialFail": "Plugin alternado, pero algunas pestañas no pudieron reiniciarse.",
+    "toggled": "Plugin \"{id}\" {state}",
+    "toggleError": "Error al alternar el plugin: {message}",
+    "refreshed": "Lista de plugins actualizada",
+    "refreshError": "Error al actualizar los plugins: {message}"
+  },
+  "toolbar": {
+    "invalidPaths": "Se eliminaron {count} ruta(s) de contexto externo inválida(s): {paths}",
+    "directoryMissing": "No se puede mantener \"{path}\" — el directorio ya no existe",
+    "folderAlreadyAdded": "Esta carpeta ya está agregada como contexto externo.",
+    "folderPickerFailed": "No se pudo abrir el selector de carpetas."
+  },
+  "fileContext": {
+    "openFailed": "No se pudo abrir el archivo: {path}",
+    "openError": "Error al abrir el archivo: {message}"
+  },
+  "inlineEdit": {
+    "attachFailed": "Error al adjuntar archivo: ruta inválida"
+  },
+  "security": {
+    "commandBlocked": "Comando bloqueado por la política de seguridad"
+  },
+  "app": {
+    "loadFailed": "Error al cargar {count} conversación(es)",
+    "envRestartFailed": "Cambios de entorno aplicados, pero {count} pestaña(s) no pudieron reiniciarse.",
+    "inserted": "Insertado",
+    "editApplied": "Edición aplicada"
+  },
   "history": {
     "title": "Conversaciones",
     "search": "Buscar conversaciones...",

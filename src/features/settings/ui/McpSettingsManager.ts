@@ -4,6 +4,7 @@ import { testMcpServer } from '../../../core/mcp/McpTester';
 import { McpStorage } from '../../../core/storage';
 import type { ClaudianMcpServer, McpServerConfig, McpServerType } from '../../../core/types';
 import { DEFAULT_MCP_SERVER, getMcpServerType } from '../../../core/types';
+import { t } from '../../../i18n';
 import type ClaudianPlugin from '../../../main';
 import { McpServerModal } from './McpServerModal';
 import { McpTestModal } from './McpTestModal';
@@ -204,7 +205,7 @@ export class McpSettingsManager {
       await this.broadcastMcpReloadToAllViews();
     } catch {
       // Save succeeded but reload failed - don't rollback since disk has correct state
-      new Notice('Setting saved but reload failed. Changes will apply on next session.');
+      new Notice(t('mcp.reloadFailed'));
     }
   }
 
@@ -260,13 +261,13 @@ export class McpSettingsManager {
     try {
       const text = await navigator.clipboard.readText();
       if (!text.trim()) {
-        new Notice('Clipboard is empty');
+        new Notice(t('mcp.clipboardEmpty'));
         return;
       }
 
       const parsed = McpStorage.tryParseClipboardConfig(text);
       if (!parsed || parsed.servers.length === 0) {
-        new Notice('No valid MCP configuration found in clipboard');
+        new Notice(t('mcp.noValidConfig'));
         return;
       }
 
@@ -285,14 +286,14 @@ export class McpSettingsManager {
         );
         modal.open();
         if (parsed.needsName) {
-          new Notice('Enter a name for the server');
+          new Notice(t('mcp.enterServerName'));
         }
         return;
       }
 
       await this.importServers(parsed.servers);
     } catch {
-      new Notice('Failed to read clipboard');
+      new Notice(t('mcp.readClipboardFailed'));
     }
   }
 
@@ -303,7 +304,7 @@ export class McpSettingsManager {
         if (server.name !== existing.name) {
           const conflict = this.servers.find((s) => s.name === server.name);
           if (conflict) {
-            new Notice(`Server "${server.name}" already exists`);
+            new Notice(t('mcp.serverExists', { name: server.name }));
             return;
           }
         }
@@ -312,7 +313,7 @@ export class McpSettingsManager {
     } else {
       const conflict = this.servers.find((s) => s.name === server.name);
       if (conflict) {
-        new Notice(`Server "${server.name}" already exists`);
+        new Notice(t('mcp.serverExists', { name: server.name }));
         return;
       }
       this.servers.push(server);
@@ -351,7 +352,7 @@ export class McpSettingsManager {
     }
 
     if (added.length === 0) {
-      new Notice('No new MCP servers imported');
+      new Notice(t('mcp.noNewServers'));
       return;
     }
 
@@ -371,7 +372,7 @@ export class McpSettingsManager {
     await this.plugin.storage.mcp.save(this.servers);
     await this.broadcastMcpReloadToAllViews();
     this.render();
-    new Notice(`MCP server "${server.name}" ${server.enabled ? 'enabled' : 'disabled'}`);
+    new Notice(t('mcp.serverToggled', { name: server.name, state: server.enabled ? 'enabled' : 'disabled' }));
   }
 
   private async deleteServer(server: ClaudianMcpServer) {
@@ -383,7 +384,7 @@ export class McpSettingsManager {
     await this.plugin.storage.mcp.save(this.servers);
     await this.broadcastMcpReloadToAllViews();
     this.render();
-    new Notice(`MCP server "${server.name}" deleted`);
+    new Notice(t('mcp.serverDeleted', { name: server.name }));
   }
 
   /** Refresh the server list (call after external changes). */

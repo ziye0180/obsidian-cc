@@ -298,6 +298,70 @@
       "saveFailed": "Échec de la sauvegarde du prompt"
     }
   },
+  "slashSettings": {
+    "templateRequired": "Le modèle de prompt est requis",
+    "duplicateCommand": "Une commande nommée \"/{name}\" existe déjà",
+    "saveFailed": "Échec de la sauvegarde de {type}",
+    "convertFailed": "Échec de la conversion en compétence",
+    "deleteFailed": "Échec de la suppression de {type}",
+    "saved": "{type} \"/{name}\" {action}",
+    "deleted": "{type} \"/{name}\" supprimé",
+    "duplicateSkill": "Une compétence nommée \"/{name}\" existe déjà",
+    "converted": "\"/{name}\" converti en compétence"
+  },
+  "mcp": {
+    "reloadFailed": "Paramètre sauvegardé mais le rechargement a échoué. Les modifications seront appliquées à la prochaine session.",
+    "clipboardEmpty": "Le presse-papiers est vide",
+    "noValidConfig": "Aucune configuration MCP valide trouvée dans le presse-papiers",
+    "enterServerName": "Entrez un nom pour le serveur",
+    "readClipboardFailed": "Échec de la lecture du presse-papiers",
+    "serverExists": "Le serveur \"{name}\" existe déjà",
+    "noNewServers": "Aucun nouveau serveur MCP importé",
+    "serverToggled": "Serveur MCP \"{name}\" {state}",
+    "serverDeleted": "Serveur MCP \"{name}\" supprimé",
+    "validation": {
+      "nameRequired": "Veuillez entrer un nom de serveur",
+      "nameInvalid": "Le nom du serveur ne peut contenir que des lettres, des chiffres, des points, des tirets et des underscores",
+      "commandRequired": "Veuillez entrer une commande",
+      "urlRequired": "Veuillez entrer une URL"
+    }
+  },
+  "envSnippets": {
+    "insertFailed": "Échec de l'insertion du snippet",
+    "deleteFailed": "Échec de la suppression du snippet",
+    "saved": "Snippet d'environnement \"{name}\" sauvegardé",
+    "updated": "Snippet d'environnement \"{name}\" mis à jour",
+    "deleted": "Snippet d'environnement \"{name}\" supprimé"
+  },
+  "plugins": {
+    "togglePartialFail": "Plugin basculé, mais certains onglets n'ont pas pu redémarrer.",
+    "toggled": "Plugin \"{id}\" {state}",
+    "toggleError": "Échec du basculement du plugin : {message}",
+    "refreshed": "Liste des plugins actualisée",
+    "refreshError": "Échec de l'actualisation des plugins : {message}"
+  },
+  "toolbar": {
+    "invalidPaths": "{count} chemin(s) de contexte externe invalide(s) supprimé(s) : {paths}",
+    "directoryMissing": "Impossible de conserver \"{path}\" — le répertoire n'existe plus",
+    "folderAlreadyAdded": "Ce dossier est déjà ajouté comme contexte externe.",
+    "folderPickerFailed": "Impossible d'ouvrir le sélecteur de dossier."
+  },
+  "fileContext": {
+    "openFailed": "Impossible d'ouvrir le fichier : {path}",
+    "openError": "Échec de l'ouverture du fichier : {message}"
+  },
+  "inlineEdit": {
+    "attachFailed": "Échec de l'ajout du fichier : chemin invalide"
+  },
+  "security": {
+    "commandBlocked": "Commande bloquée par la politique de sécurité"
+  },
+  "app": {
+    "loadFailed": "Échec du chargement de {count} conversation(s)",
+    "envRestartFailed": "Modifications d'environnement appliquées, mais {count} onglet(s) n'ont pas pu redémarrer.",
+    "inserted": "Inséré",
+    "editApplied": "Modification appliquée"
+  },
   "history": {
     "title": "Conversations",
     "search": "Rechercher des conversations...",

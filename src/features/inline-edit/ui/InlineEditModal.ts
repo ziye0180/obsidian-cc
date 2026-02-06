@@ -1,6 +1,7 @@
 import type { App, Editor} from 'obsidian';
 import { MarkdownView, Notice } from 'obsidian';
 
+import { t } from '../../../i18n';
 import type ClaudianPlugin from '../../../main';
 import { hideSelectionHighlight, showSelectionHighlight } from '../../../shared/components/SelectionHighlight';
 import { SlashCommandDropdown } from '../../../shared/components/SlashCommandDropdown';
@@ -664,7 +665,7 @@ class InlineEditController {
       const vaultPath = getVaultPath(this.app);
       return normalizePathForVaultUtil(rawPath, vaultPath);
     } catch {
-      new Notice('Failed to attach file: invalid path');
+      new Notice(t('inlineEdit.attachFailed'));
       return null;
     }
   }

@@ -13,6 +13,7 @@ import {
   DEFAULT_CLAUDE_MODELS,
   THINKING_BUDGETS
 } from '../../../core/types';
+import { t } from '../../../i18n';
 import { CHECK_ICON_SVG, MCP_ICON_SVG } from '../../../shared/icons';
 import { getModelsFromEnvironment, parseEnvironmentVariables } from '../../../utils/env';
 import { filterValidPaths, findConflictingPath, isDuplicatePath, isValidDirectoryPath, validateDirectoryPath } from '../../../utils/externalContext';
@@ -290,7 +291,7 @@ export class ExternalContextSelector {
     // If invalid paths were removed, notify user and save updated list
     if (invalidPaths.length > 0) {
       const pathNames = invalidPaths.map(p => this.shortenPath(p)).join(', ');
-      new Notice(`Removed ${invalidPaths.length} invalid external context path(s): ${pathNames}`, 5000);
+      new Notice(t('toolbar.invalidPaths', { count: String(invalidPaths.length), paths: pathNames }), 5000);
       this.onPersistenceChangeCallback?.([...this.persistentPaths]);
     }
   }
@@ -301,7 +302,7 @@ export class ExternalContextSelector {
     } else {
       // Validate path still exists before persisting
       if (!isValidDirectoryPath(path)) {
-        new Notice(`Cannot persist "${this.shortenPath(path)}" - directory no longer exists`, 4000);
+        new Notice(t('toolbar.directoryMissing', { path: this.shortenPath(path) }), 4000);
         return;
       }
       this.persistentPaths.add(path);
@@ -452,7 +453,7 @@ export class ExternalContextSelector {
 
         // Check for duplicate (normalized comparison for cross-platform support)
         if (isDuplicatePath(selectedPath, this.externalContextPaths)) {
-          new Notice('This folder is already added as an external context.', 3000);
+          new Notice(t('toolbar.folderAlreadyAdded'), 3000);
           return;
         }
 
@@ -469,7 +470,7 @@ export class ExternalContextSelector {
         this.renderDropdown();
       }
     } catch {
-      new Notice('Unable to open folder picker.', 5000);
+      new Notice(t('toolbar.folderPickerFailed'), 5000);
     }
   }
 

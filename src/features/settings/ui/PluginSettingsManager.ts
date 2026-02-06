@@ -1,6 +1,7 @@
 import { Notice, setIcon } from 'obsidian';
 
 import type { ClaudianPlugin as ClaudianPluginType } from '../../../core/types';
+import { t } from '../../../i18n';
 import type ClaudianPlugin from '../../../main';
 
 export class PluginSettingsManager {
@@ -104,15 +105,15 @@ export class PluginSettingsManager {
             async (service) => { await service.ensureReady({ force: true }); }
           );
         } catch {
-          new Notice('Plugin toggled, but some tabs failed to restart.');
+          new Notice(t('plugins.togglePartialFail'));
         }
       }
 
-      new Notice(`Plugin "${pluginId}" ${wasEnabled ? 'disabled' : 'enabled'}`);
+      new Notice(t('plugins.toggled', { id: pluginId, state: wasEnabled ? 'disabled' : 'enabled' }));
     } catch (err) {
       await this.plugin.pluginManager.togglePlugin(pluginId);
       const message = err instanceof Error ? err.message : 'Unknown error';
-      new Notice(`Failed to toggle plugin: ${message}`);
+      new Notice(t('plugins.toggleError', { message }));
     } finally {
       this.render();
     }
@@ -123,10 +124,10 @@ export class PluginSettingsManager {
       await this.plugin.pluginManager.loadPlugins();
       await this.plugin.agentManager.loadAgents();
 
-      new Notice('Plugin list refreshed');
+      new Notice(t('plugins.refreshed'));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      new Notice(`Failed to refresh plugins: ${message}`);
+      new Notice(t('plugins.refreshError', { message }));
     } finally {
       this.render();
     }

@@ -3,6 +3,7 @@ import { Notice, TFile } from 'obsidian';
 
 import type { AgentManager } from '../../../core/agents';
 import type { McpServerManager } from '../../../core/mcp';
+import { t } from '../../../i18n';
 import { MentionDropdownController } from '../../../shared/mention/MentionDropdownController';
 import { getVaultPath, normalizePathForVault as normalizePathForVaultUtil } from '../../../utils/path';
 import { FileContextState } from './file-context/state/FileContextState';
@@ -63,13 +64,13 @@ export class FileContextManager {
       onOpenFile: async (filePath) => {
         const file = this.app.vault.getAbstractFileByPath(filePath);
         if (!(file instanceof TFile)) {
-          new Notice(`Could not open file: ${filePath}`);
+          new Notice(t('fileContext.openFailed', { path: filePath }));
           return;
         }
         try {
           await this.app.workspace.getLeaf().openFile(file);
         } catch (error) {
-          new Notice(`Failed to open file: ${error instanceof Error ? error.message : String(error)}`);
+          new Notice(t('fileContext.openError', { message: error instanceof Error ? error.message : String(error) }));
         }
       },
     });

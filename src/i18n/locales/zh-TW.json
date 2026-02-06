@@ -298,6 +298,70 @@
       "saveFailed": "儲存提示詞失敗"
     }
   },
+  "slashSettings": {
+    "templateRequired": "提示詞範本不能為空",
+    "duplicateCommand": "命令 \"/{name}\" 已存在",
+    "saveFailed": "儲存{type}失敗",
+    "convertFailed": "轉換為技能失敗",
+    "deleteFailed": "刪除{type}失敗",
+    "saved": "{type} \"/{name}\" 已{action}",
+    "deleted": "{type} \"/{name}\" 已刪除",
+    "duplicateSkill": "技能 \"/{name}\" 已存在",
+    "converted": "已將 \"/{name}\" 轉換為技能"
+  },
+  "mcp": {
+    "reloadFailed": "設定已儲存但重新載入失敗。變更將在下次工作階段時生效。",
+    "clipboardEmpty": "剪貼簿為空",
+    "noValidConfig": "剪貼簿中未找到有效的 MCP 設定",
+    "enterServerName": "請輸入伺服器名稱",
+    "readClipboardFailed": "讀取剪貼簿失敗",
+    "serverExists": "伺服器 \"{name}\" 已存在",
+    "noNewServers": "沒有新的 MCP 伺服器可匯入",
+    "serverToggled": "MCP 伺服器 \"{name}\" 已{state}",
+    "serverDeleted": "MCP 伺服器 \"{name}\" 已刪除",
+    "validation": {
+      "nameRequired": "請輸入伺服器名稱",
+      "nameInvalid": "伺服器名稱只能包含字母、數字、點、連字號和底線",
+      "commandRequired": "請輸入命令",
+      "urlRequired": "請輸入 URL"
+    }
+  },
+  "envSnippets": {
+    "insertFailed": "插入片段失敗",
+    "deleteFailed": "刪除片段失敗",
+    "saved": "環境變數片段 \"{name}\" 已儲存",
+    "updated": "環境變數片段 \"{name}\" 已更新",
+    "deleted": "環境變數片段 \"{name}\" 已刪除"
+  },
+  "plugins": {
+    "togglePartialFail": "外掛程式已切換，但部分分頁重新啟動失敗。",
+    "toggled": "外掛程式 \"{id}\" 已{state}",
+    "toggleError": "切換外掛程式失敗：{message}",
+    "refreshed": "外掛程式清單已重新整理",
+    "refreshError": "重新整理外掛程式失敗：{message}"
+  },
+  "toolbar": {
+    "invalidPaths": "已移除 {count} 個無效的外部上下文路徑：{paths}",
+    "directoryMissing": "無法保留 \"{path}\" — 目錄已不存在",
+    "folderAlreadyAdded": "該資料夾已新增為外部上下文。",
+    "folderPickerFailed": "無法開啟資料夾選擇器。"
+  },
+  "fileContext": {
+    "openFailed": "無法開啟檔案：{path}",
+    "openError": "開啟檔案失敗：{message}"
+  },
+  "inlineEdit": {
+    "attachFailed": "附加檔案失敗：路徑無效"
+  },
+  "security": {
+    "commandBlocked": "命令已被安全策略阻止"
+  },
+  "app": {
+    "loadFailed": "載入 {count} 個對話失敗",
+    "envRestartFailed": "環境變數已套用，但 {count} 個分頁重新啟動失敗。",
+    "inserted": "已插入",
+    "editApplied": "編輯已套用"
+  },
   "history": {
     "title": "對話記錄",
     "search": "搜尋對話...",
