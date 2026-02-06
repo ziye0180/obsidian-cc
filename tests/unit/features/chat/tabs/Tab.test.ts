@@ -191,6 +191,7 @@ jest.mock('@/features/chat/ui', () => ({
       externalContextSelector: mockExternalContextSelector,
       mcpServerSelector: mockMcpServerSelector,
       permissionToggle: mockPermissionToggle,
+      cleanup: jest.fn(),
     };
   }),
 }));

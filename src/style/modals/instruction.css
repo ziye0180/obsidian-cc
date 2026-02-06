@@ -10,7 +10,7 @@
 }
 
 .claudian-instruction-label {
-  font-size: 12px;
+  font-size: var(--claudian-font-base);
   font-weight: 500;
   color: var(--text-muted);
   margin-bottom: 6px;
@@ -19,8 +19,8 @@
 .claudian-instruction-original {
   padding: 10px 12px;
   background: var(--background-secondary);
-  border-radius: 6px;
-  font-size: 13px;
+  border-radius: var(--claudian-radius-md);
+  font-size: var(--claudian-font-md);
   color: var(--text-muted);
   font-style: italic;
   white-space: pre-wrap;
@@ -30,8 +30,8 @@
   padding: 12px;
   background: var(--background-primary-alt);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: var(--claudian-radius-md);
+  font-size: var(--claudian-font-lg);
   color: var(--text-normal);
   line-height: 1.5;
   white-space: pre-wrap;
@@ -41,8 +41,8 @@
   padding: 12px;
   background: var(--background-primary-alt);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: var(--claudian-radius-md);
+  font-size: var(--claudian-font-lg);
   color: var(--text-normal);
   line-height: 1.5;
   white-space: pre-wrap;
@@ -55,10 +55,10 @@
 .claudian-instruction-edit-textarea {
   width: 100%;
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: var(--claudian-font-lg);
   line-height: 1.5;
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
+  border-radius: var(--claudian-radius-md);
   background: var(--background-primary);
   color: var(--text-normal);
   resize: vertical;
@@ -73,10 +73,10 @@
 .claudian-instruction-response-textarea {
   width: 100%;
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: var(--claudian-font-lg);
   line-height: 1.5;
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
+  border-radius: var(--claudian-radius-md);
   background: var(--background-primary);
   color: var(--text-normal);
   resize: vertical;
@@ -97,9 +97,9 @@
 
 .claudian-instruction-btn {
   padding: 8px 16px;
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--claudian-radius-md);
   cursor: pointer;
   font-weight: 500;
 }

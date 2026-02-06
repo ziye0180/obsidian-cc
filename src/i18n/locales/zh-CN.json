@@ -91,6 +91,10 @@
       "name": "命令与技能",
       "desc": "定义由 /名称 触发的自定义命令与技能。"
     },
+    "prompts": {
+      "name": "提示词模板",
+      "desc": "管理可通过 / 命令应用到对话的提示词模板。"
+    },
     "hiddenSlashCommands": {
       "name": "隐藏命令",
       "desc": "从下拉菜单中隐藏特定的斜杠命令。适用于隐藏与 Claudian 无关的 Claude Code 命令。每行输入一个命令名称，无需前导斜杠。",
@@ -230,5 +234,71 @@
       "name": "语言",
       "desc": "更改插件界面的显示语言"
     }
+  },
+  "configPanel": {
+    "title": "配置",
+    "tabs": {
+      "skills": "技能",
+      "mcp": "MCP",
+      "prompts": "提示词",
+      "agents": "代理",
+      "plugins": "插件"
+    }
+  },
+  "promptManager": {
+    "searchPlaceholder": "搜索提示词...",
+    "noResults": "未找到匹配的提示词",
+    "empty": "暂无提示词",
+    "filter": "按来源筛选",
+    "filterAll": "全部",
+    "add": "新建提示词",
+    "editTitle": "编辑提示词",
+    "newTitle": "新建提示词",
+    "close": "关闭",
+    "applyToChat": "应用到对话",
+    "duplicate": "复制",
+    "deleteConfirm": "确定要删除 \"{name}\" 吗？",
+    "deleteSuccess": "提示词 \"{name}\" 已删除",
+    "applied": "提示词 \"{name}\" 已应用到对话",
+    "source": {
+      "command": "命令",
+      "skill": "技能",
+      "agent": "代理",
+      "system": "系统"
+    },
+    "fields": {
+      "name": "名称",
+      "nameDesc": "此提示词的显示名称",
+      "namePlaceholder": "my-prompt",
+      "description": "描述",
+      "descriptionDesc": "简要描述",
+      "descriptionPlaceholder": "这个提示词做什么？",
+      "category": "分类",
+      "tags": "标签",
+      "tagsDesc": "以逗号分隔的标签",
+      "tagsPlaceholder": "代码, 审查, 测试",
+      "template": "提示词模板",
+      "templateDesc": "提示词内容",
+      "templatePlaceholder": "输入你的提示词模板...",
+      "type": "类型",
+      "typeDesc": "创建为命令或技能"
+    },
+    "categories": {
+      "none": "无",
+      "general": "通用",
+      "coding": "编程",
+      "writing": "写作",
+      "analysis": "分析",
+      "workflow": "工作流",
+      "custom": "自定义"
+    },
+    "validation": {
+      "nameRequired": "名称不能为空",
+      "contentRequired": "提示词内容不能为空",
+      "saveFailed": "保存提示词失败"
+    }
+  },
+  "branch": {
+    "branchOf": "{current} / {total}"
   }
 }

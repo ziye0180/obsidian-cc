@@ -1,7 +1,9 @@
 import type { EventRef, WorkspaceLeaf } from 'obsidian';
 import { ItemView, Notice, setIcon } from 'obsidian';
 
+import { PromptAggregator } from '../../core/storage/PromptAggregator';
 import { VIEW_TYPE_CLAUDIAN } from '../../core/types';
+import type { PromptTemplate } from '../../core/types/prompts';
 import type ClaudianPlugin from '../../main';
 import { LOGO_SVG } from './constants';
 import { TabBar, TabManager } from './tabs';
@@ -28,6 +30,7 @@ export class ClaudianView extends ItemView {
 
   // Header elements
   private historyDropdown: HTMLElement | null = null;
+  private promptDropdown: HTMLElement | null = null;
 
   // Event refs for cleanup
   private eventRefs: EventRef[] = [];
@@ -163,7 +166,7 @@ export class ClaudianView extends ItemView {
     // Restore tabs from persisted state or create default tab
     await this.restoreOrCreateTabs();
 
-    // Apply initial layout based on tabBarPosition setting
+    // Apply initial layout (always header mode)
     this.updateLayoutForPosition();
   }
 
@@ -262,6 +265,18 @@ export class ClaudianView extends ItemView {
       this.updateHistoryDropdown();
     });
 
+    // Prompt quick panel button
+    const promptBtn = this.headerActionsContent.createDiv({ cls: 'claudian-header-btn' });
+    setIcon(promptBtn, 'sparkles');
+    promptBtn.setAttribute('aria-label', 'Quick prompts');
+    promptBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.togglePromptDropdown();
+    });
+
+    // Prompt dropdown (positions relative to .claudian-header)
+    this.promptDropdown = this.headerActionsContent.createDiv({ cls: 'claudian-prompt-dropdown' });
+
     // History dropdown
     const historyContainer = this.headerActionsContent.createDiv({ cls: 'claudian-history-container' });
     const historyBtn = historyContainer.createDiv({ cls: 'claudian-header-btn' });
@@ -285,53 +300,33 @@ export class ClaudianView extends ItemView {
   }
 
   /**
-   * Moves nav row content based on tabBarPosition setting.
-   * - 'input' mode: Both tab badges and actions go to active tab's navRowEl
-   * - 'header' mode: Tab badges go to title slot (after logo), actions go to header right side
+   * Moves nav row content to header (tab badges in title slot, actions in header right side).
    */
   private updateNavRowLocation(): void {
     if (!this.tabBarContainerEl || !this.headerActionsContent) return;
 
-    const isHeaderMode = this.plugin.settings.tabBarPosition === 'header';
-
-    if (isHeaderMode) {
-      // Header mode: Tab badges go to title slot, actions go to header right side
-      if (this.titleSlotEl) {
-        this.titleSlotEl.appendChild(this.tabBarContainerEl);
-      }
-      if (this.headerActionsEl) {
-        this.headerActionsEl.appendChild(this.headerActionsContent);
-        this.headerActionsEl.style.display = 'flex';
-      }
-    } else {
-      // Input mode: Both go to active tab's navRowEl via the wrapper
-      const activeTab = this.tabManager?.getActiveTab();
-      if (activeTab && this.navRowContent) {
-        // Re-assemble the nav row content wrapper
-        this.navRowContent.appendChild(this.tabBarContainerEl);
-        this.navRowContent.appendChild(this.headerActionsContent);
-        activeTab.dom.navRowEl.appendChild(this.navRowContent);
-      }
-      // Hide header actions slot when in input mode
-      if (this.headerActionsEl) {
-        this.headerActionsEl.style.display = 'none';
-      }
+    // Tab badges go to title slot
+    if (this.titleSlotEl) {
+      this.titleSlotEl.appendChild(this.tabBarContainerEl);
+    }
+    // Actions go to header right side
+    if (this.headerActionsEl) {
+      this.headerActionsEl.appendChild(this.headerActionsContent);
+      this.headerActionsEl.style.display = 'flex';
     }
   }
 
   /**
-   * Updates layout when tabBarPosition setting changes.
-   * Called from settings when user changes the tab bar position.
+   * Updates layout (always header mode now).
+   * Called from settings when user changes settings (though tabBarPosition is removed).
    */
   updateLayoutForPosition(): void {
     if (!this.viewContainerEl) return;
 
-    const isHeaderMode = this.plugin.settings.tabBarPosition === 'header';
+    // Always use header mode
+    this.viewContainerEl.addClass('claudian-container--header-mode');
 
-    // Update container class for CSS styling
-    this.viewContainerEl.toggleClass('claudian-container--header-mode', isHeaderMode);
-
-    // Move nav content to appropriate location
+    // Move nav content to header
     this.updateNavRowLocation();
 
     // Update tab bar and title visibility
@@ -387,14 +382,12 @@ export class ClaudianView extends ItemView {
 
     const tabCount = this.tabManager.getTabCount();
     const showTabBar = tabCount >= 2;
-    const isHeaderMode = this.plugin.settings.tabBarPosition === 'header';
 
     // Hide tab badges when only 1 tab, show when 2+
     this.tabBarContainerEl.style.display = showTabBar ? 'flex' : 'none';
 
     // In header mode, badges replace logo/title in the same location
-    // In input mode, keep logo/title visible (badges are in nav row)
-    const hideBranding = showTabBar && isHeaderMode;
+    const hideBranding = showTabBar;
     if (this.logoEl) {
       this.logoEl.style.display = hideBranding ? 'none' : '';
     }
@@ -462,6 +455,144 @@ export class ClaudianView extends ItemView {
   }
 
   // ============================================
+  // Prompt Quick Panel
+  // ============================================
+
+  private togglePromptDropdown(): void {
+    if (!this.promptDropdown) return;
+
+    // Close history if open
+    this.historyDropdown?.removeClass('visible');
+
+    const isVisible = this.promptDropdown.hasClass('visible');
+    if (isVisible) {
+      this.promptDropdown.removeClass('visible');
+    } else {
+      this.renderPromptDropdown();
+      this.promptDropdown.addClass('visible');
+    }
+  }
+
+  private renderPromptDropdown(): void {
+    if (!this.promptDropdown) return;
+    this.promptDropdown.empty();
+
+    const aggregator = new PromptAggregator(this.plugin);
+    const templates = aggregator.getAll();
+
+    // Header
+    const header = this.promptDropdown.createDiv({ cls: 'claudian-prompt-quick-header' });
+    header.createSpan({ text: 'Prompts' });
+
+    const closeBtn = header.createEl('button', { cls: 'claudian-action-btn' });
+    setIcon(closeBtn, 'x');
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.promptDropdown?.removeClass('visible');
+    });
+
+    // Search input
+    const searchInput = header.createEl('input', {
+      cls: 'claudian-prompt-quick-search',
+      attr: { type: 'text', placeholder: 'Search prompts...' },
+    });
+    searchInput.addEventListener('click', (e) => e.stopPropagation());
+
+    // List container
+    const list = this.promptDropdown.createDiv({ cls: 'claudian-prompt-quick-list' });
+
+    // Filter out system prompts
+    const userTemplates = templates.filter(t => t.source !== 'system');
+
+    if (userTemplates.length === 0) {
+      list.createDiv({ cls: 'claudian-prompt-quick-empty', text: 'No prompts configured' });
+      return;
+    }
+
+    // Sort: pinned first, then by last used
+    const sorted = [...userTemplates].sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return (b.lastUsedAt ?? 0) - (a.lastUsedAt ?? 0);
+    });
+
+    for (const template of sorted) {
+      this.renderPromptItem(list, template, aggregator);
+    }
+
+    // Search filtering (debounced)
+    let searchTimer: ReturnType<typeof setTimeout> | null = null;
+    searchInput.addEventListener('input', () => {
+      if (searchTimer) clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        const query = searchInput.value.toLowerCase().trim();
+        const items = list.querySelectorAll('.claudian-prompt-quick-item');
+        for (const el of items) {
+          const item = el as HTMLElement;
+          const name = item.dataset.name?.toLowerCase() ?? '';
+          const desc = item.dataset.desc?.toLowerCase() ?? '';
+          item.style.display = (!query || name.includes(query) || desc.includes(query)) ? '' : 'none';
+        }
+      }, 150);
+    });
+  }
+
+  private renderPromptItem(
+    container: HTMLElement,
+    template: PromptTemplate,
+    aggregator: PromptAggregator,
+  ): void {
+    const item = container.createDiv({
+      cls: 'claudian-prompt-quick-item',
+      attr: {
+        'data-name': template.name,
+        'data-desc': template.description ?? '',
+      },
+    });
+
+    const content = item.createDiv({ cls: 'claudian-prompt-quick-item-content' });
+
+    const nameRow = content.createDiv({ cls: 'claudian-prompt-quick-item-name' });
+    if (template.pinned) {
+      const pinIcon = nameRow.createSpan({ cls: 'claudian-prompt-quick-pin' });
+      setIcon(pinIcon, 'pin');
+    }
+    nameRow.createSpan({ text: template.name });
+
+    if (template.description) {
+      content.createDiv({
+        cls: 'claudian-prompt-quick-item-desc',
+        text: template.description,
+      });
+    }
+
+    // Source badge
+    content.createSpan({
+      cls: `claudian-prompt-quick-badge claudian-prompt-quick-badge--${template.source}`,
+      text: template.source,
+    });
+
+    // Click to apply
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.applyPromptToChat(template, aggregator);
+      this.promptDropdown?.removeClass('visible');
+    });
+  }
+
+  private applyPromptToChat(template: PromptTemplate, aggregator: PromptAggregator): void {
+    const activeTab = this.tabManager?.getActiveTab();
+    if (!activeTab) return;
+
+    activeTab.dom.inputEl.value = template.content;
+    activeTab.dom.inputEl.focus();
+    activeTab.dom.inputEl.dispatchEvent(new Event('input'));
+
+    aggregator.recordUsage(template.id);
+    new Notice(`Prompt "${template.name}" applied`);
+  }
+
+  // ============================================
   // Event Wiring
   // ============================================
 
@@ -469,6 +600,7 @@ export class ClaudianView extends ItemView {
     // Document-level click to close dropdowns
     this.registerDomEvent(document, 'click', () => {
       this.historyDropdown?.removeClass('visible');
+      this.promptDropdown?.removeClass('visible');
     });
 
     // Document-level escape to cancel streaming
@@ -586,5 +718,35 @@ export class ClaudianView extends ItemView {
   /** Gets the tab manager. */
   getTabManager(): TabManager | null {
     return this.tabManager;
+  }
+
+  /** Clears the active tab's input textarea. */
+  clearActiveInput(): void {
+    const tab = this.tabManager?.getActiveTab();
+    if (tab) {
+      tab.dom.inputEl.value = '';
+      tab.dom.inputEl.dispatchEvent(new Event('input'));
+    }
+  }
+
+  /** Toggles the history dropdown visibility (delegates to private method). */
+  toggleHistory(): void {
+    this.toggleHistoryDropdown();
+  }
+
+  /** Switches to a tab by 0-based index. Silently ignores out-of-range index. */
+  switchToTabByIndex(index: number): void {
+    const tabs = this.tabManager?.getAllTabs();
+    if (tabs && index >= 0 && index < tabs.length) {
+      this.tabManager?.switchToTab(tabs[index].id);
+    }
+  }
+
+  /** Focuses the active tab's input textarea. */
+  focusInput(): void {
+    const tab = this.tabManager?.getActiveTab();
+    if (tab) {
+      tab.dom.inputEl.focus();
+    }
   }
 }

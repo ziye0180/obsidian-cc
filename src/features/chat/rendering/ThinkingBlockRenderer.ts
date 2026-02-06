@@ -37,7 +37,7 @@ export function createThinkingBlock(
   }, 1000);
 
   // Collapsible content (collapsed by default)
-  const contentEl = wrapperEl.createDiv({ cls: 'claudian-thinking-content' });
+  const contentEl = wrapperEl.createDiv({ cls: 'claudian-thinking-content claudian-thinking-streaming' });
 
   // Create state object first so toggle can reference it
   const state: ThinkingBlockState = {
@@ -77,6 +77,9 @@ export function finalizeThinkingBlock(state: ThinkingBlockState): number {
 
   // Update label to show final duration (without "...")
   state.labelEl.setText(`Thought for ${durationSeconds}s`);
+
+  // Remove streaming class before collapsing
+  state.contentEl.removeClass('claudian-thinking-streaming');
 
   // Collapse when done and sync state
   const header = state.wrapperEl.querySelector('.claudian-thinking-header');

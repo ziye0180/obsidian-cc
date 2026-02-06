@@ -120,3 +120,19 @@ export {
   type AgentFrontmatter,
   type AgentPermissionMode,
 } from './agent';
+
+// Branch types
+export {
+  type ActivePath,
+  type BranchInfo,
+  type ForkResult,
+} from './branch';
+
+// Prompt types
+export {
+  type PromptCategory,
+  type PromptFilterOptions,
+  type PromptSource,
+  type PromptTemplate,
+  type PromptUsageStats,
+} from './prompts';

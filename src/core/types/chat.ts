@@ -53,6 +53,10 @@ export interface ChatMessage {
   durationSeconds?: number;
   /** Flavor word used for duration display (e.g., "Baked", "Cooked"). */
   durationFlavorWord?: string;
+  /** Parent message ID for tree-based branching. null = root message. */
+  parentId?: string | null;
+  /** Runtime-only: child message IDs, built from parentId. Not persisted. */
+  childIds?: string[];
 }
 
 /** Persisted conversation with messages and session state. */
@@ -97,6 +101,8 @@ export interface Conversation {
    * Loaded from metadata for native sessions to restore tool count and status on reload.
    */
   subagentData?: Record<string, SubagentInfo>;
+  /** Active branch leaf message ID for tree navigation. */
+  activeLeafId?: string;
 }
 
 /** Lightweight conversation metadata for the history dropdown. */

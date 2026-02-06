@@ -181,6 +181,86 @@ export default class ClaudianPlugin extends Plugin {
       },
     });
 
+    this.addCommand({
+      id: 'clear-input',
+      name: 'Clear chat input',
+      checkCallback: (checking: boolean) => {
+        const view = this.getView();
+        if (!view) return false;
+        if (!checking) {
+          view.clearActiveInput();
+        }
+        return true;
+      },
+    });
+
+    this.addCommand({
+      id: 'toggle-history',
+      name: 'Toggle history panel',
+      checkCallback: (checking: boolean) => {
+        const view = this.getView();
+        if (!view) return false;
+        if (!checking) {
+          view.toggleHistory();
+        }
+        return true;
+      },
+    });
+
+    this.addCommand({
+      id: 'focus-input',
+      name: 'Focus chat input',
+      checkCallback: (checking: boolean) => {
+        const view = this.getView();
+        if (!view) return false;
+        if (!checking) {
+          view.focusInput();
+        }
+        return true;
+      },
+    });
+
+    for (let i = 1; i <= 9; i++) {
+      this.addCommand({
+        id: `tab-${i}`,
+        name: `Switch to tab ${i}`,
+        checkCallback: (checking: boolean) => {
+          const view = this.getView();
+          if (!view) return false;
+          const tabManager = view.getTabManager();
+          if (!tabManager) return false;
+          if (i > tabManager.getTabCount()) return false;
+          if (!checking) {
+            view.switchToTabByIndex(i - 1);
+          }
+          return true;
+        },
+      });
+    }
+
+    this.addCommand({
+      id: 'export-conversation',
+      name: 'Export current conversation',
+      checkCallback: (checking: boolean) => {
+        const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_CLAUDIAN)[0];
+        if (!leaf) return false;
+
+        const view = leaf.view as ClaudianView;
+        const tabManager = view.getTabManager();
+        if (!tabManager) return false;
+
+        const activeTab = tabManager.getActiveTab();
+        if (!activeTab) return false;
+
+        if (activeTab.state.messages.length === 0) return false;
+
+        if (!checking) {
+          activeTab.controllers.conversationController?.exportConversation();
+        }
+        return true;
+      },
+    });
+
     this.addSettingTab(new ClaudianSettingTab(this.app, this));
   }
 

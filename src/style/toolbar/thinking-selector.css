@@ -7,7 +7,7 @@
 }
 
 .claudian-thinking-label-text {
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
   color: var(--text-muted);
 }
 
@@ -15,17 +15,17 @@
   position: relative;
   display: flex;
   align-items: center;
-  border-radius: 4px;
+  border-radius: var(--claudian-radius-sm);
 }
 
 /* Current selection (visible when collapsed) */
 .claudian-thinking-current {
   padding: 3px 8px;
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
   color: var(--claudian-brand);
   font-weight: 500;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--claudian-radius-sm);
   white-space: nowrap;
   background: transparent;
 }
@@ -41,7 +41,7 @@
   gap: 2px;
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
+  border-radius: var(--claudian-radius-sm);
   padding: 4px;
   opacity: 0;
   visibility: hidden;
@@ -56,10 +56,10 @@
 
 .claudian-thinking-gear {
   padding: 3px 8px;
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
   color: var(--text-muted);
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--claudian-radius-sm);
   transition: background 0.1s ease, color 0.1s ease;
   white-space: nowrap;
 }

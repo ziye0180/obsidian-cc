@@ -91,6 +91,10 @@
       "name": "命令與技能",
       "desc": "定義由 /名稱 觸發的自訂命令與技能。"
     },
+    "prompts": {
+      "name": "提示詞範本",
+      "desc": "管理可透過 / 命令套用到對話的提示詞範本。"
+    },
     "hiddenSlashCommands": {
       "name": "隱藏命令",
       "desc": "從下拉選單中隱藏特定的斜線命令。適用於隱藏與 Claudian 無關的 Claude Code 命令。每行輸入一個命令名稱，無需前導斜線。",
@@ -230,5 +234,71 @@
       "name": "語言",
       "desc": "更改插件介面的顯示語言"
     }
+  },
+  "configPanel": {
+    "title": "Config",
+    "tabs": {
+      "skills": "Skills",
+      "mcp": "MCP",
+      "prompts": "Prompts",
+      "agents": "Agents",
+      "plugins": "Plugins"
+    }
+  },
+  "promptManager": {
+    "searchPlaceholder": "Search prompts...",
+    "noResults": "No matching prompts found",
+    "empty": "No prompts configured",
+    "filter": "Filter by source",
+    "filterAll": "All",
+    "add": "New prompt",
+    "editTitle": "Edit Prompt",
+    "newTitle": "New Prompt",
+    "close": "Close",
+    "applyToChat": "Apply to chat",
+    "duplicate": "Duplicate",
+    "deleteConfirm": "Are you sure you want to delete \"{name}\"?",
+    "deleteSuccess": "Prompt \"{name}\" deleted",
+    "applied": "Prompt \"{name}\" applied to chat",
+    "source": {
+      "command": "Command",
+      "skill": "Skill",
+      "agent": "Agent",
+      "system": "System"
+    },
+    "fields": {
+      "name": "Name",
+      "nameDesc": "Display name for this prompt",
+      "namePlaceholder": "my-prompt",
+      "description": "Description",
+      "descriptionDesc": "Brief description",
+      "descriptionPlaceholder": "What does this prompt do?",
+      "category": "Category",
+      "tags": "Tags",
+      "tagsDesc": "Comma-separated tags",
+      "tagsPlaceholder": "code, review, testing",
+      "template": "Prompt template",
+      "templateDesc": "The prompt content",
+      "templatePlaceholder": "Enter your prompt template...",
+      "type": "Type",
+      "typeDesc": "Create as command or skill"
+    },
+    "categories": {
+      "none": "None",
+      "general": "General",
+      "coding": "Coding",
+      "writing": "Writing",
+      "analysis": "Analysis",
+      "workflow": "Workflow",
+      "custom": "Custom"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "contentRequired": "Prompt content is required",
+      "saveFailed": "Failed to save prompt"
+    }
+  },
+  "branch": {
+    "branchOf": "{current} of {total}"
   }
 }

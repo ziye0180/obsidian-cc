@@ -9,7 +9,7 @@
 .claudian-message-content pre {
   background: rgba(0, 0, 0, 0.2);
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: var(--claudian-radius-md);
   overflow-x: auto;
   margin: 0;
 }
@@ -28,7 +28,7 @@
 
 .claudian-message-content code {
   font-family: var(--font-monospace);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
 }
 
 /* Clickable language label - positioned outside scroll area */
@@ -37,11 +37,11 @@
   top: 6px;
   right: 6px;
   padding: 2px 8px;
-  font-size: 12px;
+  font-size: var(--claudian-font-base);
   font-family: var(--font-monospace);
   color: var(--text-faint);
   background: var(--background-primary);
-  border-radius: 3px;
+  border-radius: var(--claudian-radius-sm);
   cursor: pointer;
   z-index: 2;
   transition: color 0.15s ease, background 0.15s ease;
@@ -63,14 +63,14 @@
   top: 6px;
   right: 6px;
   padding: 4px 8px;
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
   background: var(--background-primary);
   border: none;
   color: var(--text-muted);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
-  border-radius: 3px;
+  border-radius: var(--claudian-radius-sm);
   z-index: 2;
 }
 

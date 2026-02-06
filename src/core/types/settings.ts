@@ -4,6 +4,7 @@
 
 import type { Locale } from '../../i18n/types';
 import type { ClaudeModel, ThinkingBudget } from './models';
+import type { PromptCategory, PromptUsageStats } from './prompts';
 
 const UNIX_BLOCKED_COMMANDS = [
   'rm -rf',
@@ -217,6 +218,10 @@ export interface SlashCommand {
   context?: 'fork';                  // Subagent execution mode
   agent?: string;                    // Subagent type when context='fork'
   hooks?: Record<string, unknown>;   // Pass-through to SDK
+  // Prompt management metadata
+  category?: PromptCategory;
+  tags?: string[];
+  pinned?: boolean;
 }
 
 /** Keyboard navigation settings for vim-style scrolling. */
@@ -295,6 +300,9 @@ export interface ClaudianSettings {
 
   // Slash commands
   hiddenSlashCommands: string[];  // Command names to hide from dropdown (user preference)
+
+  // Prompt usage tracking
+  promptUsageStats?: Record<string, PromptUsageStats>;
 }
 
 /** Default Claudian-specific settings. */

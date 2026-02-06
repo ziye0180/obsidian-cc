@@ -631,9 +631,30 @@ describe('McpServerSelector - toggle and badges', () => {
 });
 
 describe('createInputToolbar', () => {
+  let mockDocument: any;
+  let originalDocument: any;
+
+  beforeEach(() => {
+    // Save original document
+    originalDocument = global.document;
+
+    // Create mock document with addEventListener
+    mockDocument = {
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    };
+    global.document = mockDocument as any;
+  });
+
+  afterEach(() => {
+    // Restore original document
+    global.document = originalDocument;
+  });
+
   it('should return all toolbar components', () => {
     const parentEl = createMockEl();
     const callbacks = createMockCallbacks();
+
     const toolbar = createInputToolbar(parentEl, callbacks);
 
     expect(toolbar.modelSelector).toBeInstanceOf(ModelSelector);
@@ -641,5 +662,15 @@ describe('createInputToolbar', () => {
     expect(toolbar.contextUsageMeter).toBeInstanceOf(ContextUsageMeter);
     expect(toolbar.mcpServerSelector).toBeInstanceOf(McpServerSelector);
     expect(toolbar.permissionToggle).toBeInstanceOf(PermissionToggle);
+    expect(toolbar.cleanup).toBeInstanceOf(Function);
+
+    // Verify event listener was added
+    expect(mockDocument.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+
+    // Cleanup
+    toolbar.cleanup();
+
+    // Verify event listener was removed
+    expect(mockDocument.removeEventListener).toHaveBeenCalledWith('click', expect.any(Function));
   });
 });

@@ -10,8 +10,8 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+  border-radius: var(--claudian-radius-md);
+  box-shadow: var(--claudian-shadow-modal);
   z-index: 1000;
   max-height: 250px;
   overflow-y: auto;
@@ -54,7 +54,7 @@
 }
 
 .claudian-mention-path {
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   color: var(--text-normal);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -65,7 +65,7 @@
   padding: 12px;
   text-align: center;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
 }
 
 /* Scrollbar for mention dropdown */
@@ -79,7 +79,7 @@
 
 .claudian-mention-dropdown::-webkit-scrollbar-thumb {
   background: var(--background-modifier-border);
-  border-radius: 3px;
+  border-radius: var(--claudian-radius-sm);
 }
 
 /* MCP items in @-mention dropdown */
@@ -96,13 +96,13 @@
 }
 
 .claudian-mention-name {
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   font-weight: 500;
   color: var(--interactive-accent);
 }
 
 .claudian-mention-desc {
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -166,12 +166,12 @@
 
 .claudian-mention-item.agent .claudian-mention-name-agent {
   color: var(--text-normal);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   flex-shrink: 0;
 }
 
 .claudian-mention-item.agent .claudian-mention-agent-desc {
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;

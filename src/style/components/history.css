@@ -1,66 +1,129 @@
-.claudian-history-container {
+/* History panel - overlay panel for conversation history */
+
+/* Positioning context for the history panel overlay */
+.claudian-header {
   position: relative;
 }
 
-/* History dropup menu (opens upward since it's at bottom of view) */
+.claudian-history-container {
+  /* No position: relative - let the menu position relative to .claudian-header */
+}
+
 .claudian-history-menu {
   display: none;
   position: absolute;
-  bottom: 100%;
+  top: 100%;
+  left: 0;
   right: 0;
-  margin-bottom: 4px;
+  margin-top: var(--claudian-space-sm);
   background: var(--background-secondary);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
+  border-radius: var(--claudian-radius-lg);
+  box-shadow: var(--claudian-shadow-modal);
   z-index: 1000;
-  max-height: 400px;
+  max-height: calc(100vh - 120px);
   overflow: hidden;
-  width: 280px;
+  flex-direction: column;
 }
 
 .claudian-history-menu.visible {
-  display: block;
+  display: flex;
 }
 
-/* Header mode: dropdown instead of dropup */
-.claudian-container--header-mode .claudian-history-menu {
-  bottom: auto;
-  top: 100%;
-  margin-bottom: 0;
-  margin-top: 4px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-}
-
+/* Header: title row + search input stacked vertically */
 .claudian-history-header {
-  padding: 8px 12px;
-  font-size: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: var(--claudian-space-lg) var(--claudian-space-xl);
+  padding-bottom: var(--claudian-space-md);
+  font-size: var(--claudian-font-base);
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
+  gap: var(--claudian-space-md);
 }
 
+.claudian-history-header .claudian-action-btn {
+  margin-left: auto;
+}
+
+/* Search input inside header */
+.claudian-history-search {
+  width: 100%;
+  padding: var(--claudian-space-md) var(--claudian-space-lg);
+  font-size: var(--claudian-font-md);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--claudian-radius-md);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.claudian-history-search:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px var(--interactive-accent-hover);
+}
+
+.claudian-history-search::placeholder {
+  color: var(--text-faint);
+}
+
+/* Scrollable list */
 .claudian-history-list {
-  max-height: 350px;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
+}
+
+/* Date group titles via CSS ::before on first item in group */
+.claudian-history-item[data-group-first]::before {
+  content: attr(data-group-first);
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: translateY(-100%);
+  padding: var(--claudian-space-md) var(--claudian-space-xl) var(--claudian-space-sm);
+  font-size: var(--claudian-font-sm);
+  font-weight: 600;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.claudian-history-item[data-group-first] {
+  position: relative;
+  margin-top: 28px;
+}
+
+.claudian-history-item[data-group-first]:first-child {
+  margin-top: 24px;
 }
 
 .claudian-history-empty {
-  padding: 16px;
+  padding: var(--claudian-space-2xl);
   text-align: center;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
 }
 
 .claudian-history-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
+  padding: var(--claudian-space-md) var(--claudian-space-xl);
   border-bottom: 1px solid var(--background-modifier-border);
   transition: background 0.15s ease;
 }
@@ -88,7 +151,7 @@
 .claudian-history-item.active {
   background: var(--background-secondary);
   border-left: 2px solid var(--interactive-accent);
-  padding-left: 10px;
+  padding-left: calc(var(--claudian-space-xl) - 2px);
 }
 
 .claudian-history-item.active .claudian-history-item-icon {
@@ -110,7 +173,7 @@
 }
 
 .claudian-history-item-title {
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   font-weight: 500;
   color: var(--text-normal);
   white-space: nowrap;
@@ -119,15 +182,15 @@
 }
 
 .claudian-history-item-date {
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
   color: var(--text-faint);
-  margin-top: 2px;
+  margin-top: var(--claudian-space-xs);
 }
 
 .claudian-history-item-actions {
   display: flex;
-  gap: 4px;
-  margin-left: 8px;
+  gap: var(--claudian-space-sm);
+  margin-left: var(--claudian-space-md);
   opacity: 0;
   transition: opacity 0.15s ease;
 }
@@ -140,8 +203,8 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: var(--claudian-space-sm);
+  border-radius: var(--claudian-radius-sm);
   color: var(--text-muted);
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -162,11 +225,11 @@
 
 .claudian-rename-input {
   width: 100%;
-  padding: 2px 4px;
-  font-size: 13px;
+  padding: var(--claudian-space-xs) var(--claudian-space-sm);
+  font-size: var(--claudian-font-md);
   font-weight: 500;
   border: 1px solid var(--interactive-accent);
-  border-radius: 4px;
+  border-radius: var(--claudian-radius-sm);
   background: var(--background-primary);
   color: var(--text-normal);
 }

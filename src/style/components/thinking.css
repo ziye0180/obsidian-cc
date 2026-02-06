@@ -1,7 +1,7 @@
 .claudian-thinking {
   color: var(--claudian-brand);
   font-style: italic;
-  padding: 4px 0;
+  padding: var(--claudian-space-sm) 0;
   text-align: left;
   animation: thinking-pulse 1.5s ease-in-out infinite;
 }
@@ -17,55 +17,62 @@
 }
 
 .claudian-thinking-block {
-  margin: 8px 0;
+  margin: var(--claudian-space-md) 0;
 }
 
 .claudian-text-block+.claudian-thinking-block {
-  margin-top: 8px;
+  margin-top: var(--claudian-space-md);
 }
 
 .claudian-thinking-block+.claudian-text-block {
-  margin-top: 8px;
+  margin-top: var(--claudian-space-md);
 }
 
 .claudian-thinking-block+.claudian-tool-call {
-  margin-top: 8px;
+  margin-top: var(--claudian-space-md);
 }
 
 .claudian-tool-call+.claudian-thinking-block {
-  margin-top: 8px;
+  margin-top: var(--claudian-space-md);
 }
 
 .claudian-thinking-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 0;
+  gap: var(--claudian-space-md);
+  padding: var(--claudian-space-sm) 0;
   cursor: pointer;
   overflow: hidden;
 }
 
 .claudian-thinking-label {
   flex: 1;
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   font-weight: 500;
   color: var(--claudian-brand);
 }
 
 /* Thinking block content - tree-branch style */
 .claudian-thinking-content {
-  padding: 4px 0 4px 24px;
-  font-size: 13px;
+  padding: var(--claudian-space-sm) 0 var(--claudian-space-sm) 24px;
+  font-size: var(--claudian-font-md);
   line-height: 1.5;
   color: var(--text-muted);
-  max-height: 400px;
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
   border-left: 2px solid var(--background-modifier-border);
   margin-left: 7px;
 }
 
+/* Streaming state - show last few lines with fade-in effect */
+.claudian-thinking-content.claudian-thinking-streaming {
+  max-height: 120px;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, black 20px, black);
+}
+
 .claudian-thinking-content p {
-  margin: 0 0 8px 0;
+  margin: 0 0 var(--claudian-space-md) 0;
 }
 
 .claudian-thinking-content p:last-child {
@@ -73,15 +80,15 @@
 }
 
 .claudian-thinking-content .claudian-code-wrapper {
-  margin: 8px 0;
+  margin: var(--claudian-space-md) 0;
 }
 
 .claudian-thinking-content .claudian-code-wrapper pre {
-  padding: 8px 10px;
-  border-radius: 4px;
+  padding: var(--claudian-space-md) 10px;
+  border-radius: var(--claudian-radius-sm);
 }
 
 .claudian-thinking-content code {
   font-family: var(--font-monospace);
-  font-size: 12px;
+  font-size: var(--claudian-font-base);
 }

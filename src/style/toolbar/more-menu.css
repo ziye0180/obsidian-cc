@@ -1,0 +1,45 @@
+/* Toolbar more menu */
+.claudian-toolbar-more {
+  position: relative;
+}
+
+.claudian-toolbar-more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--claudian-radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.claudian-toolbar-more-btn:hover,
+.claudian-toolbar-more-btn--active {
+  color: var(--text-normal);
+  background-color: var(--background-modifier-hover);
+}
+
+.claudian-toolbar-more-btn .svg-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.claudian-toolbar-more-panel {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  margin-bottom: 4px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--claudian-radius-md);
+  box-shadow: var(--claudian-shadow-dropdown);
+  z-index: 10;
+  min-width: 180px;
+  animation: claudian-slide-down 150ms ease;
+}

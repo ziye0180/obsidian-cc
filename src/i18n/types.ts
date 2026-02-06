@@ -87,6 +87,10 @@ export type TranslationKey =
   | 'settings.mcpServers.name'
   | 'settings.mcpServers.desc'
 
+  // Settings - Prompts
+  | 'settings.prompts.name'
+  | 'settings.prompts.desc'
+
   // Settings - Plugins
   | 'settings.plugins.name'
   | 'settings.plugins.desc'
@@ -189,4 +193,60 @@ export type TranslationKey =
 
   // Settings - Language
   | 'settings.language.name'
-  | 'settings.language.desc';
+  | 'settings.language.desc'
+
+  // Config Panel
+  | 'configPanel.title'
+  | 'configPanel.tabs.skills'
+  | 'configPanel.tabs.mcp'
+  | 'configPanel.tabs.prompts'
+  | 'configPanel.tabs.agents'
+  | 'configPanel.tabs.plugins'
+
+  // Prompt Manager
+  | 'promptManager.searchPlaceholder'
+  | 'promptManager.noResults'
+  | 'promptManager.empty'
+  | 'promptManager.filter'
+  | 'promptManager.filterAll'
+  | 'promptManager.add'
+  | 'promptManager.editTitle'
+  | 'promptManager.newTitle'
+  | 'promptManager.close'
+  | 'promptManager.applyToChat'
+  | 'promptManager.duplicate'
+  | 'promptManager.deleteConfirm'
+  | 'promptManager.deleteSuccess'
+  | 'promptManager.applied'
+  | 'promptManager.source.command'
+  | 'promptManager.source.skill'
+  | 'promptManager.source.agent'
+  | 'promptManager.source.system'
+  | 'promptManager.fields.name'
+  | 'promptManager.fields.nameDesc'
+  | 'promptManager.fields.namePlaceholder'
+  | 'promptManager.fields.description'
+  | 'promptManager.fields.descriptionDesc'
+  | 'promptManager.fields.descriptionPlaceholder'
+  | 'promptManager.fields.category'
+  | 'promptManager.fields.tags'
+  | 'promptManager.fields.tagsDesc'
+  | 'promptManager.fields.tagsPlaceholder'
+  | 'promptManager.fields.template'
+  | 'promptManager.fields.templateDesc'
+  | 'promptManager.fields.templatePlaceholder'
+  | 'promptManager.fields.type'
+  | 'promptManager.fields.typeDesc'
+  | 'promptManager.categories.none'
+  | 'promptManager.categories.general'
+  | 'promptManager.categories.coding'
+  | 'promptManager.categories.writing'
+  | 'promptManager.categories.analysis'
+  | 'promptManager.categories.workflow'
+  | 'promptManager.categories.custom'
+  | 'promptManager.validation.nameRequired'
+  | 'promptManager.validation.contentRequired'
+  | 'promptManager.validation.saveFailed'
+
+  // Branch navigation
+  | 'branch.branchOf';

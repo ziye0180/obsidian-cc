@@ -40,7 +40,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  border-radius: 4px;
+  border-radius: var(--claudian-radius-sm);
   cursor: pointer;
   color: var(--text-muted);
   transition: background 0.15s ease, color 0.15s ease;
@@ -74,7 +74,7 @@
   gap: 8px;
   padding: 6px 12px;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--claudian-radius-md);
 }
 
 .claudian-hotkey-item:hover {
@@ -92,7 +92,7 @@
   font-size: var(--font-ui-smaller);
   background: var(--background-modifier-hover);
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--claudian-radius-sm);
   font-family: var(--font-monospace);
 }
 
@@ -127,7 +127,7 @@
   text-align: center;
   color: var(--text-muted);
   background: var(--background-secondary);
-  border-radius: 6px;
+  border-radius: var(--claudian-radius-md);
   margin-top: 8px;
 }
 
@@ -144,7 +144,7 @@
   justify-content: space-between;
   padding: 12px;
   background: var(--background-secondary);
-  border-radius: 6px;
+  border-radius: var(--claudian-radius-md);
 }
 
 .claudian-sp-item:hover {
@@ -169,7 +169,7 @@
 }
 
 .claudian-sp-item-desc {
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   color: var(--text-muted);
   margin-top: 2px;
 }
@@ -183,7 +183,7 @@
 
 .claudian-sp-advanced-section {
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
+  border-radius: var(--claudian-radius-md);
   padding: 0 12px;
   margin: 8px 0;
 }
@@ -208,10 +208,10 @@
 .claudian-sp-content-area {
   width: 100%;
   font-family: var(--font-monospace);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   padding: 8px;
   border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
+  border-radius: var(--claudian-radius-sm);
   background: var(--background-primary);
   color: var(--text-normal);
   resize: vertical;

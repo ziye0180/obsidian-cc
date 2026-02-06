@@ -5,4 +5,43 @@
   --claudian-error: #dc3545;
   --claudian-error-rgb: 220, 53, 69;
   --claudian-compact: #5bc0de;
+
+  /* Border radius tokens */
+  --claudian-radius-sm: 4px;
+  --claudian-radius-md: 6px;
+  --claudian-radius-lg: 8px;
+  --claudian-radius-xl: 12px;
+
+  /* Transition standards */
+  --claudian-transition-fast: 100ms ease;
+  --claudian-transition-normal: 150ms ease;
+  --claudian-transition-slow: 250ms ease;
+
+  /* Spacing - 4px grid */
+  --claudian-space-xs: 2px;
+  --claudian-space-sm: 4px;
+  --claudian-space-md: 8px;
+  --claudian-space-lg: 12px;
+  --claudian-space-xl: 16px;
+  --claudian-space-2xl: 24px;
+
+  /* Font sizes */
+  --claudian-font-xs: 10px;
+  --claudian-font-sm: 11px;
+  --claudian-font-base: 12px;
+  --claudian-font-md: 13px;
+  --claudian-font-lg: 14px;
+
+  /* Shadows (floating layers only) */
+  --claudian-shadow-dropdown: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --claudian-shadow-modal: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+  /* Pill radius */
+  --claudian-radius-pill: 999px;
+
+  /* Semantic colors */
+  --claudian-brand-subtle: rgba(217, 119, 87, 0.08);
+  --claudian-success: var(--color-green);
+  --claudian-warning: #e5a549;
+  --claudian-info: var(--text-accent);
 }

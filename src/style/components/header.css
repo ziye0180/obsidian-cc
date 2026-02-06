@@ -2,14 +2,15 @@
 .claudian-header {
   display: flex;
   align-items: center;
-  padding: 0 12px 12px 12px;
+  padding: var(--claudian-space-sm) var(--claudian-space-lg);
+  min-height: 28px;
 }
 
 /* Title slot: contains logo + title (or tabs in header mode) */
 .claudian-title-slot {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--claudian-space-md);
   flex: 1;
   min-width: 0;  /* Allow flex item to shrink below content size */
 }
@@ -18,13 +19,13 @@
 .claudian-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--claudian-space-md);
   flex-shrink: 0;
 }
 
 .claudian-title-text {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--claudian-font-md);
   font-weight: 600;
 }
 
@@ -37,7 +38,7 @@
 .claudian-header-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--claudian-space-sm);
   flex-shrink: 0;
   margin-left: auto;
 }
@@ -48,15 +49,15 @@
 
 .claudian-header .claudian-tab-bar-container {
   display: flex;
-  gap: 4px;
+  gap: var(--claudian-space-sm);
 }
 
 .claudian-header-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
-  border-radius: 4px;
+  padding: var(--claudian-space-sm);
+  border-radius: var(--claudian-radius-sm);
   cursor: pointer;
   color: var(--text-muted);
   transition: background 0.15s ease, color 0.15s ease;
@@ -68,8 +69,8 @@
 }
 
 .claudian-header-btn svg {
-  width: 16px;
-  height: 16px;
+  width: var(--claudian-space-xl);
+  height: var(--claudian-space-xl);
 }
 
 .claudian-new-tab-btn svg {

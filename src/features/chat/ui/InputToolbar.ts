@@ -890,13 +890,53 @@ export function createInputToolbar(
   externalContextSelector: ExternalContextSelector;
   mcpServerSelector: McpServerSelector;
   permissionToggle: PermissionToggle;
+  cleanup: () => void;
 } {
+  // Core components - directly in toolbar
   const modelSelector = new ModelSelector(parentEl, callbacks);
   const thinkingBudgetSelector = new ThinkingBudgetSelector(parentEl, callbacks);
   const contextUsageMeter = new ContextUsageMeter(parentEl);
-  const externalContextSelector = new ExternalContextSelector(parentEl, callbacks);
-  const mcpServerSelector = new McpServerSelector(parentEl);
+
+  // "More" menu button and panel
+  const moreContainer = parentEl.createDiv({ cls: 'claudian-toolbar-more' });
+  const moreBtn = moreContainer.createDiv({ cls: 'claudian-toolbar-more-btn' });
+  setIcon(moreBtn, 'more-horizontal');
+  moreBtn.setAttribute('aria-label', 'More options');
+
+  // More dropdown panel
+  const morePanel = moreContainer.createDiv({ cls: 'claudian-toolbar-more-panel' });
+  morePanel.style.display = 'none';
+
+  // Low-frequency components inside more panel
+  const externalContextSelector = new ExternalContextSelector(morePanel, callbacks);
+  const mcpServerSelector = new McpServerSelector(morePanel);
+
+  // Toggle more panel
+  let morePanelOpen = false;
+  moreBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    morePanelOpen = !morePanelOpen;
+    morePanel.style.display = morePanelOpen ? 'flex' : 'none';
+    moreBtn.toggleClass('claudian-toolbar-more-btn--active', morePanelOpen);
+  });
+
+  // Close on outside click
+  const closeMorePanel = (e: MouseEvent) => {
+    if (morePanelOpen && !moreContainer.contains(e.target as Node)) {
+      morePanelOpen = false;
+      morePanel.style.display = 'none';
+      moreBtn.removeClass('claudian-toolbar-more-btn--active');
+    }
+  };
+  document.addEventListener('click', closeMorePanel);
+
+  // Permission toggle (right-aligned)
   const permissionToggle = new PermissionToggle(parentEl, callbacks);
 
-  return { modelSelector, thinkingBudgetSelector, contextUsageMeter, externalContextSelector, mcpServerSelector, permissionToggle };
+  // Cleanup function to remove event listener
+  const cleanup = () => {
+    document.removeEventListener('click', closeMorePanel);
+  };
+
+  return { modelSelector, thinkingBudgetSelector, contextUsageMeter, externalContextSelector, mcpServerSelector, permissionToggle, cleanup };
 }

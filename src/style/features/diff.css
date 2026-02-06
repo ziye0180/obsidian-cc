@@ -39,7 +39,7 @@
 .claudian-write-edit-label {
   flex: 1;
   min-width: 0;
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   font-weight: 400;
   color: var(--text-normal);
   overflow: hidden;
@@ -49,7 +49,7 @@
 
 .claudian-write-edit-stats {
   font-family: var(--font-monospace);
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
   flex-shrink: 0;
 }
 
@@ -100,7 +100,7 @@
 .claudian-write-edit-diff {
   flex: 1;
   font-family: var(--font-monospace);
-  font-size: 12px;
+  font-size: var(--claudian-font-base);
   line-height: 1.5;
   background: transparent;
   max-height: 300px;
@@ -113,7 +113,7 @@
 .claudian-write-edit-error,
 .claudian-write-edit-done-text {
   font-family: var(--font-monospace);
-  font-size: 12px;
+  font-size: var(--claudian-font-base);
   color: var(--text-muted);
 }
 
@@ -177,7 +177,7 @@
   border-top: 1px dashed var(--background-modifier-border);
   border-bottom: 1px dashed var(--background-modifier-border);
   margin: 8px 0;
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
 }
 
 .claudian-diff-no-changes {

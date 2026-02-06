@@ -1,12 +1,12 @@
 .claudian-tool-call {
-  margin: 8px 0;
+  margin: var(--claudian-space-md) 0;
 }
 
 .claudian-tool-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 0;
+  gap: var(--claudian-space-md);
+  padding: var(--claudian-space-sm) 0;
   cursor: pointer;
   overflow: hidden;
 }
@@ -19,13 +19,13 @@
 }
 
 .claudian-tool-icon svg {
-  width: 16px;
-  height: 16px;
+  width: var(--claudian-space-xl);
+  height: var(--claudian-space-xl);
 }
 
 .claudian-tool-label {
   font-family: var(--font-monospace);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   font-weight: 400;
   color: var(--text-normal);
   white-space: nowrap;
@@ -36,7 +36,7 @@
 .claudian-tool-current {
   flex: 1;
   font-family: var(--font-monospace);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -71,7 +71,7 @@
 }
 /* Tool call content - border-left style (like thinking block) */
 .claudian-tool-content {
-  padding: 4px 0 4px 16px;
+  padding: var(--claudian-space-sm) 0 var(--claudian-space-sm) var(--claudian-space-xl);
   margin-left: 7px;
   border-left: 2px solid var(--background-modifier-border);
 }
@@ -90,7 +90,7 @@
 
 .claudian-tool-result-text {
   font-family: var(--font-monospace);
-  font-size: 12px;
+  font-size: var(--claudian-font-base);
   color: var(--text-muted);
   line-height: 1.4;
   white-space: pre-wrap;
@@ -117,4 +117,45 @@
 
 .claudian-tool-result-bullet:last-child {
   margin-bottom: 0;
+}
+
+/* Tool call group (collapsed consecutive same-name calls) */
+.claudian-tool-call-group {
+  margin: var(--claudian-space-md) 0;
+}
+
+.claudian-tool-call-group-header {
+  display: flex;
+  align-items: center;
+  gap: var(--claudian-space-md);
+  padding: var(--claudian-space-sm) 0;
+  cursor: pointer;
+  overflow: hidden;
+  color: var(--text-muted);
+  transition: color 0.15s ease;
+}
+
+.claudian-tool-call-group-header:hover {
+  color: var(--text-normal);
+}
+
+.claudian-tool-call-group-chevron {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.claudian-tool-call-group-chevron svg {
+  width: 12px;
+  height: 12px;
+}
+
+.claudian-tool-call-group-details {
+  padding-left: var(--claudian-space-xl);
+  border-left: 2px solid var(--background-modifier-border);
+  margin-left: 7px;
+}
+
+.claudian-tool-call-group--expanded .claudian-tool-call-group-details {
+  margin-top: var(--claudian-space-sm);
 }

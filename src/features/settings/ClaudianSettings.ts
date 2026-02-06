@@ -9,7 +9,8 @@ import type { Locale, TranslationKey } from '../../i18n/types';
 import type ClaudianPlugin from '../../main';
 import { formatContextLimit, getCustomModelIds, getModelsFromEnvironment, parseContextLimit, parseEnvironmentVariables } from '../../utils/env';
 import { expandHomePath } from '../../utils/path';
-import { ClaudianView } from '../chat/ClaudianView';
+import type { ClaudianView } from '../chat/ClaudianView';
+import { PromptsTabView } from '../chat/ui/config-tabs/PromptsTabView';
 import { buildNavMappingText, parseNavMappings } from './keyboardNavigation';
 import { AgentSettings } from './ui/AgentSettings';
 import { EnvSnippetManager } from './ui/EnvSnippetManager';
@@ -283,28 +284,6 @@ export class ClaudianSettingTab extends PluginSettingTab {
         });
       });
 
-    // Tab bar position setting
-    new Setting(containerEl)
-      .setName(t('settings.tabBarPosition.name'))
-      .setDesc(t('settings.tabBarPosition.desc'))
-      .addDropdown((dropdown) => {
-        dropdown
-          .addOption('input', t('settings.tabBarPosition.input'))
-          .addOption('header', t('settings.tabBarPosition.header'))
-          .setValue(this.plugin.settings.tabBarPosition ?? 'input')
-          .onChange(async (value: 'input' | 'header') => {
-            this.plugin.settings.tabBarPosition = value;
-            await this.plugin.saveSettings();
-
-            // Update all views' layouts immediately
-            for (const leaf of this.plugin.app.workspace.getLeavesOfType('claudian-view')) {
-              if (leaf.view instanceof ClaudianView) {
-                leaf.view.updateLayoutForPosition();
-              }
-            }
-          });
-      });
-
     // Open in main tab setting
     new Setting(containerEl)
       .setName(t('settings.openInMainTab.name'))
@@ -358,6 +337,17 @@ export class ClaudianSettingTab extends PluginSettingTab {
         text.inputEl.rows = 4;
         text.inputEl.cols = 30;
       });
+
+    new Setting(containerEl).setName(t('settings.prompts.name')).setHeading();
+
+    const promptsDesc = containerEl.createDiv({ cls: 'claudian-sp-settings-desc' });
+    promptsDesc.createEl('p', {
+      text: t('settings.prompts.desc'),
+      cls: 'setting-item-description',
+    });
+
+    const promptsContainer = containerEl.createDiv({ cls: 'claudian-prompts-container' });
+    new PromptsTabView(promptsContainer, this.plugin);
 
     new Setting(containerEl).setName(t('settings.subagents.name')).setHeading();
 

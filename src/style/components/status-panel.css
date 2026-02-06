@@ -40,7 +40,7 @@
 
 .claudian-status-panel-done-text {
   font-family: var(--font-monospace);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   color: var(--text-normal);
 }
 
@@ -52,7 +52,7 @@
 
 .claudian-status-panel-running-text {
   font-family: var(--font-monospace);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   color: var(--color-cyan);
 }
 
@@ -68,7 +68,7 @@
   gap: 8px;
   padding: 4px 0;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--claudian-radius-sm);
   transition: background 0.15s ease;
   overflow: hidden;
 }
@@ -96,7 +96,7 @@
 
 .claudian-status-panel-label {
   font-family: var(--font-monospace);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   font-weight: 500;
   color: var(--text-normal);
 }
@@ -104,7 +104,7 @@
 .claudian-status-panel-current {
   flex: 1;
   font-family: var(--font-monospace);
-  font-size: 13px;
+  font-size: var(--claudian-font-md);
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -150,7 +150,7 @@
 
 .claudian-todo-list-container .claudian-todo-text {
   font-family: var(--font-monospace);
-  font-size: 12px;
+  font-size: var(--claudian-font-base);
   line-height: 1.4;
   flex: 1;
   padding-left: 12px;

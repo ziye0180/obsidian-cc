@@ -20,6 +20,10 @@ export interface ParsedSlashCommandContent {
   context?: 'fork';
   agent?: string;
   hooks?: Record<string, unknown>;
+  // Prompt management metadata
+  category?: string;
+  tags?: string[];
+  pinned?: boolean;
 }
 
 export function extractFirstParagraph(content: string): string | undefined {
@@ -52,6 +56,9 @@ export function parsedToSlashCommand(
     context: parsed.context,
     agent: parsed.agent,
     hooks: parsed.hooks,
+    category: parsed.category as SlashCommand['category'],
+    tags: parsed.tags,
+    pinned: parsed.pinned,
   };
 }
 
@@ -79,6 +86,9 @@ export function parseSlashCommandContent(content: string): ParsedSlashCommandCon
     context: extractString(fm, 'context') === 'fork' ? 'fork' : undefined,
     agent: extractString(fm, 'agent'),
     hooks: isRecord(fm.hooks) ? fm.hooks : undefined,
+    category: extractString(fm, 'category'),
+    tags: extractStringArray(fm, 'tags'),
+    pinned: extractBoolean(fm, 'pinned'),
   };
 }
 
@@ -132,6 +142,18 @@ export function serializeSlashCommandMarkdown(cmd: Partial<SlashCommand>, body: 
   }
   if (cmd.hooks !== undefined) {
     lines.push(`hooks: ${JSON.stringify(cmd.hooks)}`);
+  }
+  if (cmd.category) {
+    lines.push(`category: ${cmd.category}`);
+  }
+  if (cmd.tags && cmd.tags.length > 0) {
+    lines.push('tags:');
+    for (const tag of cmd.tags) {
+      lines.push(`  - ${yamlString(tag)}`);
+    }
+  }
+  if (cmd.pinned !== undefined) {
+    lines.push(`pinned: ${cmd.pinned}`);
   }
   // Ensure at least one blank line between --- markers when no metadata exists
   // (the frontmatter regex requires \n before the closing ---)

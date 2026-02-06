@@ -91,6 +91,10 @@
       "name": "Comandos y habilidades",
       "desc": "Define comandos y habilidades personalizados activados por /nombre."
     },
+    "prompts": {
+      "name": "Plantillas de prompts",
+      "desc": "Gestiona plantillas de prompts que se pueden aplicar a conversaciones mediante /comandos."
+    },
     "hiddenSlashCommands": {
       "name": "Comandos ocultos",
       "desc": "Oculta comandos slash específicos del menú desplegable. Útil para ocultar comandos de Claude Code que no son relevantes para Claudian. Ingresa nombres de comandos sin la barra inicial, uno por línea.",
@@ -230,5 +234,71 @@
       "name": "Idioma",
       "desc": "Cambiar el idioma de visualización de la interfaz del plugin"
     }
+  },
+  "configPanel": {
+    "title": "Config",
+    "tabs": {
+      "skills": "Skills",
+      "mcp": "MCP",
+      "prompts": "Prompts",
+      "agents": "Agents",
+      "plugins": "Plugins"
+    }
+  },
+  "promptManager": {
+    "searchPlaceholder": "Search prompts...",
+    "noResults": "No matching prompts found",
+    "empty": "No prompts configured",
+    "filter": "Filter by source",
+    "filterAll": "All",
+    "add": "New prompt",
+    "editTitle": "Edit Prompt",
+    "newTitle": "New Prompt",
+    "close": "Close",
+    "applyToChat": "Apply to chat",
+    "duplicate": "Duplicate",
+    "deleteConfirm": "Are you sure you want to delete \"{name}\"?",
+    "deleteSuccess": "Prompt \"{name}\" deleted",
+    "applied": "Prompt \"{name}\" applied to chat",
+    "source": {
+      "command": "Command",
+      "skill": "Skill",
+      "agent": "Agent",
+      "system": "System"
+    },
+    "fields": {
+      "name": "Name",
+      "nameDesc": "Display name for this prompt",
+      "namePlaceholder": "my-prompt",
+      "description": "Description",
+      "descriptionDesc": "Brief description",
+      "descriptionPlaceholder": "What does this prompt do?",
+      "category": "Category",
+      "tags": "Tags",
+      "tagsDesc": "Comma-separated tags",
+      "tagsPlaceholder": "code, review, testing",
+      "template": "Prompt template",
+      "templateDesc": "The prompt content",
+      "templatePlaceholder": "Enter your prompt template...",
+      "type": "Type",
+      "typeDesc": "Create as command or skill"
+    },
+    "categories": {
+      "none": "None",
+      "general": "General",
+      "coding": "Coding",
+      "writing": "Writing",
+      "analysis": "Analysis",
+      "workflow": "Workflow",
+      "custom": "Custom"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "contentRequired": "Prompt content is required",
+      "saveFailed": "Failed to save prompt"
+    }
+  },
+  "branch": {
+    "branchOf": "{current} of {total}"
   }
 }

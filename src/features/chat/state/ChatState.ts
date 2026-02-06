@@ -1,4 +1,6 @@
+import { MessageTree } from '../../../core/agent/MessageTree';
 import type { UsageInfo } from '../../../core/types';
+import type { BranchInfo } from '../../../core/types/branch';
 import type {
   ChatMessage,
   ChatStateCallbacks,
@@ -43,6 +45,8 @@ function createInitialState(): ChatStateData {
 export class ChatState {
   private state: ChatStateData;
   private _callbacks: ChatStateCallbacks;
+  private tree: MessageTree = MessageTree.fromMessages([]);
+  private _activeLeafId: string | null = null;
 
   constructor(callbacks: ChatStateCallbacks = {}) {
     this.state = createInitialState();
@@ -67,17 +71,73 @@ export class ChatState {
 
   set messages(value: ChatMessage[]) {
     this.state.messages = value;
+    // Rebuild tree from messages
+    const hasParentIds = value.some(m => m.parentId !== undefined);
+    this.tree = hasParentIds
+      ? MessageTree.fromMessages(value)
+      : MessageTree.fromLinearMessages(value);
+    this._activeLeafId = null;
     this._callbacks.onMessagesChanged?.();
   }
 
   addMessage(msg: ChatMessage): void {
+    // Auto-set parentId if not specified
+    if (msg.parentId === undefined) {
+      const currentMessages = this.state.messages;
+      msg.parentId = currentMessages.length > 0
+        ? currentMessages[currentMessages.length - 1].id
+        : null;
+    }
+
+    this.tree.addMessage(msg);
+    this._activeLeafId = msg.id;
+    // Keep flat array in sync for backward compatibility
     this.state.messages.push(msg);
     this._callbacks.onMessagesChanged?.();
   }
 
   clearMessages(): void {
     this.state.messages = [];
+    this.tree = MessageTree.fromMessages([]);
+    this._activeLeafId = null;
     this._callbacks.onMessagesChanged?.();
+  }
+
+  // ============================================
+  // Branch Navigation
+  // ============================================
+
+  get activeLeafId(): string | null {
+    return this._activeLeafId;
+  }
+
+  set activeLeafId(value: string | null) {
+    this._activeLeafId = value;
+  }
+
+  getBranchInfo(messageId: string): BranchInfo | null {
+    return this.tree.getBranchInfo(messageId);
+  }
+
+  switchBranch(messageId: string, direction: 'prev' | 'next'): string | null {
+    const newLeafId = this.tree.switchBranch(messageId, direction);
+    if (newLeafId) {
+      this._activeLeafId = newLeafId;
+      // Update flat message list to reflect active path
+      this.state.messages = this.tree.getActivePath(newLeafId);
+      this._callbacks.onMessagesChanged?.();
+    }
+    return newLeafId;
+  }
+
+  editAndFork(messageId: string, newContent: string, newId: string): boolean {
+    const result = this.tree.editAndFork(messageId, newContent, newId);
+    if (!result) return false;
+
+    this._activeLeafId = result.newMessageId;
+    this.state.messages = this.tree.getActivePath(result.newMessageId);
+    this._callbacks.onMessagesChanged?.();
+    return true;
   }
 
   // ============================================

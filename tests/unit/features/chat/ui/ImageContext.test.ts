@@ -487,7 +487,7 @@ describe('ImageContextManager - Private Helpers', () => {
       const event = {
         preventDefault: jest.fn(),
         stopPropagation: jest.fn(),
-        dataTransfer: { types: ['text/plain'] },
+        dataTransfer: { types: ['application/x-custom'] },
       };
 
       manager['handleDragEnter'](event as any);
@@ -532,7 +532,10 @@ describe('ImageContextManager - Private Helpers', () => {
       const event = {
         preventDefault: jest.fn(),
         stopPropagation: jest.fn(),
-        dataTransfer: { files: { length: 1, 0: mockFile, [Symbol.iterator]: function* () { yield mockFile; } } },
+        dataTransfer: {
+          getData: () => '',
+          files: { length: 1, 0: mockFile, [Symbol.iterator]: function* () { yield mockFile; } },
+        },
       };
 
       await manager['handleDrop'](event as any);
@@ -552,7 +555,10 @@ describe('ImageContextManager - Private Helpers', () => {
       const event = {
         preventDefault: jest.fn(),
         stopPropagation: jest.fn(),
-        dataTransfer: { files: { length: 1, 0: mockFile } },
+        dataTransfer: {
+          getData: () => '',
+          files: { length: 1, 0: mockFile },
+        },
       };
 
       await manager['handleDrop'](event as any);
@@ -565,7 +571,10 @@ describe('ImageContextManager - Private Helpers', () => {
       const event = {
         preventDefault: jest.fn(),
         stopPropagation: jest.fn(),
-        dataTransfer: { files: undefined },
+        dataTransfer: {
+          getData: () => '',
+          files: undefined,
+        },
       };
 
       await manager['handleDrop'](event as any);

@@ -325,6 +325,9 @@ function initializeContextManagers(tab: TabData, plugin: ClaudianPlugin): void {
         autoResizeTextarea(dom.inputEl);
         tab.renderer?.scrollToBottomIfNeeded();
       },
+      onFilesDrop: (filePaths) => {
+        tab.ui.fileContextManager?.addDroppedFiles(filePaths);
+      },
     },
     dom.contextRowEl
   );
@@ -459,6 +462,9 @@ function initializeInputToolbar(tab: TabData, plugin: ClaudianPlugin): void {
     plugin.settings.persistentExternalContextPaths = paths;
     await plugin.saveSettings();
   });
+
+  // Register toolbar cleanup
+  tab.dom.eventCleanups.push(toolbarComponents.cleanup);
 }
 
 export interface InitializeTabUIOptions {

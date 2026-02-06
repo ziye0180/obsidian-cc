@@ -1,8 +1,9 @@
 import type { App, Component } from 'obsidian';
-import { MarkdownRenderer } from 'obsidian';
+import { MarkdownRenderer, setIcon } from 'obsidian';
 
 import { isWriteEditTool, TOOL_AGENT_OUTPUT, TOOL_TASK } from '../../../core/tools/toolNames';
 import type { ChatMessage, ImageAttachment, ToolCallInfo } from '../../../core/types';
+import type { BranchInfo } from '../../../core/types/branch';
 import type ClaudianPlugin from '../../../main';
 import { formatDurationMmSs } from '../../../utils/date';
 import { processFileLinks, registerFileLinkHandler } from '../../../utils/fileLink';
@@ -12,16 +13,22 @@ import {
   renderStoredSubagent,
 } from './SubagentRenderer';
 import { renderStoredThinkingBlock } from './ThinkingBlockRenderer';
-import { renderStoredToolCall } from './ToolCallRenderer';
+import { collapseConsecutiveToolCalls, renderStoredToolCall } from './ToolCallRenderer';
 import { renderStoredWriteEdit } from './WriteEditRenderer';
 
 export type RenderContentFn = (el: HTMLElement, markdown: string) => Promise<void>;
+
+export interface BranchInfoProvider {
+  getBranchInfo(messageId: string): BranchInfo | null;
+  switchBranch(messageId: string, direction: 'prev' | 'next'): void;
+}
 
 export class MessageRenderer {
   private app: App;
   private plugin: ClaudianPlugin;
   private component: Component;
   private messagesEl: HTMLElement;
+  private branchProvider: BranchInfoProvider | null = null;
 
   constructor(
     plugin: ClaudianPlugin,
@@ -40,6 +47,11 @@ export class MessageRenderer {
   /** Sets the messages container element. */
   setMessagesEl(el: HTMLElement): void {
     this.messagesEl = el;
+  }
+
+  /** Sets the branch info provider for branch navigation UI. */
+  setBranchInfoProvider(provider: BranchInfoProvider | null): void {
+    this.branchProvider = provider;
   }
 
   // ============================================
@@ -153,9 +165,40 @@ export class MessageRenderer {
         const textEl = contentEl.createDiv({ cls: 'claudian-text-block' });
         void this.renderContent(textEl, textToShow);
       }
+      this.renderBranchNavigator(msgEl, msg.id);
     } else if (msg.role === 'assistant') {
       this.renderAssistantContent(msg, contentEl);
     }
+  }
+
+  /**
+   * Renders branch navigator (< 1/3 >) on a message if it has siblings.
+   */
+  private renderBranchNavigator(msgEl: HTMLElement, messageId: string): void {
+    if (!this.branchProvider) return;
+    const info = this.branchProvider.getBranchInfo(messageId);
+    if (!info || info.totalBranches <= 1) return;
+
+    const nav = msgEl.createDiv({ cls: 'claudian-branch-nav' });
+
+    const prevBtn = nav.createEl('button', {
+      cls: 'claudian-branch-nav-btn',
+      attr: { 'aria-label': 'Previous branch' },
+    });
+    setIcon(prevBtn, 'chevron-left');
+    prevBtn.addEventListener('click', () => this.branchProvider?.switchBranch(messageId, 'prev'));
+
+    nav.createSpan({
+      text: `${info.currentIndex}/${info.totalBranches}`,
+      cls: 'claudian-branch-nav-label',
+    });
+
+    const nextBtn = nav.createEl('button', {
+      cls: 'claudian-branch-nav-btn',
+      attr: { 'aria-label': 'Next branch' },
+    });
+    setIcon(nextBtn, 'chevron-right');
+    nextBtn.addEventListener('click', () => this.branchProvider?.switchBranch(messageId, 'next'));
   }
 
   /**
@@ -223,6 +266,9 @@ export class MessageRenderer {
         }
       }
     }
+
+    // Collapse consecutive tool calls (post-processing)
+    collapseConsecutiveToolCalls(contentEl);
 
     // Render response duration footer (skip when message contains a compaction boundary)
     const hasCompactBoundary = msg.contentBlocks?.some(b => b.type === 'compact_boundary');

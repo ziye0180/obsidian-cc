@@ -3,7 +3,7 @@
   color: var(--text-accent);
   text-decoration: none;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--claudian-radius-sm);
   transition: color 0.15s ease;
 }
 

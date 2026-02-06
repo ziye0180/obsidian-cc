@@ -454,3 +454,95 @@ export function renderStoredToolCall(
 
   return toolEl;
 }
+
+/**
+ * Post-processes a message element to collapse consecutive same-name tool calls.
+ * Collapses 3+ consecutive tool calls with the same name into a group header.
+ */
+export function collapseConsecutiveToolCalls(messageEl: HTMLElement): void {
+  const toolCalls = Array.from(messageEl.querySelectorAll('.claudian-tool-call'));
+  if (toolCalls.length < 3) return;
+
+  let i = 0;
+  while (i < toolCalls.length) {
+    const currentName = getToolName(toolCalls[i]);
+    let j = i + 1;
+    while (j < toolCalls.length && getToolName(toolCalls[j]) === currentName) {
+      j++;
+    }
+
+    const runLength = j - i;
+    if (runLength >= 3) {
+      const hasError = toolCalls.slice(i, j).some(el =>
+        el.querySelector('.status-error') !== null
+      );
+
+      if (!hasError) {
+        createCollapsedGroup(toolCalls.slice(i, j) as HTMLElement[], currentName, runLength);
+      }
+    }
+
+    i = j;
+  }
+}
+
+function getToolName(toolCallEl: Element): string {
+  const label = toolCallEl.querySelector('.claudian-tool-label');
+  if (!label?.textContent) return '';
+  return label.textContent.split(':')[0].trim();
+}
+
+function createCollapsedGroup(elements: HTMLElement[], toolName: string, count: number): void {
+  const firstEl = elements[0];
+  const parentEl = firstEl.parentElement;
+  if (!parentEl) return;
+
+  const groupEl = document.createElement('div');
+  groupEl.classList.add('claudian-tool-call-group');
+
+  const groupHeader = document.createElement('div');
+  groupHeader.classList.add('claudian-tool-call-group-header');
+  groupEl.appendChild(groupHeader);
+
+  const originalIcon = elements[0].querySelector('.claudian-tool-icon');
+  if (originalIcon) {
+    groupHeader.appendChild(originalIcon.cloneNode(true));
+  }
+
+  const labelText = `${toolName}: ${count} operations`;
+  const labelSpan = document.createElement('span');
+  labelSpan.classList.add('claudian-tool-label');
+  labelSpan.textContent = labelText;
+  groupHeader.appendChild(labelSpan);
+
+  const lastStatus = elements[elements.length - 1].querySelector('.claudian-tool-status');
+  if (lastStatus) {
+    groupHeader.appendChild(lastStatus.cloneNode(true));
+  }
+
+  const chevron = document.createElement('span');
+  chevron.classList.add('claudian-tool-call-group-chevron');
+  setIcon(chevron, 'chevron-right');
+  groupHeader.appendChild(chevron);
+
+  const detailsEl = document.createElement('div');
+  detailsEl.classList.add('claudian-tool-call-group-details');
+  detailsEl.style.display = 'none';
+  groupEl.appendChild(detailsEl);
+
+  // Insert group before first element, THEN move elements into details
+  parentEl.insertBefore(groupEl, firstEl);
+
+  for (const el of elements) {
+    detailsEl.appendChild(el);
+  }
+
+  let expanded = false;
+  groupHeader.style.cursor = 'pointer';
+  groupHeader.addEventListener('click', () => {
+    expanded = !expanded;
+    detailsEl.style.display = expanded ? 'block' : 'none';
+    groupEl.classList.toggle('claudian-tool-call-group--expanded', expanded);
+    setIcon(chevron, expanded ? 'chevron-down' : 'chevron-right');
+  });
+}

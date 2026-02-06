@@ -1,4 +1,4 @@
-import { setIcon } from 'obsidian';
+import { Notice, setIcon } from 'obsidian';
 
 import type { ClaudianService } from '../../../core/agent';
 import type { Conversation } from '../../../core/types';
@@ -114,6 +114,7 @@ export class ConversationController {
       // Recreate welcome element first (before StatusPanel for consistent ordering)
       const welcomeEl = messagesEl.createDiv({ cls: 'claudian-welcome' });
       welcomeEl.createDiv({ cls: 'claudian-welcome-greeting', text: this.getGreeting() });
+      void this.populateWelcome(welcomeEl);
       this.deps.setWelcomeEl(welcomeEl);
 
       // Remount StatusPanel to restore state for new conversation
@@ -181,6 +182,7 @@ export class ConversationController {
         [],
         () => this.getGreeting()
       );
+      void this.populateWelcome(welcomeEl);
       this.deps.setWelcomeEl(welcomeEl);
       this.updateWelcomeVisibility();
 
@@ -234,6 +236,7 @@ export class ConversationController {
       state.messages,
       () => this.getGreeting()
     );
+    void this.populateWelcome(welcomeEl);
     this.deps.setWelcomeEl(welcomeEl);
     this.updateWelcomeVisibility();
 
@@ -310,6 +313,7 @@ export class ConversationController {
         state.messages,
         () => this.getGreeting()
       );
+      void this.populateWelcome(welcomeEl);
       this.deps.setWelcomeEl(welcomeEl);
 
       this.deps.getHistoryDropdown()?.removeClass('visible');
@@ -457,6 +461,12 @@ export class ConversationController {
   /**
    * Renders history dropdown items to a container.
    * Shared implementation for updateHistoryDropdown() and renderHistoryDropdown().
+   *
+   * DOM structure is preserved for compatibility:
+   *   container.children[0] = header (title + close + search)
+   *   container.children[1] = list (only .claudian-history-item elements)
+   *
+   * Date group titles are rendered via CSS ::before on items with data-group-first.
    */
   private renderHistoryItems(
     container: HTMLElement,
@@ -469,8 +479,23 @@ export class ConversationController {
 
     container.empty();
 
+    // Header: title + close button + search input
     const dropdownHeader = container.createDiv({ cls: 'claudian-history-header' });
     dropdownHeader.createSpan({ text: 'Conversations' });
+
+    const closeBtn = dropdownHeader.createEl('button', { cls: 'claudian-action-btn' });
+    setIcon(closeBtn, 'x');
+    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      container.removeClass('visible');
+    });
+
+    const searchInput = dropdownHeader.createEl('input', {
+      cls: 'claudian-history-search',
+      attr: { type: 'text', placeholder: 'Search conversations...' },
+    });
+    searchInput.addEventListener('click', (e) => e.stopPropagation());
 
     const list = container.createDiv({ cls: 'claudian-history-list' });
     const allConversations = plugin.getConversationList();
@@ -485,11 +510,23 @@ export class ConversationController {
       return (b.lastResponseAt ?? b.createdAt) - (a.lastResponseAt ?? a.createdAt);
     });
 
+    // Render items with date group markers via data attributes
+    let currentGroup = '';
     for (const conv of conversations) {
+      const group = this.getDateGroup(conv.lastResponseAt ?? conv.createdAt);
+      const isFirstInGroup = group !== currentGroup;
+      if (isFirstInGroup) currentGroup = group;
+
       const isCurrent = conv.id === state.currentConversationId;
       const item = list.createDiv({
         cls: `claudian-history-item${isCurrent ? ' active' : ''}`,
+        attr: { 'data-group': group },
       });
+
+      // Mark first item in each date group for CSS ::before rendering
+      if (isFirstInGroup) {
+        item.dataset.groupFirst = group;
+      }
 
       const iconEl = item.createDiv({ cls: 'claudian-history-item-icon' });
       setIcon(iconEl, isCurrent ? 'message-square-dot' : 'message-square');
@@ -534,6 +571,14 @@ export class ConversationController {
         });
       }
 
+      const exportBtn = actions.createEl('button', { cls: 'claudian-action-btn' });
+      setIcon(exportBtn, 'download');
+      exportBtn.setAttribute('aria-label', 'Export');
+      exportBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await this.exportConversation(conv.id);
+      });
+
       const renameBtn = actions.createEl('button', { cls: 'claudian-action-btn' });
       setIcon(renameBtn, 'pencil');
       renameBtn.setAttribute('aria-label', 'Rename');
@@ -560,6 +605,15 @@ export class ConversationController {
         }
       });
     }
+
+    // Debounced search filtering
+    let searchTimer: ReturnType<typeof setTimeout> | null = null;
+    searchInput.addEventListener('input', () => {
+      if (searchTimer) clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        this.filterHistoryItems(list, searchInput.value.toLowerCase().trim());
+      }, 150);
+    });
   }
 
   /** Shows inline rename input for a conversation. */
@@ -601,6 +655,65 @@ export class ConversationController {
   // ============================================
   // Welcome & Greeting
   // ============================================
+
+  /**
+   * Populates the welcome element with pinned commands and quick actions.
+   * Silently degrades when commands fail to load.
+   */
+  async populateWelcome(welcomeEl: HTMLElement): Promise<void> {
+    const { plugin } = this.deps;
+
+    // -- Pinned commands --
+    try {
+      const allCommands = await plugin.storage.loadAllSlashCommands();
+      const pinned = allCommands.filter(c => c.pinned);
+      const commands = pinned.length > 0
+        ? pinned.slice(0, 5)
+        : allCommands.slice(0, 3);
+
+      if (commands.length > 0) {
+        const commandsEl = welcomeEl.createDiv({ cls: 'claudian-welcome-commands' });
+        for (const cmd of commands) {
+          const cmdEl = commandsEl.createDiv({ cls: 'claudian-welcome-cmd' });
+          cmdEl.createSpan({ cls: 'claudian-welcome-cmd-name', text: `/${cmd.name}` });
+          if (cmd.description) {
+            cmdEl.createSpan({ cls: 'claudian-welcome-cmd-desc', text: cmd.description });
+          }
+          cmdEl.addEventListener('click', () => {
+            const inputEl = this.deps.getInputEl();
+            inputEl.value = `/${cmd.name} `;
+            inputEl.focus();
+            inputEl.dispatchEvent(new Event('input'));
+          });
+        }
+      }
+    } catch {
+      // Silent degradation: skip commands section
+    }
+
+    // -- Quick actions --
+    const actionsEl = welcomeEl.createDiv({ cls: 'claudian-welcome-actions' });
+
+    const addContextBtn = actionsEl.createDiv({ cls: 'claudian-welcome-action-btn' });
+    setIcon(addContextBtn, 'at-sign');
+    addContextBtn.createSpan({ text: 'Add context' });
+    addContextBtn.addEventListener('click', () => {
+      const inputEl = this.deps.getInputEl();
+      inputEl.value = '@';
+      inputEl.focus();
+      inputEl.dispatchEvent(new Event('input'));
+    });
+
+    const instructionBtn = actionsEl.createDiv({ cls: 'claudian-welcome-action-btn' });
+    setIcon(instructionBtn, 'hash');
+    instructionBtn.createSpan({ text: 'Instructions' });
+    instructionBtn.addEventListener('click', () => {
+      const inputEl = this.deps.getInputEl();
+      inputEl.value = '#';
+      inputEl.focus();
+      inputEl.dispatchEvent(new Event('input'));
+    });
+  }
 
   /** Generates a dynamic greeting based on time/day. */
   getGreeting(): string {
@@ -686,9 +799,75 @@ export class ConversationController {
     // Only add greeting if not already present
     if (!welcomeEl.querySelector('.claudian-welcome-greeting')) {
       welcomeEl.createDiv({ cls: 'claudian-welcome-greeting', text: this.getGreeting() });
+      void this.populateWelcome(welcomeEl);
     }
 
     this.updateWelcomeVisibility();
+  }
+
+  // ============================================
+  // Export
+  // ============================================
+
+  async exportConversation(conversationId?: string): Promise<void> {
+    const { plugin, state } = this.deps;
+    const targetId = conversationId ?? state.currentConversationId;
+    if (!targetId) return;
+
+    const conversation = await plugin.getConversationById(targetId);
+    if (!conversation || conversation.messages.length === 0) {
+      new Notice('No messages to export');
+      return;
+    }
+
+    const markdown = this.formatConversationAsMarkdown(conversation);
+    const sanitizedTitle = conversation.title.replace(/[\\/:*?"<>|]/g, '-').substring(0, 50);
+    const date = new Date().toISOString().split('T')[0];
+    const fileName = `Claudian-exports/${sanitizedTitle}-${date}.md`;
+
+    try {
+      await plugin.storage.getAdapter().write(fileName, markdown);
+      new Notice(`Exported to ${fileName}`);
+    } catch (error) {
+      new Notice('Export failed: ' + (error instanceof Error ? error.message : String(error)));
+    }
+  }
+
+  private formatConversationAsMarkdown(conversation: Conversation): string {
+    const lines: string[] = [];
+    const date = new Date(conversation.createdAt);
+
+    lines.push(`# ${conversation.title}`);
+    lines.push('');
+    lines.push(`*Exported from Claudian on ${new Date().toLocaleDateString()}*`);
+    lines.push(`*Created: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}*`);
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+
+    for (const msg of conversation.messages) {
+      if (msg.isRebuiltContext || msg.isInterrupt) continue;
+
+      const roleLabel = msg.role === 'user' ? 'User' : 'Assistant';
+      lines.push(`## ${roleLabel}`);
+      lines.push('');
+
+      const content = msg.displayContent || msg.content;
+      lines.push(content);
+      lines.push('');
+
+      if (msg.toolCalls && msg.toolCalls.length > 0) {
+        for (const tool of msg.toolCalls) {
+          lines.push(`> **Tool:** ${tool.name}`);
+          if (tool.status === 'error') {
+            lines.push('> *Error*');
+          }
+        }
+        lines.push('');
+      }
+    }
+
+    return lines.join('\n');
   }
 
   // ============================================
@@ -763,6 +942,52 @@ export class ConversationController {
       return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
     }
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  /** Returns a date group label for grouping conversations. */
+  private getDateGroup(timestamp: number): string {
+    const now = new Date();
+    const date = new Date(timestamp);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today.getTime() - 86400000);
+    const weekAgo = new Date(today.getTime() - 7 * 86400000);
+
+    if (date >= today) return 'Today';
+    if (date >= yesterday) return 'Yesterday';
+    if (date >= weekAgo) return 'This week';
+    return 'Earlier';
+  }
+
+  /** Filters history items by search query and updates group-first markers. */
+  private filterHistoryItems(list: HTMLElement, query: string): void {
+    const items = list.querySelectorAll('.claudian-history-item');
+
+    // Track first visible item per group for CSS ::before group titles
+    const firstVisibleByGroup = new Map<string, HTMLElement>();
+
+    for (const el of items) {
+      const item = el as HTMLElement;
+      const titleEl = item.querySelector('.claudian-history-item-title');
+      const title = titleEl?.textContent?.toLowerCase() ?? '';
+      const matches = !query || title.includes(query);
+
+      item.style.display = matches ? '' : 'none';
+
+      // Clear previous group-first marker
+      delete item.dataset.groupFirst;
+
+      if (matches) {
+        const group = item.dataset.group;
+        if (group && !firstVisibleByGroup.has(group)) {
+          firstVisibleByGroup.set(group, item);
+        }
+      }
+    }
+
+    // Re-apply group-first markers to first visible item in each group
+    for (const [group, item] of firstVisibleByGroup) {
+      item.dataset.groupFirst = group;
+    }
   }
 
   // ============================================

@@ -42,3 +42,28 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes claudian-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes claudian-slide-down {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes claudian-msg-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .claudian-message {
+    animation: none;
+  }
+  .claudian-thinking {
+    animation: none;
+  }
+}

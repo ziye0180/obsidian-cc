@@ -292,16 +292,22 @@ describe('ConversationController', () => {
       const welcomeEl = deps.getWelcomeEl()!;
       const createDivSpy = jest.spyOn(welcomeEl, 'createDiv');
 
-      // First call should add greeting
+      // First call should add greeting (plus populateWelcome adds actions div)
       controller.initializeWelcome();
-      expect(createDivSpy).toHaveBeenCalledTimes(1);
+      const greetingCalls = createDivSpy.mock.calls.filter(
+        call => (call[0] as any)?.cls === 'claudian-welcome-greeting'
+      );
+      expect(greetingCalls).toHaveLength(1);
 
       // Mock querySelector to return an element (greeting already exists)
       welcomeEl.querySelector = jest.fn().mockReturnValue(createMockEl());
 
       // Second call should not add another greeting
       controller.initializeWelcome();
-      expect(createDivSpy).toHaveBeenCalledTimes(1); // Still 1, not 2
+      const greetingCallsAfter = createDivSpy.mock.calls.filter(
+        call => (call[0] as any)?.cls === 'claudian-welcome-greeting'
+      );
+      expect(greetingCallsAfter).toHaveLength(1); // Still 1, not 2
     });
   });
 
@@ -601,8 +607,8 @@ describe('ConversationController', () => {
         const item = list.children[0];
         const actions = item.querySelector('.claudian-history-item-actions');
         expect(actions).toBeTruthy();
-        // regenerate button + rename button + delete button = 3 children
-        expect(actions!.children.length).toBe(3);
+        // regenerate button + export button + rename button + delete button = 4 children
+        expect(actions!.children.length).toBe(4);
       });
 
       it('should not show select click handler on current conversation', () => {
@@ -752,8 +758,8 @@ describe('ConversationController', () => {
       const item = list.children[0];
       const actions = item.querySelector('.claudian-history-item-actions');
       expect(actions).toBeTruthy();
-      // For non-failed items: rename is children[0], delete is children[1]
-      const rBtn = actions!.children[0];
+      // For non-failed items: export is children[0], rename is children[1], delete is children[2]
+      const rBtn = actions!.children[1];
       expect(rBtn).toBeTruthy();
       const clickHandlers = rBtn._eventListeners?.get('click');
       expect(clickHandlers).toBeDefined();

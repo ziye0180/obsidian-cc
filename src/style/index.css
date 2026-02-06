@@ -19,6 +19,7 @@
 @import "./components/subagent.css";
 @import "./components/input.css";
 @import "./components/context-footer.css";
+@import "./components/prompt-manager.css";
 
 /* Toolbar */
 @import "./toolbar/model-selector.css";
@@ -26,6 +27,7 @@
 @import "./toolbar/permission-toggle.css";
 @import "./toolbar/external-context.css";
 @import "./toolbar/mcp-selector.css";
+@import "./toolbar/more-menu.css";
 
 /* Features */
 @import "./features/file-context.css";
@@ -36,6 +38,7 @@
 @import "./features/inline-edit.css";
 @import "./features/diff.css";
 @import "./features/slash-commands.css";
+@import "./features/prompt-quick-panel.css";
 
 /* Modals */
 @import "./modals/approval.css";

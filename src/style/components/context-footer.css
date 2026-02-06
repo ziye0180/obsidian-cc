@@ -18,11 +18,11 @@
   transform: translateX(-50%);
   margin-bottom: 6px;
   padding: 4px 8px;
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
   color: var(--text-normal);
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
+  border-radius: var(--claudian-radius-sm);
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
@@ -59,7 +59,7 @@
 }
 
 .claudian-context-meter-percent {
-  font-size: 11px;
+  font-size: var(--claudian-font-sm);
   color: var(--claudian-brand);
   min-width: 24px;
   text-align: right;

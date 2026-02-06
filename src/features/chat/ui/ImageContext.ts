@@ -15,6 +15,7 @@ const IMAGE_EXTENSIONS: Record<string, ImageMediaType> = {
 
 export interface ImageContextCallbacks {
   onImagesChanged: () => void;
+  onFilesDrop?: (filePaths: string[]) => void;
 }
 
 export class ImageContextManager {
@@ -98,7 +99,7 @@ export class ImageContextManager {
     svg.appendChild(polyline);
     svg.appendChild(line);
     dropContent.appendChild(svg);
-    dropContent.createSpan({ text: 'Drop image here' });
+    dropContent.createSpan({ text: 'Drop files here' });
 
     const dropZone = inputWrapper;
 
@@ -112,7 +113,7 @@ export class ImageContextManager {
     e.preventDefault();
     e.stopPropagation();
 
-    if (e.dataTransfer?.types.includes('Files')) {
+    if (e.dataTransfer?.types.includes('Files') || e.dataTransfer?.types.includes('text/plain')) {
       this.dropOverlay?.addClass('visible');
     }
   }
@@ -148,14 +149,29 @@ export class ImageContextManager {
     e.stopPropagation();
     this.dropOverlay?.removeClass('visible');
 
-    const files = e.dataTransfer?.files;
-    if (!files) return;
+    const droppedFilePaths: string[] = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (this.isImageFile(file)) {
-        await this.addImageFromFile(file, 'drop');
+    // Obsidian internal file drag uses text/plain with vault-relative path
+    const textData = e.dataTransfer?.getData('text/plain');
+    if (textData && textData.endsWith('.md')) {
+      droppedFilePaths.push(textData);
+    }
+
+    // OS file drag uses File objects
+    const files = e.dataTransfer?.files;
+    if (files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (this.isImageFile(file)) {
+          await this.addImageFromFile(file, 'drop');
+        } else if (file.name.endsWith('.md')) {
+          droppedFilePaths.push(file.name);
+        }
       }
+    }
+
+    if (droppedFilePaths.length > 0) {
+      this.callbacks.onFilesDrop?.(droppedFilePaths);
     }
   }
 

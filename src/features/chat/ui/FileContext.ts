@@ -220,6 +220,33 @@ export class FileContextManager {
     this.chipsView.destroy();
   }
 
+  /** Attaches files from drag & drop and inserts @-mention text. */
+  addDroppedFiles(filePaths: string[]): void {
+    for (const filePath of filePaths) {
+      const normalized = this.normalizePathForVault(filePath);
+      if (!normalized) continue;
+
+      if (this.state.getAttachedFiles().has(normalized)) continue;
+
+      this.state.attachFile(normalized);
+
+      const fileName = normalized.split('/').pop() || normalized;
+      const mentionText = `@${fileName} `;
+
+      const pos = this.inputEl.selectionStart;
+      const before = this.inputEl.value.substring(0, pos);
+      const after = this.inputEl.value.substring(pos);
+      this.inputEl.value = before + mentionText + after;
+
+      const newPos = pos + mentionText.length;
+      this.inputEl.selectionStart = newPos;
+      this.inputEl.selectionEnd = newPos;
+    }
+
+    this.inputEl.dispatchEvent(new Event('input'));
+    this.inputEl.focus();
+  }
+
   /** Normalizes a file path to be vault-relative with forward slashes. */
   normalizePathForVault(rawPath: string | undefined | null): string | null {
     const vaultPath = getVaultPath(this.app);

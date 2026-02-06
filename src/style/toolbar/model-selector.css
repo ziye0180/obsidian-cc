@@ -8,10 +8,10 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--claudian-radius-sm);
   cursor: pointer;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: var(--claudian-font-base);
   transition: color 0.2s ease;
 }
 
@@ -43,8 +43,8 @@
   gap: 2px;
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: var(--claudian-radius-sm);
+  box-shadow: var(--claudian-shadow-dropdown);
   z-index: 1000;
   width: max-content;
   padding: 4px;
@@ -61,9 +61,9 @@
 .claudian-model-option {
   padding: 4px 8px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--claudian-font-base);
   color: var(--text-muted);
-  border-radius: 3px;
+  border-radius: var(--claudian-radius-sm);
   transition: background 0.1s ease, color 0.1s ease;
   white-space: nowrap;
 }
